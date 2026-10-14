@@ -66,6 +66,9 @@ cmd_install() {
   log_step "Garde-fou anti-fuite"
   guard_install
 
+  log_step "Dépôt"
+  repo_configure
+
   log_step "Liens"
   links_install
   [ -n "$(links_wanted)" ] || log_info "aucun lien déclaré"
@@ -176,6 +179,26 @@ cmd_status() {
 
   log_step "Config locale $(tilde "$DOTF_LOCAL")"
   if [ -d "$DOTF_LOCAL" ]; then log_ok "présente"; else log_warn "absente : « dotf install » la crée"; fi
+}
+
+# URL de push distincte de l'URL de récupération (ex. SSH pour pousser, HTTPS public pour récupérer),
+# réglée par DOTF_PUSH_URL dans la config locale.
+repo_configure() {
+  [ -d "$DOTF/.git" ] || { log_info "pas un dépôt git, ignoré"; return 0; }
+  _cur=$(git -C "$DOTF" config --get remote.origin.pushurl || true)
+  if [ -n "${DOTF_PUSH_URL-}" ]; then
+    if [ "$_cur" = "$DOTF_PUSH_URL" ]; then
+      log_info "URL de push : $DOTF_PUSH_URL"
+    else
+      git -C "$DOTF" config remote.origin.pushurl "$DOTF_PUSH_URL"
+      log_ok "URL de push : $DOTF_PUSH_URL"
+    fi
+  elif [ -n "$_cur" ]; then
+    git -C "$DOTF" config --unset remote.origin.pushurl
+    log_ok "URL de push spécifique retirée (DOTF_PUSH_URL vide)"
+  else
+    log_info "push par l'URL de récupération ($(git -C "$DOTF" config --get remote.origin.url || echo 'aucun remote'))"
+  fi
 }
 
 # Les hooks ne servent que sur un clone git du dépôt.

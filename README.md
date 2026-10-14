@@ -29,6 +29,24 @@ Seul git est requis. curl ou wget servent aux modules optionnels.
 | `dotf uninstall` | débranche tout, retire liens et modules, restaure les fichiers sauvegardés |
 | `dotf uninstall --purge` | idem, puis supprime le dépôt et l'état (refusé s'il reste du travail non commité ou non poussé) |
 
+## Modifier et propager à ses autres machines
+
+`~/.local/share/dotf` est un clone git ordinaire :
+
+```sh
+cd ~/.local/share/dotf
+git commit -am "…" && git push   # sur la machine où l'on a modifié
+dotf update                      # sur chacune des autres
+```
+
+- **Pousser** : le clone fait par `curl | sh` est en HTTPS. Deux possibilités :
+  - régler `DOTF_PUSH_URL="git@github.com:gauthier12/dotfiles.git"` dans `~/.config/dotf/config.sh`, puis lancer
+    `dotf install`, pour pousser en SSH ;
+  - ou garder HTTPS et s'authentifier avec `gh auth login` puis `gh auth setup-git`.
+- **Être prévenu** : une fois par jour au plus, un shell interactif lance un `git fetch` en arrière-plan. Les shells
+  suivants affichent `dotf : N mise(s) à jour disponible(s)`. La mise à jour reste toujours manuelle.
+  Pour la désactiver : `DOTF_UPDATE_CHECK=0` dans la config locale.
+
 ## Où sont les choses
 
 | Chemin | Contenu | Dans git |

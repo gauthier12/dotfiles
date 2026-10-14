@@ -218,6 +218,34 @@ out=$("$DOTF_DIR/bin/dotf" scan --all 2>&1) && ok "dotf scan --all : dépôt pro
 out=$("$DOTF_DIR/bin/dotf" status 2>&1)
 case $out in *"liste noire : 2 motif(s)"*) ok "status : liste noire comptée" ;; *) ko "status : liste noire" "$out" ;; esac
 
+section "6c. URL de push et vérification des mises à jour"
+echo 'DOTF_PUSH_URL="git@example.invalid:moi/dotfiles.git"' >>"$LOCAL/config.sh"
+"$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+[ "$(G config --get remote.origin.pushurl)" = "git@example.invalid:moi/dotfiles.git" ] && ok "DOTF_PUSH_URL appliquée" || ko "DOTF_PUSH_URL"
+sed -i '/^DOTF_PUSH_URL=/d' "$LOCAL/config.sh"
+"$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+[ -z "$(G config --get remote.origin.pushurl)" ] && ok "DOTF_PUSH_URL retirée : pushurl supprimée" || ko "retrait de pushurl"
+
+check "horodatage de la vérification créé par un shell interactif" test -f "$STATE/last-fetch"
+echo "maj 1" >"$REMOTE/maj.txt" && commit_remote "maj 1"
+rm -f "$STATE/last-fetch"
+run_shell zsh -ic 'true' >/dev/null
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+  [ "$(G rev-parse origin/main)" = "$(git -C "$REMOTE" rev-parse HEAD)" ] && break
+  sleep 0.5
+done
+[ "$(G rev-parse origin/main)" = "$(git -C "$REMOTE" rev-parse HEAD)" ] && ok "fetch lancé en arrière-plan" || ko "fetch en arrière-plan"
+r=$(run_shell bash -ic 'true')
+case $r in *"1 mise(s) à jour disponible(s)"*) ok "mise à jour signalée à l'ouverture du shell" ;; *) ko "mise à jour signalée" "$r" ;; esac
+stderr_clean && ok "aucune erreur pendant la vérification" || ko "erreurs pendant la vérification" "$(cat "$T/stderr.f")"
+echo 'DOTF_UPDATE_CHECK=0' >>"$LOCAL/config.sh"
+r=$(run_shell zsh -ic 'true')
+[ -z "$r" ] && ok "DOTF_UPDATE_CHECK=0 : rien d'affiché" || ko "DOTF_UPDATE_CHECK=0" "$r"
+sed -i '/^DOTF_UPDATE_CHECK=/d' "$LOCAL/config.sh"
+"$DOTF_DIR/bin/dotf" update >/dev/null 2>&1
+r=$(run_shell zsh -ic 'true')
+[ -z "$r" ] && ok "après dotf update : plus de message" || ko "message après update" "$r"
+
 section "7. Désinstallation"
 "$DOTF_DIR/bin/dotf" uninstall >/dev/null 2>&1
 for f in .profile .bashrc .zshrc .bash_profile; do
@@ -250,7 +278,7 @@ check "purge : .bashrc identique à l'original" cmp -s "$HOME/.bashrc" "$T/orig/
 
 section "10. shellcheck"
 if [ -n "$SHELLCHECK" ]; then
-  if out=$(cd "$SRC" && "$SHELLCHECK" -x install.sh bin/dotf lib/*.sh shell/env.sh shell/init.sh modules/*.sh tests/run.sh .githooks/* 2>&1); then ok "shellcheck"; else ko "shellcheck" "$out"; fi
+  if out=$(cd "$SRC" && "$SHELLCHECK" -x install.sh bin/dotf lib/*.sh shell/env.sh shell/init.sh shell/rc.d/*.sh modules/*.sh tests/run.sh .githooks/* 2>&1); then ok "shellcheck"; else ko "shellcheck" "$out"; fi
   if out=$(cd "$SRC" && "$SHELLCHECK" -s bash shell/rc.d/*.bash 2>&1); then ok "shellcheck (bash)"; else ko "shellcheck (bash)" "$out"; fi
 else
   printf '  - shellcheck absent, ignoré\n'

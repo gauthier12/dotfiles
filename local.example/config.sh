@@ -6,3 +6,10 @@
 #   gitleaks  détection de secrets pour le garde-fou (utile sur les machines où l'on commite)
 # Après modification : « dotf install ». Un module retiré de la liste est désinstallé.
 DOTF_MODULES="starship"
+
+# URL utilisée pour pousser les modifications du dépôt dotf depuis cette machine.
+# Vide : on pousse par l'URL de clonage (HTTPS, qui demande alors un jeton, ex. via « gh auth setup-git »).
+# DOTF_PUSH_URL="git@github.com:gauthier12/dotfiles.git"
+
+# Vérification quotidienne, en arrière-plan, des mises à jour disponibles (0 pour désactiver).
+# DOTF_UPDATE_CHECK=0
