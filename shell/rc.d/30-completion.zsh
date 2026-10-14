@@ -21,7 +21,7 @@ zstyle ':completion:*' matcher-list '' \
   'm:{a-zA-Z}={A-Za-z} l:|=* r:|=*'
 
 # Fichiers ignorés par la complétion (sauf s'il n'y a qu'eux).
-fignore=(.o .old)
+fignore=(.o .old .bak "~" .pyc .class .swp .swo)
 
 # cd : sous-dossiers, puis pile des dossiers.
 zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories

@@ -267,10 +267,24 @@ case $out in *_template*) ko "status : le modèle est listé" "$out" ;; *) ok "s
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="_template"/' "$LOCAL/config.sh"
 out=$("$DOTF_DIR/bin/dotf" install 2>&1)
 case $out in *"_template : module inconnu"*) ok "le modèle ne s'installe pas" ;; *) ko "modèle installable" "$out" ;; esac
-rm "$DOTF_DIR/modules/fake.sh"
+cat >"$DOTF_DIR/modules/fake-dep.sh" <<'MOD'
+# shellcheck shell=sh disable=SC2034
+pkg_needs="fake"
+pkg_latest() { echo 1; }
+pkg_install() { echo 'export T_FAKE_ENV=ok' >.env.sh; }
+pkg_update() { echo maj >>updated; }
+MOD
+sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="fake-dep"/' "$LOCAL/config.sh"
+out=$("$DOTF_DIR/bin/dotf" install 2>&1)
+check "dépendance : fake installé avant fake-dep" test -x "$HOME/.local/bin/fake" -a -d "$HOME/.local/opt/fake-dep"
+r=$(run_shell bash -lc 'echo "${T_FAKE_ENV-}"')
+[ "$r" = ok ] && ok ".env.sh du module chargé par les shells" || ko ".env.sh" "$r"
+"$DOTF_DIR/bin/dotf" install --update >/dev/null 2>&1
+[ "$(cat "$HOME/.local/opt/fake-dep/updated" 2>/dev/null)" = maj ] && ok "pkg_update : mise à jour sur place" || ko "pkg_update"
+rm "$DOTF_DIR/modules/fake.sh" "$DOTF_DIR/modules/fake-dep.sh"
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
-check "module retiré (et supprimé du dépôt) : désinstallé" test ! -e "$HOME/.local/bin/fake" -a ! -e "$HOME/.local/opt/fake"
+check "modules retirés (et supprimés du dépôt) : désinstallés" test ! -e "$HOME/.local/bin/fake" -a ! -e "$HOME/.local/opt/fake" -a ! -e "$HOME/.local/opt/fake-dep"
 rm -f "$HOME/fake-version"
 
 section "6. Mise à jour et liens"

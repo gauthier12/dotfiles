@@ -129,6 +129,7 @@ le prochain `dotf install` le désinstalle.
 | `gitleaks` | détection de secrets pour le garde-fou |
 | `joplin` | Joplin, version bureau (AppImage). Les notes ne sont jamais touchées. |
 | `zsh-autosuggestions` | suggestion grisée tirée de l'historique pendant la frappe ; → ou Fin l'accepte |
+| `rustup` | Rust (rustup, cargo, rustc) dans `~/.local/opt/rustup`. Requis par les modules installés avec cargo. |
 | `zsh-syntax-highlighting` | colore la commande pendant la frappe (rouge si elle n'existe pas) |
 
 ### Écrire un module
@@ -147,6 +148,11 @@ pkg_install() {                           # installe la version $1 dans le dossi
 }
 ```
 
+Facultatif :
+- `pkg_needs="rustup"` : modules requis, installés avant (sans avoir à les mettre dans `DOTF_MODULES`) ;
+- `pkg_update` : mise à jour sur place, au lieu de réinstaller (ex. `rustup update`) ;
+- un fichier `.env.sh` écrit par `pkg_install` dans son dossier : chargé par les shells (ex. `CARGO_HOME`).
+
 dotf fait le reste :
 - installe dans `~/.local/opt/<nom>`, en remplaçant d'un coup l'ancienne version une fois la nouvelle prête ;
 - enregistre la version ;
@@ -159,6 +165,8 @@ Outils disponibles :
 |---|---|
 | `gh_latest <dépôt>` | dernière release GitHub, sans le « v » |
 | `gh_get <dépôt> <tag> <fichier> [<sommes>]` | télécharge une pièce de release et vérifie sa somme SHA-256 ou SHA-512 |
+| `download <url> [<url des sommes>]` | télécharge dans le dossier courant et vérifie la somme |
+| `crate_latest <crate>` | dernière version stable sur crates.io |
 | `git_latest <url>` | dernier tag de version d'un dépôt git, tel quel |
 | `fetch <url>` | télécharge sur la sortie standard |
 

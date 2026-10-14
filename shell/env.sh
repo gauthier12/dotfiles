@@ -41,6 +41,14 @@ if command -v vim >/dev/null 2>&1; then EDITOR='vim'; else EDITOR='vi'; fi
 VISUAL=$EDITOR
 export EDITOR VISUAL
 
+# Variables des modules installés (ex. rustup).
+_dotf_glob_begin
+for _dotf_f in "$HOME"/.local/opt/*/.env.sh; do
+  # shellcheck source=/dev/null
+  if [ -r "$_dotf_f" ]; then . "$_dotf_f"; fi
+done
+_dotf_glob_end
+
 # Config locale, puis profils (DOTF_PROFILES), puis env.d local.
 if [ -r "$DOTF_LOCAL/config.sh" ]; then
   # shellcheck source=/dev/null

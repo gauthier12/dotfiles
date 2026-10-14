@@ -5,9 +5,13 @@
 # Exécutables à lier dans ~/.local/bin, relatifs au dossier (vide si aucun).
 pkg_bins="outil"
 
+# Facultatif : modules requis (installés avant celui-ci).
+# pkg_needs="rustup"
+
 # Dernière version. Choisir une ligne :
 pkg_latest() { gh_latest auteur/outil; }                      # release GitHub
 # pkg_latest() { git_latest https://github.com/auteur/outil; } # tag git
+# pkg_latest() { crate_latest outil; }                         # crate (avec pkg_needs="rustup")
 
 # Installe la version $1 dans le dossier courant. Choisir un bloc :
 pkg_install() {
@@ -18,4 +22,10 @@ pkg_install() {
 
   # Dépôt git (avec git_latest) :
   # git clone -q --depth 1 --branch "$1" https://github.com/auteur/outil .
+
+  # Crate (avec crate_latest ; pkg_bins="bin/outil") :
+  # cargo install -q --locked --root "$PWD" outil --version "$1"
 }
+
+# Facultatif : mise à jour sur place, dans le dossier du module (sinon : réinstallation).
+# pkg_update() { outil self-update; }
