@@ -25,6 +25,13 @@ zstyle ':completion:*' matcher-list '' \
 # cd : sous-dossiers du dossier courant d'abord, puis la pile des dossiers, puis $cdpath.
 zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
 
+# Listes colorées comme ls (LS_COLORS), et kill <Tab> : menu de ses propres processus, PID en couleur.
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:*:kill:*' force-list always
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;34'
+
 # Cache des complétions lentes (apt, dpkg, …).
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "$_dotf_zcache/compcache"

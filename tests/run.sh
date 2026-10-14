@@ -189,6 +189,18 @@ printf 'echo autre-terminal\n' >>"$HOME/.bash_history"
 r=$(run_shell bash -ic '_dotf_history_sync; history | grep -c autre-terminal')
 [ "$r" = 1 ] && ok "bash : lit les commandes des autres terminaux" || ko "bash : synchro historique" "$r"
 
+r=$(run_shell zsh -ic 'bindkey -lL main; print $KEYTIMEOUT; bindkey -M viins "^[OA"; bindkey -M vicmd v; bindkey -M vicmd k; zstyle -L ":completion:*:*:kill:*" menu')
+[ "$r" = 'bindkey -A viins main
+1
+"^[OA" up-line-or-beginning-search
+"v" edit-command-line
+"k" up-line-or-beginning-search
+zstyle '"':completion:*:*:kill:*'"' menu yes select' ] && stderr_clean && ok "zsh : mode vi, ↑ par préfixe, v → éditeur, menu de kill" || ko "zsh : clavier" "$r $(cat "$T/stderr.f")"
+r=$(run_shell bash -ic 'shopt -oq vi && echo vi; bind -m vi-insert -p | grep -F "\\M-[A\""; bind -m vi-command -p | grep -F "\"k\""')
+[ "$r" = 'vi
+"\M-[A": history-search-backward
+"k": history-search-backward' ] && stderr_clean && ok "bash : mode vi, ↑ et k par préfixe" || ko "bash : clavier" "$r $(cat "$T/stderr.f")"
+
 # Module joplin : ne remplace jamais un ~/.local/bin/joplin qui n'est pas le sien.
 mkdir -p "$HOME/.local/bin"
 echo autre >"$HOME/.local/bin/joplin"

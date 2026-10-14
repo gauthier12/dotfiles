@@ -86,7 +86,12 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | `1` … `9` | zsh | retour au dossier n° 1 … 9 de cette liste |
 | `history` | bash, zsh | historique daté (zsh : en entier). 50 000 lignes en mémoire, 10 000 sur disque, partagé entre les terminaux ouverts. Une commande précédée d'une espace n'est pas enregistrée. |
 | Tab | zsh | menu navigable, insensible à la casse, mots partiels (`f-b` → `foo-bar`) |
-| Ctrl-W, Alt-B/F | zsh | s'arrêtent aux `/ . - =` |
+| Tab sur `kill` | zsh | menu de ses propres processus |
+| Mode vi | bash, zsh | ligne de commande en mode vi : Échap → mode normal. Le curseur l'indique (barre en insertion, bloc en normal), et le prompt starship aussi en zsh. |
+| ↑ ↓, et `k` `j` en mode normal | bash, zsh | historique filtré par le début de ce qui est déjà tapé |
+| `v` en mode normal | bash, zsh | édite la ligne dans `$EDITOR` (bash l'exécute en sortant) |
+| Ctrl-← → | bash, zsh | mot précédent ou suivant |
+| Ctrl-A, Ctrl-E, Ctrl-R, Ctrl-W, Ctrl-U | zsh (bash : sauf Ctrl-W et Ctrl-U, déjà présents) | restent disponibles en insertion. Ctrl-W s'arrête aux `/ . - =`. |
 | Ctrl-S | bash, zsh | ne fige plus le terminal |
 
 ## Personnaliser une machine
