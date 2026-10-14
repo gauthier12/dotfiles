@@ -167,7 +167,7 @@ Ce dépôt est public : rien de ce qui identifie une machine, une personne ou un
 
 Ils cherchent :
 
-- **des secrets reconnaissables à leur forme** (règles dans `lib/scan.sh`) : clés privées, clés publiques SSH,
+- **des secrets reconnaissables à leur forme** (règles dans `lib/guard.sh`) : clés privées, clés publiques SSH,
   jetons GitHub/GitLab/AWS/Slack, mots de passe ou jetons affectés en clair, longues chaînes hexadécimales ;
 - **ta liste noire** `~/.config/dotf/denylist`, jamais versionnée puisque la publier reviendrait à publier ce
   qu'elle protège. Un motif ERE par ligne, insensible à la casse, mot entier :

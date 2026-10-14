@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
-# Les commandes passées aux shells testés sont volontairement entre apostrophes,
-# et les tests sont écrits en « cond && ok || ko ».
+# Tests de bout en bout dans un HOME jetable, sur une copie de l'arbre de travail.
+#   tests/run.sh                      hors ligne
+#   DOTF_TEST_NETWORK=1 tests/run.sh  installe vraiment les modules
 # shellcheck disable=SC2015,SC2016,SC2088
-#
-# Tests de bout en bout de dotf, dans un HOME jetable.
-#   tests/run.sh                  hors ligne : l'installation des modules est simulée en échec
-#   DOTF_TEST_NETWORK=1 tests/run.sh   installe vraiment starship
-# Le dépôt testé est une copie de l'arbre de travail courant, modifications non commitées comprises.
 set -u
 
 SRC=$(cd "$(dirname "$0")/.." && pwd -P)
@@ -24,13 +20,13 @@ section() { printf '\n\033[1m%s\033[0m\n' "$*"; }
 
 SHELLCHECK=$(command -v shellcheck || true)
 
-# --- Environnement isolé -----------------------------------------------------
+# --- Environnement isolé ---
 export HOME="$T/home"
 unset XDG_CONFIG_HOME XDG_STATE_HOME XDG_DATA_HOME ZDOTDIR DOTF DOTF_LOCAL DOTF_STATE STARSHIP_CONFIG
 mkdir -p "$HOME"
 BASE_PATH=/usr/local/bin:/usr/bin:/bin
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
-  # curl et wget factices : aucun accès réseau, l'installation des modules échoue proprement.
+  # Pas de réseau : curl et wget factices.
   mkdir -p "$T/fakebin"
   printf '#!/bin/sh\nexit 1\n' >"$T/fakebin/curl"
   cp "$T/fakebin/curl" "$T/fakebin/wget"
@@ -43,7 +39,7 @@ DOTF_DIR="$HOME/.local/share/dotf"
 LOCAL="$HOME/.config/dotf"
 STATE="$HOME/.local/state/dotf"
 
-# Lance un shell propre ; stderr filtré du bruit des shells interactifs sans terminal.
+# Shell propre ; stderr sans le bruit des shells interactifs sans terminal.
 run_shell() { # run_shell <bash|zsh> <options> <commande>
   env -i HOME="$HOME" PATH="$BASE_PATH" TERM="${RUN_TERM:-xterm-256color}" "$1" "$2" "$3" 2>"$T/stderr"
   local rc=$?
@@ -52,7 +48,7 @@ run_shell() { # run_shell <bash|zsh> <options> <commande>
 }
 stderr_clean() { [ ! -s "$T/stderr.f" ]; }
 
-# --- Dépôt « distant » : copie de l'arbre de travail ---------------------------
+# --- Dépôt « distant » : copie de l'arbre de travail ---
 REMOTE="$T/remote"
 mkdir -p "$REMOTE"
 (cd "$SRC" && tar --exclude=.git -cf - .) | tar -C "$REMOTE" -xf -
@@ -61,7 +57,7 @@ git -C "$REMOTE" -c user.name=t -c user.email=t@t add -A
 git -C "$REMOTE" -c user.name=t -c user.email=t@t commit -qm init
 commit_remote() { git -C "$REMOTE" -c user.name=t -c user.email=t@t add -A && git -C "$REMOTE" -c user.name=t -c user.email=t@t commit -qm "$1"; }
 
-# --- Fichiers rc d'origine ---------------------------------------------------
+# --- Fichiers rc d'origine ---
 printf '# bashrc d origine\nexport ORIG_BASHRC=1\n' >"$HOME/.bashrc"
 printf '# zshrc d origine\nexport ORIG_ZSHRC=1\n' >"$HOME/.zshrc"
 printf '# profile d origine\n' >"$HOME/.profile"

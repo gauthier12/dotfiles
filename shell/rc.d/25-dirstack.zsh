@@ -1,4 +1,4 @@
-# Pile des dossiers visités : chaque cd l'alimente, « d » l'affiche, 1 à 9 y retournent.
+# Pile des dossiers : chaque cd l'alimente, d l'affiche, 1 à 9 y retournent.
 
 setopt auto_pushd pushd_ignore_dups pushdminus
 
@@ -13,7 +13,6 @@ alias 7='cd -7'
 alias 8='cd -8'
 alias 9='cd -9'
 
-# d : les 10 derniers dossiers, numérotés ; avec des arguments, se comporte comme dirs.
 d() {
   if [[ -n $1 ]]; then
     dirs "$@"

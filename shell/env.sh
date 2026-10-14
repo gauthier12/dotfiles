@@ -1,6 +1,5 @@
 # shellcheck shell=sh
-# Environnement commun, en sh POSIX. Chargé par tous les shells, login ou non
-# (~/.profile, ~/.zshenv), et par init.sh. On peut le charger plusieurs fois sans effet de bord.
+# Environnement commun (sh POSIX), chargé par tous les shells. Peut être chargé plusieurs fois.
 
 : "${DOTF:=$HOME/.local/share/dotf}"
 : "${DOTF_LOCAL:=${XDG_CONFIG_HOME:-$HOME/.config}/dotf}"
@@ -15,7 +14,7 @@ dotf_path_prepend() {
   esac
 }
 
-# zsh : un motif sans correspondance est une erreur. On l'autorise le temps d'une boucle.
+# zsh : un motif sans correspondance est une erreur ; on l'autorise le temps d'une boucle.
 _dotf_glob_begin() {
   [ -n "${ZSH_VERSION-}" ] || return 0
   # shellcheck disable=SC3010
@@ -27,8 +26,7 @@ _dotf_glob_end() {
   unset _dotf_ng_was_set
 }
 
-# zsh : la complétion est initialisée par shell/rc.d/30-completion.zsh. On demande à /etc/zsh/zshrc
-# (Debian, Ubuntu) de ne pas lancer compinit avant, ce qui le ferait tourner deux fois.
+# zsh : compinit est lancé par rc.d/30-completion.zsh, pas par /etc/zsh/zshrc (Debian).
 # shellcheck disable=SC2034
 if [ -n "${ZSH_VERSION-}" ]; then skip_global_compinit=1; fi
 

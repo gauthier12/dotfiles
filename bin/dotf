@@ -2,26 +2,25 @@
 # dotf : installe, met à jour et désinstalle l'environnement shell.
 set -eu
 
-_self=$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")
+_self=$(readlink -f "$0" 2>/dev/null || echo "$0")
 DOTF=$(cd "$(dirname "$_self")/.." && pwd -P)
 DOTF_LOCAL=${DOTF_LOCAL:-${XDG_CONFIG_HOME:-$HOME/.config}/dotf}
 DOTF_STATE=${DOTF_STATE:-${XDG_STATE_HOME:-$HOME/.local/state}/dotf}
 export DOTF DOTF_LOCAL DOTF_STATE
 
-for _lib in log state hooks links modules scan; do
+for _lib in log state hooks repo guard links modules; do
   # shellcheck source=/dev/null
   . "$DOTF/lib/$_lib.sh"
 done
 
+# Le chemin est écrit entre apostrophes dans les lignes de branchement.
 case $DOTF in
   *"'"* | *' '*) die "le chemin du dépôt ne doit contenir ni espace ni apostrophe : $DOTF" ;;
 esac
 
 load_local_config() {
-  if [ -r "$DOTF_LOCAL/config.sh" ]; then
-    # shellcheck source=/dev/null
-    . "$DOTF_LOCAL/config.sh"
-  fi
+  # shellcheck source=/dev/null
+  if [ -r "$DOTF_LOCAL/config.sh" ]; then . "$DOTF_LOCAL/config.sh"; fi
 }
 
 usage() {
@@ -29,14 +28,13 @@ usage() {
 Usage : dotf <commande>
 
   install            branche les shells, pose les liens, installe les modules (relançable)
-  update             git pull puis install, et met à jour les modules actifs
+  update             git pull, puis install avec mise à jour des modules
   uninstall [--purge]
                      débranche tout et restaure les sauvegardes ;
                      --purge supprime aussi le dépôt et l'état (jamais la config locale)
   status             état des branchements, liens, modules et du dépôt
   edit               ouvre la config locale de la machine
-  scan [--all]       garde-fou anti-fuite : vérifie les modifications prêtes à commiter,
-                     ou tout le dépôt avec --all (utilisé par les hooks git)
+  scan [--all]       garde-fou anti-fuite sur ce qui va être commité, ou sur tout le dépôt
 
 Dépôt         : $(tilde "$DOTF")
 Config locale : $(tilde "$DOTF_LOCAL")
@@ -45,9 +43,6 @@ EOF
 }
 
 cmd_install() {
-  _update=
-  [ "${1-}" = --update ] && _update=update
-
   log_step "Config locale"
   if [ -d "$DOTF_LOCAL" ]; then
     log_info "$(tilde "$DOTF_LOCAL") : existe déjà"
@@ -59,22 +54,15 @@ cmd_install() {
   load_local_config
 
   log_step "Branchement des shells"
-  for _t in $(hook_targets); do
-    hook_add "${_t%:*}" "${_t##*:}"
-  done
-
+  hooks_install
   log_step "Garde-fou anti-fuite"
   guard_install
-
   log_step "Dépôt"
-  repo_configure
-
+  repo_install
   log_step "Liens"
   links_install
-  [ -n "$(links_wanted)" ] || log_info "aucun lien déclaré"
-
   log_step "Modules (${DOTF_MODULES:-aucun})"
-  module_sync "$_update"
+  if [ "${1-}" = --update ]; then module_sync update; else module_sync; fi
 
   echo
   echo "Terminé. Ouvrir un nouveau shell (ou « exec \$SHELL ») pour en profiter."
@@ -82,49 +70,26 @@ cmd_install() {
 
 cmd_update() {
   log_step "Mise à jour du dépôt"
-  if ! git -C "$DOTF" diff --quiet || ! git -C "$DOTF" diff --cached --quiet; then
-    die "modifications non commitées dans $(tilde "$DOTF") : les commiter ou les mettre de côté (git stash) d'abord"
-  fi
-  _old=$(git -C "$DOTF" rev-parse HEAD)
-  git -C "$DOTF" pull --ff-only --quiet
-  _new=$(git -C "$DOTF" rev-parse HEAD)
-  if [ "$_old" = "$_new" ]; then
-    log_info "déjà à jour"
-  else
-    git -C "$DOTF" log --oneline "$_old..$_new" | sed 's/^/    /'
-  fi
-  # Relance la version qui vient d'être récupérée de ce script.
+  repo_pull
+  # La nouvelle version de dotf fait la suite.
   exec "$DOTF/bin/dotf" install --update
 }
 
 cmd_uninstall() {
-  _purge=
-  [ "${1-}" = --purge ] && _purge=1
-
   log_step "Débranchement des shells"
-  for _f in $(hook_all_files); do
-    hook_remove "$_f"
-  done
-
+  hooks_remove
   log_step "Garde-fou anti-fuite"
   guard_remove
-
   log_step "Liens"
   links_remove
-
   log_step "Modules"
   module_remove_all
 
-  if [ -n "$_purge" ]; then
+  if [ "${1-}" = --purge ]; then
     log_step "Purge"
-    if [ -n "$(git -C "$DOTF" status --porcelain 2>/dev/null)" ] ||
-      [ -n "$(git -C "$DOTF" log --oneline '@{upstream}..HEAD' 2>/dev/null)" ]; then
-      die "$(tilde "$DOTF") contient des modifications non commitées ou non poussées : purge annulée (le reste est déjà désinstallé)"
-    fi
-    rm -rf "$DOTF_STATE"
-    log_ok "$(tilde "$DOTF_STATE") : supprimé"
-    rm -rf "$DOTF"
-    log_ok "$(tilde "$DOTF") : supprimé"
+    repo_dirty && die "$(tilde "$DOTF") contient des modifications non commitées ou non poussées : purge annulée (le reste est déjà désinstallé)"
+    rm -rf "$DOTF_STATE" "$DOTF"
+    log_ok "$(tilde "$DOTF_STATE") et $(tilde "$DOTF") : supprimés"
   fi
 
   echo
@@ -133,128 +98,34 @@ cmd_uninstall() {
 
 cmd_status() {
   load_local_config
-
   log_step "Dépôt $(tilde "$DOTF")"
-  _branch=$(git -C "$DOTF" symbolic-ref --short HEAD 2>/dev/null) || _branch='?'
-  _commit=$(git -C "$DOTF" log -1 --format='%h %s' 2>/dev/null) || _commit='aucun'
-  log_info "branche $_branch, commit $_commit"
-  if [ -n "$(git -C "$DOTF" status --porcelain 2>/dev/null)" ]; then
-    log_warn "modifications locales non commitées"
-  fi
-  if git -C "$DOTF" fetch --quiet 2>/dev/null; then
-    _counts=$(git -C "$DOTF" rev-list --left-right --count 'HEAD...@{upstream}' 2>/dev/null || true)
-    if [ -n "$_counts" ]; then
-      # shellcheck disable=SC2086 # découpage voulu : "<en avance> <en retard>"
-      set -- $_counts
-      if [ "$2" -gt 0 ]; then log_warn "$2 commit(s) à récupérer : « dotf update »"; fi
-      if [ "$1" -gt 0 ]; then log_warn "$1 commit(s) local(aux) non poussé(s)"; fi
-      if [ "$1" -eq 0 ] && [ "$2" -eq 0 ]; then log_ok "à jour avec $(git -C "$DOTF" rev-parse --abbrev-ref '@{upstream}')"; fi
-    else
-      log_info "pas de branche distante suivie"
-    fi
-  else
-    log_info "dépôt distant injoignable"
-  fi
-
+  repo_status
   log_step "Branchement des shells"
-  for _t in $(hook_targets); do
-    _f=${_t%:*}
-    if [ -f "$_f" ] && grep -qxF -- "$(hook_line "${_t##*:}")" "$_f"; then
-      log_ok "$(tilde "$_f")"
-    elif hook_present "$_f"; then
-      log_warn "$(tilde "$_f") : ligne obsolète, relancer « dotf install »"
-    else
-      log_warn "$(tilde "$_f") : non branché"
-    fi
-  done
-
+  hooks_status
   log_step "Garde-fou anti-fuite"
   guard_status
-
   log_step "Liens"
   links_status
-
   log_step "Modules"
   module_status
-
   log_step "Config locale $(tilde "$DOTF_LOCAL")"
   if [ -d "$DOTF_LOCAL" ]; then log_ok "présente"; else log_warn "absente : « dotf install » la crée"; fi
 }
 
-# URL de push distincte de l'URL de récupération (ex. SSH pour pousser, HTTPS public pour récupérer),
-# réglée par DOTF_PUSH_URL dans la config locale.
-repo_configure() {
-  [ -d "$DOTF/.git" ] || { log_info "pas un dépôt git, ignoré"; return 0; }
-  _cur=$(git -C "$DOTF" config --get remote.origin.pushurl || true)
-  if [ -n "${DOTF_PUSH_URL-}" ]; then
-    if [ "$_cur" = "$DOTF_PUSH_URL" ]; then
-      log_info "URL de push : $DOTF_PUSH_URL"
-    else
-      git -C "$DOTF" config remote.origin.pushurl "$DOTF_PUSH_URL"
-      log_ok "URL de push : $DOTF_PUSH_URL"
-    fi
-  elif [ -n "$_cur" ]; then
-    git -C "$DOTF" config --unset remote.origin.pushurl
-    log_ok "URL de push spécifique retirée (DOTF_PUSH_URL vide)"
-  else
-    log_info "push par l'URL de récupération ($(git -C "$DOTF" config --get remote.origin.url || echo 'aucun remote'))"
-  fi
-}
-
-# Les hooks ne servent que sur un clone git du dépôt.
-guard_install() {
-  if [ ! -d "$DOTF/.git" ]; then
-    log_info "pas un dépôt git, ignoré"
-    return 0
-  fi
-  if [ "$(git -C "$DOTF" config --get core.hooksPath)" = .githooks ]; then
-    log_info "hooks pre-commit et pre-push déjà actifs"
-  else
-    git -C "$DOTF" config core.hooksPath .githooks
-    log_ok "hooks pre-commit et pre-push activés"
-  fi
-  if [ ! -r "$DOTF_LOCAL/denylist" ] || ! grep -qvE '^[[:space:]]*(#|$)' "$DOTF_LOCAL/denylist"; then
-    log_warn "liste noire vide : la remplir dans $(tilde "$DOTF_LOCAL")/denylist"
-  fi
-}
-
-guard_remove() {
-  [ -d "$DOTF/.git" ] || return 0
-  if [ "$(git -C "$DOTF" config --get core.hooksPath)" = .githooks ]; then
-    git -C "$DOTF" config --unset core.hooksPath
-    log_ok "hooks désactivés"
-  fi
-}
-
-guard_status() {
-  if [ "$(git -C "$DOTF" config --get core.hooksPath 2>/dev/null)" = .githooks ]; then
-    log_ok "hooks pre-commit et pre-push actifs"
-  else
-    log_warn "hooks inactifs : relancer « dotf install »"
-  fi
-  _n=0
-  if [ -r "$DOTF_LOCAL/denylist" ]; then _n=$(grep -cvE '^[[:space:]]*(#|$)' "$DOTF_LOCAL/denylist" || true); fi
-  if [ "$_n" -gt 0 ]; then
-    log_ok "liste noire : $_n motif(s)"
-  else
-    log_warn "liste noire vide : la remplir dans $(tilde "$DOTF_LOCAL")/denylist"
-  fi
-  if scan_gitleaks_bin >/dev/null; then
-    log_ok "gitleaks utilisé en complément"
-  else
-    log_info "gitleaks absent (facultatif : ajouter « gitleaks » à DOTF_MODULES)"
-  fi
+cmd_edit() {
+  [ -d "$DOTF_LOCAL" ] || die "pas de config locale : lancer « dotf install »"
+  exec "${VISUAL:-${EDITOR:-vi}}" "$DOTF_LOCAL/config.sh"
 }
 
 cmd_scan() {
   case ${1---pre-commit} in
-    --pre-commit) _what="modifications prêtes à commiter"; _mode=staged ;;
-    --pre-push) _what="commits à pousser"; _mode=pre-push ;;
-    --all) _what="tout le dépôt"; _mode=all ;;
+    --pre-commit) _mode=staged _what="modifications prêtes à commiter" ;;
+    --pre-push) _mode=pre-push _what="commits à pousser" ;;
+    --all) _mode=all _what="tout le dépôt" ;;
     *) die "usage : dotf scan [--all]" ;;
   esac
-  if scan_run "$_mode"; then
-    [ "$_mode" = all ] && log_ok "aucune fuite détectée ($_what)"
+  if guard_scan "$_mode"; then
+    if [ "$_mode" = all ]; then log_ok "aucune fuite détectée ($_what)"; fi
     return 0
   fi
   cat >&2 <<EOF
@@ -266,19 +137,14 @@ EOF
   exit 1
 }
 
-cmd_edit() {
-  [ -d "$DOTF_LOCAL" ] || die "pas de config locale : lancer « dotf install »"
-  exec "${VISUAL:-${EDITOR:-vi}}" "$DOTF_LOCAL/config.sh"
-}
-
 _cmd=${1-help}
 [ $# -gt 0 ] && shift
 case $_cmd in
   install) cmd_install "$@" ;;
-  update) cmd_update "$@" ;;
+  update) cmd_update ;;
   uninstall) cmd_uninstall "$@" ;;
-  status) cmd_status "$@" ;;
-  edit) cmd_edit "$@" ;;
+  status) cmd_status ;;
+  edit) cmd_edit ;;
   scan) cmd_scan "$@" ;;
   help | -h | --help) usage ;;
   *) usage >&2; exit 2 ;;

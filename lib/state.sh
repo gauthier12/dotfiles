@@ -1,8 +1,5 @@
 # shellcheck shell=sh
-# Petites listes persistantes dans $DOTF_STATE (une entrée par ligne).
-#   created : fichiers rc que dotf a créés (supprimés à la désinstallation s'ils sont vides)
-#   links   : liens posés, au format "cible<TAB>source<TAB>sauvegarde"
-#   modules : modules installés
+# Listes dans $DOTF_STATE, une entrée par ligne : created (rc créés par dotf), links, modules.
 
 state_file() { printf '%s/%s' "$DOTF_STATE" "$1"; }
 
@@ -20,7 +17,7 @@ state_list() {
   if [ -f "$(state_file "$1")" ]; then cat "$(state_file "$1")"; fi
 }
 
-# Retire les lignes dont le premier champ (séparé par une tabulation) vaut $2.
+# Retire les lignes dont le premier champ (tabulation) vaut $2.
 state_del() {
   _sf=$(state_file "$1")
   [ -f "$_sf" ] || return 0

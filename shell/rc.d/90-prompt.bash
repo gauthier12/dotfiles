@@ -1,10 +1,10 @@
-# Prompt : starship s'il est installé (et que le terminal le permet), sinon un PS1 simple.
+# starship, sinon un prompt simple.
 
 if [ "${TERM-}" != dumb ] && command -v starship >/dev/null 2>&1; then
   export STARSHIP_CONFIG="${STARSHIP_CONFIG:-$DOTF/config/starship.toml}"
   eval "$(starship init bash)"
 else
-  # [code retour en rouge s'il est non nul] user@hôte dossier $
+  # [code retour] user@hôte dossier $
   _dotf_prompt() {
     local status=$?
     PS1=''

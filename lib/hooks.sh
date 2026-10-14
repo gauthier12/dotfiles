@@ -1,24 +1,18 @@
 # shellcheck shell=sh
-# Lignes de branchement dans les fichiers rc de l'utilisateur.
-# Chaque ligne se termine par le marqueur HOOK_MARK : pour débrancher à la main,
-# il suffit de supprimer cette ligne.
+# Une ligne marquée « # dotf-hook » par fichier rc. La supprimer suffit à débrancher.
 
 HOOK_MARK='# dotf-hook'
 
-# Fichiers branchés : "fichier:type", où type vaut env (shell/env.sh) ou init (shell/init.sh).
+# « fichier:type », type env (shell/env.sh) ou init (shell/init.sh).
 hook_targets() {
-  _zdot=${ZDOTDIR:-$HOME}
-  printf '%s\n' "$HOME/.profile:env" "$HOME/.bashrc:init"
-  if [ -e "$HOME/.bash_profile" ]; then printf '%s\n' "$HOME/.bash_profile:env"; fi
-  if command -v zsh >/dev/null 2>&1 || [ -e "$_zdot/.zshrc" ]; then
-    printf '%s\n' "$_zdot/.zshenv:env" "$_zdot/.zshrc:init"
+  _z=${ZDOTDIR:-$HOME}
+  echo "$HOME/.profile:env"
+  echo "$HOME/.bashrc:init"
+  if [ -e "$HOME/.bash_profile" ]; then echo "$HOME/.bash_profile:env"; fi
+  if command -v zsh >/dev/null 2>&1 || [ -e "$_z/.zshrc" ]; then
+    echo "$_z/.zshenv:env"
+    echo "$_z/.zshrc:init"
   fi
-}
-
-# Tous les fichiers où une ligne a pu être posée, pour la désinstallation.
-hook_all_files() {
-  _zdot=${ZDOTDIR:-$HOME}
-  printf '%s\n' "$HOME/.profile" "$HOME/.bash_profile" "$HOME/.bashrc" "$_zdot/.zshenv" "$_zdot/.zshrc"
 }
 
 hook_line() {
@@ -26,44 +20,65 @@ hook_line() {
     "$DOTF" "$1" "$DOTF" "$DOTF" "$1" "$HOOK_MARK"
 }
 
-hook_present() {
-  [ -f "$1" ] && grep -qF -- "$HOOK_MARK" "$1"
-}
+hook_present() { [ -f "$1" ] && grep -qF -- "$HOOK_MARK" "$1"; }
 
-# Supprime les lignes marquées en conservant le fichier (droits, cible d'un éventuel lien).
-_hook_strip() {
+# Réécrit le fichier en place : garde ses droits, et la cible s'il s'agit d'un lien.
+hook_strip() {
   grep -vF -- "$HOOK_MARK" "$1" >"$1.dotf-tmp" || true
   cat "$1.dotf-tmp" >"$1"
   rm -f "$1.dotf-tmp"
 }
 
 hook_add() {
-  _file=$1
   _line=$(hook_line "$2")
-  if [ -f "$_file" ] && grep -qxF -- "$_line" "$_file"; then
-    log_info "$(tilde "$_file") : déjà branché"
+  if [ -f "$1" ] && grep -qxF -- "$_line" "$1"; then
+    log_info "$(tilde "$1") : déjà branché"
     return 0
   fi
-  if [ ! -e "$_file" ]; then
-    : >"$_file"
-    state_add created "$_file"
+  if [ ! -e "$1" ]; then
+    : >"$1"
+    state_add created "$1"
   fi
-  # Une ligne différente existe (dépôt déplacé) : on la remplace.
-  if hook_present "$_file"; then _hook_strip "$_file"; fi
-  if [ -s "$_file" ] && [ -n "$(tail -c 1 "$_file")" ]; then printf '\n' >>"$_file"; fi
-  printf '%s\n' "$_line" >>"$_file"
-  log_ok "$(tilde "$_file") : branché ($2)"
+  # Ancienne ligne (dépôt déplacé) : remplacée.
+  if hook_present "$1"; then hook_strip "$1"; fi
+  if [ -s "$1" ] && [ -n "$(tail -c 1 "$1")" ]; then echo >>"$1"; fi
+  echo "$_line" >>"$1"
+  log_ok "$(tilde "$1") : branché ($2)"
 }
 
 hook_remove() {
-  _file=$1
-  hook_present "$_file" || return 0
-  _hook_strip "$_file"
-  if state_has created "$_file" && [ ! -s "$_file" ]; then
-    rm -f "$_file"
-    log_ok "$(tilde "$_file") : supprimé (créé par dotf)"
+  hook_present "$1" || return 0
+  hook_strip "$1"
+  if state_has created "$1" && [ ! -s "$1" ]; then
+    rm -f "$1"
+    log_ok "$(tilde "$1") : supprimé (créé par dotf)"
   else
-    log_ok "$(tilde "$_file") : débranché"
+    log_ok "$(tilde "$1") : débranché"
   fi
-  state_del created "$_file"
+  state_del created "$1"
+}
+
+hooks_install() {
+  for _t in $(hook_targets); do hook_add "${_t%:*}" "${_t##*:}"; done
+}
+
+# Tous les fichiers possibles, même ceux qui ne sont plus des cibles.
+hooks_remove() {
+  _z=${ZDOTDIR:-$HOME}
+  for _f in "$HOME/.profile" "$HOME/.bash_profile" "$HOME/.bashrc" "$_z/.zshenv" "$_z/.zshrc"; do
+    hook_remove "$_f"
+  done
+}
+
+hooks_status() {
+  for _t in $(hook_targets); do
+    _f=${_t%:*}
+    if [ -f "$_f" ] && grep -qxF -- "$(hook_line "${_t##*:}")" "$_f"; then
+      log_ok "$(tilde "$_f")"
+    elif hook_present "$_f"; then
+      log_warn "$(tilde "$_f") : ligne obsolète, relancer « dotf install »"
+    else
+      log_warn "$(tilde "$_f") : non branché"
+    fi
+  done
 }

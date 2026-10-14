@@ -1,4 +1,4 @@
 # shellcheck shell=bash
-# « - » : retour au dossier précédent (la pile complète n'existe qu'en zsh, voir 25-dirstack.zsh).
+# Retour au dossier précédent (la pile complète est en zsh seulement).
 
 alias -- -='cd -'

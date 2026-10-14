@@ -1,14 +1,13 @@
 # shellcheck shell=bash
-# Historique bash : grand, horodaté, sans doublons, partagé entre les terminaux ouverts.
+# Historique : grand, daté, sans doublons, partagé entre terminaux.
 
-HISTSIZE=50000            # en mémoire
-HISTFILESIZE=10000        # sur disque
-HISTCONTROL=ignoreboth    # ni doublons consécutifs, ni commandes précédées d'une espace
-HISTTIMEFORMAT='%F %T  '  # date affichée par history
-shopt -s histappend       # ajoute au fichier au lieu de l'écraser
-shopt -s histverify       # !!, !$… : la ligne développée est montrée avant d'être lancée
+HISTSIZE=50000
+HISTFILESIZE=10000
+HISTCONTROL=ignoreboth # sans doublons ni commandes précédées d'une espace
+HISTTIMEFORMAT='%F %T  '
+shopt -s histappend histverify
 
-# À chaque prompt : écrit la dernière commande et lit celles des autres terminaux.
+# À chaque prompt : écrit la dernière commande, lit celles des autres terminaux.
 _dotf_history_sync() {
   history -a
   history -n

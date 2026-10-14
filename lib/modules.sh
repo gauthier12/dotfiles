@@ -11,7 +11,7 @@
 DOTF_OPT="$HOME/.local/opt"
 DOTF_BIN="$HOME/.local/bin"
 
-# --- Outils pour écrire un module ---------------------------------------------
+# --- Outils pour les modules ---
 
 fetch() { # fetch <url> : sur la sortie standard
   if command -v curl >/dev/null 2>&1; then
@@ -53,7 +53,7 @@ git_latest() { # git_latest <url> : dernier tag de version (x.y.z ou vx.y.z), te
     grep -E '^v?[0-9]+(\.[0-9]+)*$' | sort -V | tail -n 1
 }
 
-# --- Moteur --------------------------------------------------------------------
+# --- Moteur ---
 
 module_available() { [ -r "$DOTF/modules/$1.sh" ]; }
 module_version() { cat "$DOTF_OPT/$1/.version" 2>/dev/null; }

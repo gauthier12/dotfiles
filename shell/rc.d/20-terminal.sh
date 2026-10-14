@@ -1,4 +1,4 @@
 # shellcheck shell=sh
-# Ctrl-S et Ctrl-Q ne figent plus le terminal (contrôle de flux XON/XOFF désactivé).
+# Ctrl-S ne fige plus le terminal.
 
 if [ -t 0 ]; then stty -ixon 2>/dev/null; fi

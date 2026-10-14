@@ -1,4 +1,3 @@
 #!/bin/sh
-# Garde-fou anti-fuite sur les lignes ajoutées au commit (voir lib/scan.sh).
-# Activé par « dotf install » (git config core.hooksPath .githooks).
+# Garde-fou anti-fuite (lib/guard.sh) sur les lignes ajoutées au commit.
 exec "$(git rev-parse --show-toplevel)/bin/dotf" scan --pre-commit

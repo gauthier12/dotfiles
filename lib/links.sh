@@ -1,12 +1,11 @@
 # shellcheck shell=sh
-# Liens symboliques déclarés dans $DOTF/links.
-# Format : "<source relative au dépôt>  <cible>" par ligne, ~/ accepté, # pour commenter.
-# Les chemins ne doivent pas contenir d'espaces.
+# Liens déclarés dans $DOTF/links : « source-dans-le-dépôt  cible » par ligne, ~/ accepté, # commente.
+# Une cible existante est sauvegardée, puis restaurée à la désinstallation.
+# État (links) : cible<TAB>source<TAB>sauvegarde.
 
-# Affiche "cible<TAB>source" pour chaque lien voulu.
-links_wanted() {
+links_wanted() { # cible<TAB>source
   [ -f "$DOTF/links" ] || return 0
-  while read -r _src _dst _rest; do
+  while read -r _src _dst _; do
     case $_src in '' | '#'*) continue ;; esac
     [ -n "$_dst" ] || { log_warn "links : cible manquante pour $_src"; continue; }
     # shellcheck disable=SC2088
@@ -15,103 +14,78 @@ links_wanted() {
   done <"$DOTF/links"
 }
 
-# Champ de sauvegarde enregistré pour une cible (vide si aucun).
-_link_backup_of() {
-  state_list links | K="$1" awk -F '\t' '$1 == ENVIRON["K"] { print $3; exit }'
+_link_state() { # ligne d'état de cette cible
+  state_list links | K="$1" awk -F '\t' '$1 == ENVIRON["K"] { print; exit }'
 }
 
-# Vrai si dotf a enregistré un lien pour cette cible.
-_link_known() {
-  state_list links | K="$1" awk -F '\t' '$1 == ENVIRON["K"] { found = 1 } END { exit !found }'
-}
+_link_is() { [ -L "$1" ] && [ "$(readlink "$1")" = "$2" ]; }
+_link_exists() { [ -e "$1" ] || [ -L "$1" ]; }
 
-link_add() {
-  _dst=$1 _src=$2
-  if [ -L "$_dst" ] && [ "$(readlink "$_dst")" = "$_src" ]; then
-    _link_known "$_dst" || state_add links "$_dst$TAB$_src$TAB"
-    log_info "$(tilde "$_dst") : déjà lié"
+link_add() { # cible source
+  if _link_is "$1" "$2"; then
+    [ -n "$(_link_state "$1")" ] || state_add links "$1$TAB$2$TAB"
+    log_info "$(tilde "$1") : déjà lié"
     return 0
   fi
-  if [ ! -e "$_src" ]; then
-    log_warn "$(tilde "$_dst") : source absente ($(tilde "$_src")), ignoré"
-    return 0
-  fi
-  _backup=$(_link_backup_of "$_dst")
-  if [ -L "$_dst" ] && _link_known "$_dst"; then
-    rm -f "$_dst" # ancien lien posé par dotf (dépôt déplacé ou source modifiée)
-  elif [ -e "$_dst" ] || [ -L "$_dst" ]; then
-    case $_dst in
-      "$HOME"/*) _rel=${_dst#"$HOME"/} ;;
-      *) _rel=${_dst#/} ;;
-    esac
-    _backup="$DOTF_STATE/backup/$(date +%Y%m%d-%H%M%S)/$_rel"
+  [ -e "$2" ] || { log_warn "$(tilde "$1") : source absente ($(tilde "$2")), ignoré"; return 0; }
+  _backup=$(_link_state "$1" | cut -f3)
+  if [ -L "$1" ] && [ -n "$(_link_state "$1")" ]; then
+    rm -f "$1" # ancien lien de dotf
+  elif _link_exists "$1"; then
+    _backup="$DOTF_STATE/backup/$(date +%Y%m%d-%H%M%S)/${1#"$HOME"/}"
     mkdir -p "$(dirname "$_backup")"
-    mv "$_dst" "$_backup"
-    log_warn "$(tilde "$_dst") existait : sauvegardé dans $(tilde "$_backup")"
+    mv "$1" "$_backup"
+    log_warn "$(tilde "$1") existait : sauvegardé dans $(tilde "$_backup")"
   fi
-  mkdir -p "$(dirname "$_dst")"
-  ln -s "$_src" "$_dst"
-  state_del links "$_dst"
-  state_add links "$_dst$TAB$_src$TAB$_backup"
-  log_ok "$(tilde "$_dst") → $(tilde "$_src")"
+  mkdir -p "$(dirname "$1")"
+  ln -s "$2" "$1"
+  state_del links "$1"
+  state_add links "$1$TAB$2$TAB$_backup"
+  log_ok "$(tilde "$1") → $(tilde "$2")"
 }
 
-link_remove() {
-  _dst=$1 _src=$2 _backup=$3
-  if [ -L "$_dst" ] && [ "$(readlink "$_dst")" = "$_src" ]; then
-    rm -f "$_dst"
-    log_ok "$(tilde "$_dst") : lien retiré"
-  elif [ -e "$_dst" ] || [ -L "$_dst" ]; then
-    log_warn "$(tilde "$_dst") : n'est plus le lien de dotf, laissé en place"
+link_remove() { # cible source sauvegarde
+  if _link_is "$1" "$2"; then
+    rm -f "$1"
+    log_ok "$(tilde "$1") : lien retiré"
+  elif _link_exists "$1"; then
+    log_warn "$(tilde "$1") : n'est plus le lien de dotf, laissé en place"
   fi
-  if [ -n "$_backup" ] && { [ -e "$_backup" ] || [ -L "$_backup" ]; }; then
-    if [ -e "$_dst" ] || [ -L "$_dst" ]; then
-      log_warn "sauvegarde non restaurée (cible occupée) : $(tilde "$_backup")"
+  if [ -n "$3" ] && _link_exists "$3"; then
+    if _link_exists "$1"; then
+      log_warn "sauvegarde non restaurée (cible occupée) : $(tilde "$3")"
     else
-      mv "$_backup" "$_dst"
-      log_ok "$(tilde "$_dst") : sauvegarde restaurée"
+      mv "$3" "$1"
+      log_ok "$(tilde "$1") : sauvegarde restaurée"
     fi
   fi
-  state_del links "$_dst"
+  state_del links "$1"
 }
 
-# Retire tous les liens enregistrés, ou seulement ceux absents de $DOTF/links si $1 = obsolete.
-links_remove() {
+links_remove() { # [obsolete] : seulement les liens retirés de $DOTF/links
   _wanted=
   if [ "${1-}" = obsolete ]; then _wanted=$(links_wanted | cut -f1); fi
-  _current=$(state_list links)
-  while IFS="$TAB" read -r _d _s _b; do
-    [ -n "$_d" ] || continue
+  state_list links | while IFS="$TAB" read -r _d _s _b; do
     if [ "${1-}" = obsolete ] && printf '%s\n' "$_wanted" | grep -qxF -- "$_d"; then continue; fi
     link_remove "$_d" "$_s" "$_b"
-  done <<EOF
-$_current
-EOF
+  done
 }
 
 links_install() {
   links_remove obsolete
-  _wanted=$(links_wanted)
-  while IFS="$TAB" read -r _d _s; do
-    [ -n "$_d" ] || continue
-    link_add "$_d" "$_s"
-  done <<EOF
-$_wanted
-EOF
+  [ -n "$(links_wanted)" ] || { log_info "aucun lien déclaré"; return 0; }
+  links_wanted | while IFS="$TAB" read -r _d _s; do link_add "$_d" "$_s"; done
 }
 
 links_status() {
-  _wanted=$(links_wanted)
-  [ -n "$_wanted" ] || { log_info "aucun lien déclaré"; return 0; }
-  while IFS="$TAB" read -r _d _s; do
-    if [ -L "$_d" ] && [ "$(readlink "$_d")" = "$_s" ]; then
+  [ -n "$(links_wanted)" ] || { log_info "aucun lien déclaré"; return 0; }
+  links_wanted | while IFS="$TAB" read -r _d _s; do
+    if _link_is "$_d" "$_s"; then
       log_ok "$(tilde "$_d")"
-    elif [ -e "$_d" ] || [ -L "$_d" ]; then
+    elif _link_exists "$_d"; then
       log_warn "$(tilde "$_d") : occupé par autre chose"
     else
       log_warn "$(tilde "$_d") : absent"
     fi
-  done <<EOF
-$_wanted
-EOF
+  done
 }

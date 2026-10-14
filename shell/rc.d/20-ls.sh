@@ -1,6 +1,5 @@
 # shellcheck shell=sh
-# ls en couleur quand le ls du système le permet (GNU ls).
-# LS_COLORS : couleurs par défaut de dircolors, sauf si déjà défini. zsh s'en sert aussi pour la complétion.
+# ls en couleur. LS_COLORS sert aussi à la complétion zsh.
 
 if ls --color=auto -d . >/dev/null 2>&1; then
   alias ls='ls --color=auto'

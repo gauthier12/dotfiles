@@ -1,15 +1,12 @@
-# Édition de la ligne de commande (zsh) : mode vi.
-# Insertion par défaut ; Échap passe en mode normal (hjkl, w, b, dw, cw, u, /…). Le prompt starship
-# l'indique (❯ insertion, ❮ normal), le curseur aussi (barre en insertion, bloc en normal).
+# Ligne de commande en mode vi.
 
 bindkey -v
-KEYTIMEOUT=1 # attente après Échap : 10 ms au lieu de 400
+KEYTIMEOUT=1 # délai après Échap : 10 ms
 
-# Ctrl-W, Alt-B, Alt-F… s'arrêtent aux / . - = : on efface ou saute un bout de chemin à la fois.
+# Les mots s'arrêtent aux / . - =
 WORDCHARS=${WORDCHARS//[\/.=-]/}
 
-# Les codes des touches spéciales donnés par terminfo ne sont valables qu'en mode « application »
-# du terminal : on l'active pendant l'édition de la ligne.
+# Les codes terminfo des touches ne valent qu'en mode « application » du terminal.
 autoload -Uz add-zle-hook-widget
 if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
   _dotf_keypad_on() { echoti smkx; }
@@ -18,12 +15,12 @@ if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
   add-zle-hook-widget line-finish _dotf_keypad_off
 fi
 
-# Forme du curseur selon le mode (ignorée par les terminaux qui ne la gèrent pas).
+# Curseur : barre en insertion, bloc en normal.
 if [[ $TERM != (dumb|linux) ]]; then
   _dotf_cursor_shape() {
     if [[ $KEYMAP == vicmd ]]; then print -n '\e[2 q'; else print -n '\e[6 q'; fi
   }
-  _dotf_cursor_reset() { print -n '\e[0 q'; } # forme par défaut pour les programmes lancés
+  _dotf_cursor_reset() { print -n '\e[0 q'; } # pour les programmes lancés
   add-zle-hook-widget line-init _dotf_cursor_shape
   add-zle-hook-widget keymap-select _dotf_cursor_shape
   add-zle-hook-widget line-finish _dotf_cursor_reset
@@ -34,7 +31,7 @@ zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 zle -N edit-command-line
 
-# _dotf_bind <capacité terminfo> <séquence de repli> <widget> <keymaps…>
+# _dotf_bind <capacité terminfo> <séquence si absente> <widget> <keymaps…>
 _dotf_bind() {
   local seq=${terminfo[$1]:-$2} map
   [[ -n $seq ]] || return 0
@@ -49,15 +46,14 @@ _dotf_bind knp   '^[[6~'   end-of-buffer-or-history         viins vicmd
 _dotf_bind kcbt  '^[[Z'    reverse-menu-complete            viins menuselect
 _dotf_bind kLFT5 '^[[1;5D' backward-word                    viins vicmd
 _dotf_bind kRIT5 '^[[1;5C' forward-word                     viins vicmd
-# ↑ ↓ (et k j en mode normal) : historique filtré par le début de ce qui est déjà tapé.
+# ↑ ↓, k j : historique filtré par le début de la ligne.
 _dotf_bind kcuu1 '^[[A'    up-line-or-beginning-search      viins vicmd
 _dotf_bind kcud1 '^[[B'    down-line-or-beginning-search    viins vicmd
 unfunction _dotf_bind
 bindkey -M vicmd k up-line-or-beginning-search
 bindkey -M vicmd j down-line-or-beginning-search
 
-# Insertion : les effacements ne s'arrêtent pas au point où l'on est entré en insertion (comportement vi
-# strict), et les raccourcis usuels restent disponibles.
+# Insertion : effacement sans la limite du vi strict, raccourcis usuels.
 bindkey -M viins '^?' backward-delete-char
 bindkey -M viins '^H' backward-delete-char
 bindkey -M viins '^W' backward-kill-word
@@ -67,6 +63,6 @@ bindkey -M viins '^S' history-incremental-search-forward
 bindkey -M viins '^A' beginning-of-line
 bindkey -M viins '^E' end-of-line
 
-# v en mode normal (ou Ctrl-X Ctrl-E en insertion) : édite la ligne dans $EDITOR, puis revient au prompt.
+# Édite la ligne dans $EDITOR.
 bindkey -M vicmd v edit-command-line
 bindkey -M viins '^X^E' edit-command-line

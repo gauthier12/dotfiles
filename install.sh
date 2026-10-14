@@ -1,8 +1,6 @@
 #!/bin/sh
-# Bootstrap dotf. Deux façons de l'utiliser :
-#   sh -c "$(curl -fsSL https://raw.githubusercontent.com/gauthier12/dotfiles/main/install.sh)"
-#   ./install.sh            (depuis un clone existant)
-# Variables possibles : DOTF (emplacement du dépôt), DOTF_REPO, DOTF_BRANCH.
+# Bootstrap : sh -c "$(curl -fsSL https://raw.githubusercontent.com/gauthier12/dotfiles/main/install.sh)"
+# ou ./install.sh depuis un clone. Variables : DOTF, DOTF_REPO, DOTF_BRANCH.
 set -eu
 
 DOTF_REPO=${DOTF_REPO:-https://github.com/gauthier12/dotfiles.git}
@@ -12,7 +10,7 @@ die() { printf 'dotf: %s\n' "$*" >&2; exit 1; }
 
 command -v git >/dev/null 2>&1 || die "git est requis"
 
-# Lancé depuis un clone : on utilise ce clone tel quel.
+# Depuis un clone : on l'utilise tel quel.
 _here=
 case $0 in
   */install.sh | install.sh) _here=$(cd "$(dirname "$0")" && pwd -P) ;;

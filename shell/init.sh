@@ -1,11 +1,6 @@
 # shellcheck shell=bash
-# Point d'entrée des shells interactifs bash et zsh, chargé depuis ~/.bashrc et ~/.zshrc.
-#
-# Charge, dans cet ordre :
-#   1. shell/env.sh
-#   2. les fragments de $DOTF/shell/rc.d, puis ceux de $DOTF_LOCAL/rc.d (la config locale passe après et peut surcharger)
-# Dans chaque dossier, ordre alphabétique ; les *.sh sont chargés par les deux shells,
-# les *.bash et *.zsh uniquement par le shell correspondant.
+# Shells interactifs (depuis ~/.bashrc et ~/.zshrc) : env.sh, puis rc.d du dépôt, puis rc.d local.
+# *.sh : bash et zsh ; *.bash, *.zsh : ce shell seulement.
 
 case $- in
   *i*) ;;
@@ -23,8 +18,7 @@ fi
 : "${DOTF:=$HOME/.local/share/dotf}"
 . "$DOTF/shell/env.sh"
 
-# Boucle au niveau principal (et non dans une fonction) pour que les variables
-# déclarées dans les fragments restent globales.
+# Hors fonction : les variables des fragments restent globales.
 _dotf_glob_begin
 for _dotf_dir in "$DOTF/shell/rc.d" "$DOTF_LOCAL/rc.d"; do
   for _dotf_f in "$_dotf_dir"/*; do
