@@ -36,6 +36,7 @@ if [ -z "${DOTF_TEST_NETWORK-}" ]; then
   cp "$T/fakebin/curl" "$T/fakebin/wget"
   chmod +x "$T/fakebin/"*
   BASE_PATH="$T/fakebin:$BASE_PATH"
+  export GIT_ALLOW_PROTOCOL=file # git : dépôts locaux seulement
 fi
 export PATH="$BASE_PATH"
 DOTF_DIR="$HOME/.local/share/dotf"
@@ -143,6 +144,10 @@ else
   [ "$r" = "$DOTF_DIR/config/starship.toml" ] && ok "zsh : STARSHIP_CONFIG pointe vers le dépôt" || ko "zsh : STARSHIP_CONFIG" "$r"
   r=$(RUN_TERM=dumb run_shell bash -ic 'echo "$PROMPT_COMMAND"')
   [ "$r" = "_dotf_prompt;_dotf_history_sync" ] && stderr_clean && ok "TERM=dumb : prompt de repli malgré starship" || ko "TERM=dumb" "$r $(cat "$T/stderr.f")"
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="zsh-autosuggestions zsh-syntax-highlighting"/' "$LOCAL/config.sh"
+  "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+  r=$(run_shell zsh -ic 'print $+functions[_zsh_autosuggest_start] $+functions[_zsh_highlight]')
+  [ "$r" = "1 1" ] && stderr_clean && ok "zsh : autosuggestions et coloration syntaxique chargées" || ko "zsh : plugins" "$r $(cat "$T/stderr.f")"
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="gitleaks"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
   check "module retiré de DOTF_MODULES : starship désinstallé" test ! -e "$HOME/.local/bin/starship" -a ! -e "$HOME/.local/opt/starship"

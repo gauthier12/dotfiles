@@ -5,8 +5,9 @@
 #   starship  prompt
 #   gitleaks  détection de secrets pour le garde-fou (utile sur les machines où l'on commite)
 #   joplin    application de notes Joplin (bureau), commande « joplin »
+#   zsh-autosuggestions, zsh-syntax-highlighting
 # Après modification : « dotf install ». Un module retiré de la liste est désinstallé.
-DOTF_MODULES="starship"
+DOTF_MODULES="starship zsh-autosuggestions zsh-syntax-highlighting"
 
 # URL utilisée pour pousser les modifications du dépôt dotf depuis cette machine.
 # Vide : on pousse par l'URL de clonage (HTTPS, qui demande alors un jeton, ex. via « gh auth setup-git »).

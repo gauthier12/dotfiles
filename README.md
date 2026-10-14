@@ -116,6 +116,8 @@ le prochain `dotf install` le désinstalle.
 | `starship` | prompt commun à bash et zsh (`config/starship.toml`). Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. |
 | `gitleaks` | détection de secrets pour le garde-fou |
 | `joplin` | Joplin, version bureau (AppImage). Les notes ne sont jamais touchées. |
+| `zsh-autosuggestions` | suggestion grisée tirée de l'historique pendant la frappe ; → ou Fin l'accepte |
+| `zsh-syntax-highlighting` | colore la commande pendant la frappe (rouge si elle n'existe pas) |
 
 ### Écrire un module
 
@@ -145,7 +147,7 @@ Outils disponibles :
 |---|---|
 | `gh_latest <dépôt>` | dernière release GitHub, sans le « v » |
 | `gh_get <dépôt> <tag> <fichier> [<sommes>]` | télécharge une pièce de release et vérifie sa somme SHA-256 ou SHA-512 |
-| `git_latest <url>` | dernier tag de version d'un dépôt git |
+| `git_latest <url>` | dernier tag de version d'un dépôt git, tel quel |
 | `fetch <url>` | télécharge sur la sortie standard |
 
 ## Liens symboliques

@@ -48,7 +48,7 @@ check_sum() { # check_sum <fichier> <sommes> : « somme  nom » par ligne, ou un
   [ "$($_cmd "$1" | cut -d ' ' -f 1)" = "$_sum" ]
 }
 
-git_latest() { # git_latest <url> : dernier tag de version (x.y.z, avec ou sans « v »)
+git_latest() { # git_latest <url> : dernier tag de version (x.y.z ou vx.y.z), tel quel
   git ls-remote --tags --refs "$1" | sed 's|.*refs/tags/||' |
     grep -E '^v?[0-9]+(\.[0-9]+)*$' | sort -V | tail -n 1
 }
