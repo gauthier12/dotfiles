@@ -141,9 +141,22 @@ else
   [ "$r" = "$DOTF_DIR/config/starship.toml" ] && ok "zsh : STARSHIP_CONFIG pointe vers le dépôt" || ko "zsh : STARSHIP_CONFIG" "$r"
   r=$(RUN_TERM=dumb run_shell bash -ic 'echo "$PROMPT_COMMAND"')
   [ "$r" = "_dotf_prompt" ] && stderr_clean && ok "TERM=dumb : prompt de repli malgré starship" || ko "TERM=dumb" "$r $(cat "$T/stderr.f")"
-  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="gitleaks"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
   check "module retiré de DOTF_MODULES : starship désinstallé" test ! -e "$HOME/.local/bin/starship"
+  check "gitleaks installé dans ~/.local/bin" "$HOME/.local/bin/gitleaks" version
+  out=$("$DOTF_DIR/bin/dotf" status 2>&1)
+  case $out in *"gitleaks utilisé en complément"*) ok "status : gitleaks détecté hors PATH" ;; *) ko "status : gitleaks" "$out" ;; esac
+  out=$("$DOTF_DIR/bin/dotf" update 2>&1)
+  case $out in *"module gitleaks : à jour"*) ok "update : module gitleaks mis à jour" ;; *) ko "update gitleaks" "$out" ;; esac
+  # Clé Stripe factice : inconnue des règles intégrées, reconnue par gitleaks.
+  printf 'stripe = "sk_%s_%s"\n' live 4eC39HqLyjWDarjtT1zdp7dc >"$DOTF_DIR/fuite.txt"
+  git -C "$DOTF_DIR" add fuite.txt
+  if git -C "$DOTF_DIR" -c user.name=t -c user.email=t@t commit -qm t >/dev/null 2>&1; then ko "hook : gitleaks bloque une clé Stripe"; else ok "hook : gitleaks bloque une clé Stripe"; fi
+  git -C "$DOTF_DIR" reset -q fuite.txt; rm -f "$DOTF_DIR/fuite.txt"
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
+  "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+  check "gitleaks désinstallé quand retiré de DOTF_MODULES" test ! -e "$HOME/.local/bin/gitleaks"
 fi
 
 section "6. Mise à jour et liens"

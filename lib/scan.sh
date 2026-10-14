@@ -94,14 +94,20 @@ _scan_match() {
   return $_rc
 }
 
+# Chemin de gitleaks : dans le PATH, sinon celui du module (les hooks git n'ont pas forcément ~/.local/bin).
+scan_gitleaks_bin() {
+  command -v gitleaks 2>/dev/null && return 0
+  [ -x "$HOME/.local/bin/gitleaks" ] && printf '%s\n' "$HOME/.local/bin/gitleaks"
+}
+
 # gitleaks (facultatif, version >= 8.19) : complète les règles génériques.
 _scan_gitleaks() {
-  command -v gitleaks >/dev/null 2>&1 || return 0
-  gitleaks git --help >/dev/null 2>&1 || { log_info "gitleaks trop ancien (< 8.19), ignoré"; return 0; }
+  _gl=$(scan_gitleaks_bin) || return 0
+  "$_gl" git --help >/dev/null 2>&1 || { log_info "gitleaks trop ancien (< 8.19), ignoré"; return 0; }
   case $1 in
-    staged) gitleaks git --pre-commit --staged --no-banner --redact --log-level warn --verbose --no-color "$DOTF" ;;
-    range) shift; gitleaks git --log-opts="$*" --no-banner --redact --log-level warn --verbose --no-color "$DOTF" ;;
-    all) gitleaks dir --no-banner --redact --log-level warn --verbose --no-color "$DOTF" ;;
+    staged) "$_gl" git --pre-commit --staged --no-banner --redact --log-level warn --verbose --no-color "$DOTF" ;;
+    range) shift; "$_gl" git --log-opts="$*" --no-banner --redact --log-level warn --verbose --no-color "$DOTF" ;;
+    all) "$_gl" dir --no-banner --redact --log-level warn --verbose --no-color "$DOTF" ;;
   esac
 }
 

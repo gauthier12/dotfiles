@@ -214,7 +214,11 @@ guard_status() {
   else
     log_warn "pas de liste noire"
   fi
-  if command -v gitleaks >/dev/null 2>&1; then log_ok "gitleaks utilisé en complément"; else log_info "gitleaks absent (facultatif)"; fi
+  if scan_gitleaks_bin >/dev/null; then
+    log_ok "gitleaks utilisé en complément"
+  else
+    log_info "gitleaks absent (facultatif : ajouter « gitleaks » à DOTF_MODULES)"
+  fi
 }
 
 cmd_scan() {

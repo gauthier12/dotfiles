@@ -76,6 +76,7 @@ le désinstalle.
 | Module | Rôle |
 |---|---|
 | `starship` | prompt commun à bash et zsh, configuré dans `config/starship.toml`. Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. |
+| `gitleaks` | détection de secrets utilisée par le garde-fou. Binaire officiel vérifié par SHA-256, mis à jour par `dotf update`. |
 
 ## Liens symboliques
 
@@ -102,7 +103,7 @@ Ils cherchent :
   mon-domaine\.fr
   serveur[0-9]+
   ```
-- en plus, avec **gitleaks** (≥ 8.19) s'il est installé, ses quelques centaines de formats de jetons.
+- en plus, avec **gitleaks** (module `gitleaks`, ou toute version ≥ 8.19 dans le PATH), ses quelques centaines de formats de jetons.
 
 Une ligne signalée à tort passe si elle contient le commentaire `dotf-allow`. `dotf scan --all` vérifie tout le
 dépôt. Côté GitHub, activer aussi *Secret scanning* et *Push protection* (Settings → Code security).
