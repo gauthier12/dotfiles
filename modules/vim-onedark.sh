@@ -1,5 +1,5 @@
 # shellcheck shell=sh disable=SC2034
-# Thème vim onedark (avec ses thèmes airline et lightline). Pas de version publiée : suit la branche principale.
+# Thème vim onedark (avec son thème lightline). Pas de version publiée : suit la branche principale.
 
 pkg_latest() { git_head https://github.com/joshdick/onedark.vim; }
 

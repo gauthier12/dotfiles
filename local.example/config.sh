@@ -9,10 +9,10 @@
 #   broot     navigation dans l'arborescence (br : cd en quittant)
 #   difftastic diff qui comprend la syntaxe (difft ; git dlog -p, dshow, ddiff)
 #   dust, gitui
-#   vim-onedark, vim-airline  thème et barre d'état de vim
+#   vim-onedark, vim-lightline  thème et barre d'état de vim
 #   lowfi     compilé avec cargo (rustup installé avant) ; demande pkg-config et les en-têtes ALSA/OpenSSL
 # Après modification : « dotf install ». Un module retiré de la liste est désinstallé.
-DOTF_MODULES="starship zsh-autosuggestions zsh-syntax-highlighting broot difftastic dust gitui vim-onedark vim-airline"
+DOTF_MODULES="starship zsh-autosuggestions zsh-syntax-highlighting broot difftastic dust gitui vim-onedark vim-lightline"
 
 # Profils (dossier $DOTF/profiles), ex. nfs-home : home sur le réseau, caches sur le disque local.
 # DOTF_PROFILES="nfs-home"

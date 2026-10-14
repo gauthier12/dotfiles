@@ -183,11 +183,13 @@ _broot _dust" ] && stderr_clean && ok "zsh : br et complétions broot, dust" || 
   [ "$r" = "f.py --- Python" ] && ok "git ddiff passe par difft" || ko "git ddiff" "$r"
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
-  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="vim-onedark vim-airline"/' "$LOCAL/config.sh"
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="vim-onedark vim-lightline"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
-  r=$(env -i HOME="$HOME" PATH="$BASE_PATH" vim -n -i NONE -es -u "$HOME/.vimrc" -c 'call writefile([g:colors_name, exists("g:loaded_airline")], "/dev/stdout")' -c 'qa!' </dev/null)
+  r=$(env -i HOME="$HOME" PATH="$BASE_PATH" vim -n -i NONE -es -u "$HOME/.vimrc" -c 'call writefile([g:colors_name, exists("g:loaded_lightline"), g:lightline.colorscheme, &laststatus], "/dev/stdout")' -c 'qa!' </dev/null)
   [ "$r" = "onedark
-1" ] && ok "vim : onedark et airline" || ko "vim : modules" "$r"
+1
+onedark
+2" ] && ok "vim : onedark et lightline à ses couleurs" || ko "vim : modules" "$r"
   check "broot : marqueur de br retiré" test ! -e "$HOME/.config/broot/launcher"
   check "broot, difft, dust, gitui désinstallés" test ! -e "$HOME/.local/bin/broot" -a ! -e "$HOME/.local/bin/difft" -a ! -e "$HOME/.local/bin/dust" -a ! -e "$HOME/.local/bin/gitui"
 fi

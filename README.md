@@ -114,7 +114,7 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 
 | Élément | Effet |
 |---|---|
-| Thème | onedark (module `vim-onedark`), sinon habamax ; barre d'état airline (module `vim-airline`) |
+| Thème | onedark (module `vim-onedark`), sinon habamax ; barre d'état lightline (module `vim-lightline`) |
 | `:Spellfr`, `:Spellen`, `:Spellno` | orthographe française, anglaise, ou aucune. Fautes soulignées dans le terminal. Le dictionnaire français est dans le dépôt (marche hors ligne) ; les mots ajoutés (`zg`) vont dans `~/.config/dotf/vim/spell/`. |
 | F9, F10 | numéros de ligne, numéros relatifs |
 | `:find` | cherche aussi dans les sous-dossiers |
@@ -163,7 +163,7 @@ le prochain `dotf install` le désinstalle.
 | `dust` | `du` lisible (installé par son script officiel) |
 | `gitui` | interface git en terminal |
 | `lowfi` | musique lo-fi, compilé avec cargo (`rustup` installé avant). Demande `pkg-config` et les en-têtes ALSA et OpenSSL (Debian : `pkg-config libasound2-dev libssl-dev`). |
-| `vim-onedark`, `vim-airline` | thème et barre d'état de vim |
+| `vim-onedark`, `vim-lightline` | thème et barre d'état de vim |
 
 Chaque outil est installé par la méthode recommandée par son projet. Les complétions bash et zsh qu'un module
 fournit sont chargées automatiquement.
