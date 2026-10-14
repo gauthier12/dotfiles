@@ -295,7 +295,7 @@ printf "* commentaire\nSI (A > 1);\nREPE B 3;\nX = 1;\nFIN B;\nSINON;\nY = 2;\nF
 echo 'C fixe' >"$T/vim/t.eso"
 echo 'G01 X1 (coupe)' >"$T/vim/t.nc"
 cat >"$T/vim/probe.vim" <<'VIM'
-let out = [g:colors_name, exists('g:orig_vimrc'), maparg('<F9>', 'n'), &ignorecase . &smartcase . &shiftwidth]
+let out = [g:colors_name, exists('g:orig_vimrc'), maparg('<F9>', 'n'), &ignorecase . &smartcase . &shiftwidth, 'mouse=' . &mouse]
 for f in ['t.dgibi', 't.eso', 't.nc']
   execute 'edit!' f
   call add(out, &filetype)
@@ -317,11 +317,12 @@ r=$(cat "$T/vim/out" 2>/dev/null)
 1
 :set number!<CR>
 103
+mouse=
 gibiane
 fortran
 gcode
 0,0,4,8,4,0,4,0,0,0
-1" ] && ok "vim : thème de repli, vimrc d'origine gardé, F9, types de fichiers, indentation Gibiane" || ko "vim" "$r"
+1" ] && ok "vim : thème de repli, vimrc d'origine gardé, F9, souris au terminal, types de fichiers, indentation Gibiane" || ko "vim" "$r"
 check "vim : mot ajouté dans la config locale, pas dans le dépôt" test -f "$LOCAL/vim/spell/fr.utf-8.add" -a ! -e "$DOTF_DIR/config/vim/spell/fr.utf-8.add"
 
 section "5d. Moteur des modules (module factice, hors ligne)"

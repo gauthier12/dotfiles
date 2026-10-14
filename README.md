@@ -117,6 +117,7 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | Thème | onedark (module `vim-onedark`), sinon habamax ; barre d'état lightline (module `vim-lightline`) |
 | `:Spellfr`, `:Spellen`, `:Spellno` | orthographe française, anglaise, ou aucune. Fautes soulignées dans le terminal. Le dictionnaire français est dans le dépôt (marche hors ligne) ; les mots ajoutés (`zg`) vont dans `~/.config/dotf/vim/spell/`. |
 | F9, F10 | numéros de ligne, numéros relatifs |
+| Souris | laissée au terminal (sélection, collage au clic milieu, y compris en ssh) ; gvim la garde |
 | `:find` | cherche aussi dans les sous-dossiers |
 | Indentation | 3 espaces ; recherche insensible à la casse |
 | netrw (`:Explore`) | en arbre, sans bandeau |
