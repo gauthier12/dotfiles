@@ -55,7 +55,8 @@ git_latest() { # git_latest <url> : dernier tag de version (x.y.z ou vx.y.z), te
 
 # --- Moteur ---
 
-module_available() { [ -r "$DOTF/modules/$1.sh" ]; }
+# Les noms en _ (modèle) ne sont pas des modules.
+module_available() { case $1 in _*) return 1 ;; esac; [ -r "$DOTF/modules/$1.sh" ]; }
 module_version() { cat "$DOTF_OPT/$1/.version" 2>/dev/null; }
 module_installed() { [ -n "$(module_version "$1")" ]; }
 
@@ -128,7 +129,7 @@ module_remove_all() {
 }
 
 module_status() {
-  for _f in "$DOTF"/modules/*.sh; do
+  for _f in "$DOTF"/modules/[!_]*.sh; do
     _m=$(basename "$_f" .sh)
     case " ${DOTF_MODULES-} " in *" $_m "*) _off= ;; *) _off=" (inactif)" ;; esac
     if module_installed "$_m"; then

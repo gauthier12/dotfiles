@@ -237,6 +237,10 @@ out=$("$DOTF_DIR/bin/dotf" install --update 2>&1)
 case $out in *"fake 2.0 à jour"*) ok "update : rien à faire si déjà à jour" ;; *) ko "update à jour" "$out" ;; esac
 out=$("$DOTF_DIR/bin/dotf" status 2>&1)
 case $out in *"fake 2.0"*) ok "status : version affichée" ;; *) ko "status fake" "$out" ;; esac
+case $out in *_template*) ko "status : le modèle est listé" "$out" ;; *) ok "status : le modèle n'est pas listé" ;; esac
+sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="_template"/' "$LOCAL/config.sh"
+out=$("$DOTF_DIR/bin/dotf" install 2>&1)
+case $out in *"_template : module inconnu"*) ok "le modèle ne s'installe pas" ;; *) ko "modèle installable" "$out" ;; esac
 rm "$DOTF_DIR/modules/fake.sh"
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1

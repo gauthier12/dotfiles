@@ -121,7 +121,7 @@ le prochain `dotf install` le désinstalle.
 
 ### Écrire un module
 
-`modules/<nom>.sh` définit trois choses :
+Partir du modèle `modules/_template.sh`, copié en `modules/<nom>.sh`. Un module définit trois choses :
 
 ```sh
 pkg_bins=gitleaks                         # exécutables à lier dans ~/.local/bin
