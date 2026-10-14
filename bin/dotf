@@ -209,10 +209,12 @@ guard_status() {
   else
     log_warn "hooks inactifs : relancer « dotf install »"
   fi
-  if [ -r "$DOTF_LOCAL/denylist" ]; then
-    log_ok "liste noire : $(grep -cvE '^[[:space:]]*(#|$)' "$DOTF_LOCAL/denylist") motif(s)"
+  _n=0
+  if [ -r "$DOTF_LOCAL/denylist" ]; then _n=$(grep -cvE '^[[:space:]]*(#|$)' "$DOTF_LOCAL/denylist" || true); fi
+  if [ "$_n" -gt 0 ]; then
+    log_ok "liste noire : $_n motif(s)"
   else
-    log_warn "pas de liste noire"
+    log_warn "liste noire vide : la remplir dans $(tilde "$DOTF_LOCAL")/denylist"
   fi
   if scan_gitleaks_bin >/dev/null; then
     log_ok "gitleaks utilisé en complément"
