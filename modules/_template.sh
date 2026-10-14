@@ -23,8 +23,8 @@ pkg_install() {
   # Dépôt git (avec git_latest) :
   # git -c advice.detachedHead=false clone -q --depth 1 --branch "$1" https://github.com/auteur/outil .
 
-  # Crate (avec crate_latest ; pkg_bins="bin/outil") :
-  # cargo install -q --locked --root "$PWD" outil --version "$1"
+  # Crate (avec crate_latest ; pkg_bins vide, installé dans ~/.cargo/bin, pkg_remove : cargo uninstall -q outil) :
+  # cargo install -q outil --version "$1"
 }
 
 # Facultatif : mise à jour sur place, dans le dossier du module (sinon : réinstallation).

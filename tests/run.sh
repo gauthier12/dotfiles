@@ -165,6 +165,12 @@ else
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
   check "gitleaks désinstallé quand retiré de DOTF_MODULES" test ! -e "$HOME/.local/bin/gitleaks"
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="broot difftastic dust gitui"/' "$LOCAL/config.sh"
+  "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+  for b in broot difft dust gitui; do check "$b installé" "$HOME/.local/bin/$b" --version; done
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
+  "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+  check "broot, difft, dust, gitui désinstallés" test ! -e "$HOME/.local/bin/broot" -a ! -e "$HOME/.local/bin/difft" -a ! -e "$HOME/.local/bin/dust" -a ! -e "$HOME/.local/bin/gitui"
 fi
 
 section "5b. Alias et fonctions"
@@ -295,7 +301,7 @@ pkg_needs="fake"
 pkg_latest() { echo 1; }
 pkg_install() { echo 'export T_FAKE_ENV=ok' >.env.sh; }
 pkg_update() { echo maj >>updated; }
-pkg_remove() { touch "$HOME/fake-dep-removed"; }
+pkg_remove() { if [ -d "$HOME/.local/opt/fake" ]; then touch "$HOME/fake-dep-removed"; fi; }
 MOD
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="fake-dep"/' "$LOCAL/config.sh"
 out=$("$DOTF_DIR/bin/dotf" install 2>&1)
@@ -306,7 +312,7 @@ r=$(run_shell bash -lc 'echo "${T_FAKE_ENV-}"')
 [ "$(cat "$HOME/.local/opt/fake-dep/updated" 2>/dev/null)" = maj ] && ok "pkg_update : mise à jour sur place" || ko "pkg_update"
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
-check "pkg_remove appelé à la désinstallation" test -e "$HOME/fake-dep-removed"
+check "pkg_remove appelé, avant le retrait de la dépendance" test -e "$HOME/fake-dep-removed"
 rm -f "$HOME/fake-dep-removed"
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="fake-dep"/' "$LOCAL/config.sh"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1

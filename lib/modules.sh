@@ -137,6 +137,7 @@ module_install() (
 )
 
 _module_pkg_remove() (
+  _module_envs
   # shellcheck source=/dev/null
   . "$DOTF/modules/$1.sh"
   if command -v pkg_remove >/dev/null; then pkg_remove; fi
@@ -164,10 +165,13 @@ module_wanted() {
   for _m in ${DOTF_MODULES-}; do _module_with_needs "$_m"; done | awk '!seen[$0]++'
 }
 
+# Modules installés, dernier installé d'abord : un module part avant ses dépendances.
+_module_installed_rev() { state_list modules | awk '{ l[NR] = $0 } END { for (i = NR; i > 0; i--) print l[i] }'; }
+
 # Aligne l'installation sur module_wanted. Avec « update », met aussi à jour les modules présents.
 module_sync() {
   _wanted=" $(module_wanted | tr '\n' ' ') "
-  for _m in $(state_list modules); do
+  for _m in $(_module_installed_rev); do
     case $_wanted in *" $_m "*) ;; *) module_remove "$_m" ;; esac
   done
   for _m in $_wanted; do
@@ -182,7 +186,7 @@ module_sync() {
 }
 
 module_remove_all() {
-  for _m in $(state_list modules); do module_remove "$_m"; done
+  for _m in $(_module_installed_rev); do module_remove "$_m"; done
 }
 
 module_status() {
