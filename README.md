@@ -75,6 +75,16 @@ Ordre de chargement d'un shell interactif :
 Dans les dossiers `rc.d`, l'ordre est alphabétique (on préfixe par un numéro). Les `*.sh` sont chargés par bash **et**
 zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 
+## Ce que fournit l'environnement
+
+| Commande | Shells | Effet |
+|---|---|---|
+| `ls` | bash, zsh | en couleur (si le `ls` du système le permet) |
+| `setTitle <texte>` | bash, zsh | change le titre de la fenêtre du terminal |
+| `-` | bash, zsh | retour au dossier précédent (`cd -`) |
+| `d` | zsh | les 10 derniers dossiers visités, numérotés (chaque `cd` les empile) |
+| `1` … `9` | zsh | retour au dossier n° 1 … 9 de cette liste |
+
 ## Personnaliser une machine
 
 `~/.config/dotf/` est créé depuis `local.example/` au premier `dotf install`, puis n'est plus jamais modifié
@@ -95,6 +105,7 @@ le désinstalle.
 |---|---|
 | `starship` | prompt commun à bash et zsh, configuré dans `config/starship.toml`. Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. |
 | `gitleaks` | détection de secrets utilisée par le garde-fou. Binaire officiel vérifié par SHA-256, mis à jour par `dotf update`. |
+| `joplin` | Joplin (bureau) : AppImage officielle vérifiée par SHA-512, rangée dans `~/.local/opt/joplin` et lancée par la commande `joplin`. Mise à jour par `dotf update`. Les notes ne sont jamais touchées. |
 
 ## Liens symboliques
 

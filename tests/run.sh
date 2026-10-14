@@ -159,6 +159,32 @@ else
   check "gitleaks désinstallé quand retiré de DOTF_MODULES" test ! -e "$HOME/.local/bin/gitleaks"
 fi
 
+section "5b. Alias et fonctions"
+probe='alias ls; alias -- -; setTitle "t i" | od -An -c | tr -s " " | tr -d "\n"'
+r=$(run_shell bash -ic "$probe")
+[ "$r" = "alias ls='ls --color=auto'
+alias -- -='cd -'
+ 033 ] 0 ; t i \\a" ] && stderr_clean && ok "bash : ls en couleur, « - », setTitle" || ko "bash : alias" "$r $(cat "$T/stderr.f")"
+r=$(run_shell zsh -ic 'alias ls; alias 2; [[ -o autopushd && -o pushdminus ]] && echo pushd; cd /; cd /tmp; d | wc -l | tr -d " "')
+[ "$r" = "ls='ls --color=auto'
+2='cd -2'
+pushd
+3" ] && stderr_clean && ok "zsh : ls en couleur, pile des dossiers (1-9, d)" || ko "zsh : alias" "$r $(cat "$T/stderr.f")"
+r=$(run_shell zsh -ic 'setTitle "t i" | od -An -c | tr -s " " | tr -d "\n"')
+[ "$r" = " 033 ] 0 ; t i \\a" ] && ok "zsh : setTitle" || ko "zsh : setTitle" "$r"
+
+# Module joplin : ne remplace jamais un ~/.local/bin/joplin qui n'est pas le sien.
+mkdir -p "$HOME/.local/bin"
+echo autre >"$HOME/.local/bin/joplin"
+sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="joplin"/' "$LOCAL/config.sh"
+out=$("$DOTF_DIR/bin/dotf" install 2>&1)
+case $out in *"joplin : $HOME/.local/bin/joplin existe déjà"*) ok "joplin : refuse d'écraser un autre joplin" ;; *) ko "joplin : écrasement" "$out" ;; esac
+check "joplin : fichier existant intact" grep -qx autre "$HOME/.local/bin/joplin"
+sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
+"$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+check "joplin : fichier existant intact après retrait du module" grep -qx autre "$HOME/.local/bin/joplin"
+rm -f "$HOME/.local/bin/joplin"
+
 section "6. Mise à jour et liens"
 mkdir -p "$REMOTE/config/test" "$HOME/.config"
 echo "version dépôt A" >"$REMOTE/config/test/a.conf"

@@ -4,6 +4,7 @@
 # Modules optionnels à installer, séparés par des espaces (voir $DOTF/modules/) :
 #   starship  prompt
 #   gitleaks  détection de secrets pour le garde-fou (utile sur les machines où l'on commite)
+#   joplin    application de notes Joplin (bureau), commande « joplin »
 # Après modification : « dotf install ». Un module retiré de la liste est désinstallé.
 DOTF_MODULES="starship"
 
