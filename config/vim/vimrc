@@ -61,10 +61,8 @@ command! Spellno setlocal nospell
 set cursorline
 set splitright
 set visualbell
-" Terminal : la souris reste au terminal (sélection, clic milieu, y compris en ssh). gvim la garde.
-if !has('gui_running')
-  set mouse=
-endif
+" Souris pour vim ; Maj + clic : sélection et collage par le terminal (marche aussi en ssh).
+set mouse=a
 set mousemodel=popup
 nnoremap <F9> :set number!<CR>
 nnoremap <F10> :set relativenumber!<CR>

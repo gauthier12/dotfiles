@@ -317,12 +317,12 @@ r=$(cat "$T/vim/out" 2>/dev/null)
 1
 :set number!<CR>
 103
-mouse=
+mouse=a
 gibiane
 fortran
 gcode
 0,0,4,8,4,0,4,0,0,0
-1" ] && ok "vim : thème de repli, vimrc d'origine gardé, F9, souris au terminal, types de fichiers, indentation Gibiane" || ko "vim" "$r"
+1" ] && ok "vim : thème de repli, vimrc d'origine gardé, F9, souris, types de fichiers, indentation Gibiane" || ko "vim" "$r"
 check "vim : mot ajouté dans la config locale, pas dans le dépôt" test -f "$LOCAL/vim/spell/fr.utf-8.add" -a ! -e "$DOTF_DIR/config/vim/spell/fr.utf-8.add"
 
 section "5d. Moteur des modules (module factice, hors ligne)"
