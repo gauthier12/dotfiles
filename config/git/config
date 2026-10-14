@@ -1,0 +1,14 @@
+# Config git commune, incluse depuis ~/.gitconfig par dotf.
+# ~/.config/dotf/gitconfig (propre à la machine) est inclus à la fin : il a le dernier mot.
+
+[user]
+	name = Gauthier
+[pull]
+	ff = only
+[merge]
+	tool = meld
+[credential]
+	helper = cache
+
+[include]
+	path = ~/.config/dotf/gitconfig

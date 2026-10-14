@@ -1,0 +1,16 @@
+# Config git propre à cette machine, prioritaire sur celle du dépôt.
+
+# [user]
+# 	email = moi@example.org
+
+# Autre identité pour les dépôts d'un dossier :
+# [includeIf "gitdir:~/travail/"]
+# 	path = ~/.config/dotf/gitconfig-travail
+
+# Serveur au certificat interne : lui faire confiance, plutôt que désactiver la vérification.
+# [http "https://git.example.org/"]
+# 	sslCAInfo = /chemin/vers/ca.pem
+
+# Identifiant pour un serveur :
+# [credential "https://git.example.org"]
+# 	username = moi

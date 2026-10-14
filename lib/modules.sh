@@ -8,6 +8,7 @@
 # Facultatif :
 #   pkg_needs=         modules requis, installés avant lui
 #   pkg_update         mise à jour sur place (dans son dossier), au lieu d'une réinstallation
+#   pkg_remove         à faire en plus à la désinstallation (installation hors de son dossier)
 #   .env.sh            fichier écrit dans son dossier, chargé par les shells et avant chaque installation
 #
 # dotf fait le reste : dossier ~/.local/opt/<nom>, mise à jour, liens, désinstallation.
@@ -135,8 +136,15 @@ module_install() (
   log_ok "$1 $_ver installé"
 )
 
-# Ne demande pas le fichier du module : on peut retirer un module supprimé du dépôt.
+_module_pkg_remove() (
+  # shellcheck source=/dev/null
+  . "$DOTF/modules/$1.sh"
+  if command -v pkg_remove >/dev/null; then pkg_remove; fi
+)
+
+# Marche aussi pour un module supprimé du dépôt (sans pkg_remove alors).
 module_remove() {
+  if module_available "$1"; then _module_pkg_remove "$1" || log_warn "$1 : échec de pkg_remove"; fi
   _module_unlink "$1"
   rm -rf "${DOTF_OPT:?}/$1"
   state_del modules "$1"

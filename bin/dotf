@@ -8,7 +8,7 @@ DOTF_LOCAL=${DOTF_LOCAL:-${XDG_CONFIG_HOME:-$HOME/.config}/dotf}
 DOTF_STATE=${DOTF_STATE:-${XDG_STATE_HOME:-$HOME/.local/state}/dotf}
 export DOTF DOTF_LOCAL DOTF_STATE
 
-for _lib in log state hooks repo guard links modules; do
+for _lib in log state hooks git repo guard links modules; do
   # shellcheck source=/dev/null
   . "$DOTF/lib/$_lib.sh"
 done
@@ -55,6 +55,8 @@ cmd_install() {
 
   log_step "Branchement des shells"
   hooks_install
+  log_step "Git"
+  git_install
   log_step "Garde-fou anti-fuite"
   guard_install
   log_step "Dépôt"
@@ -78,6 +80,8 @@ cmd_update() {
 cmd_uninstall() {
   log_step "Débranchement des shells"
   hooks_remove
+  log_step "Git"
+  git_remove
   log_step "Garde-fou anti-fuite"
   guard_remove
   log_step "Liens"
@@ -102,6 +106,8 @@ cmd_status() {
   repo_status
   log_step "Branchement des shells"
   hooks_status
+  log_step "Git"
+  git_status
   log_step "Garde-fou anti-fuite"
   guard_status
   log_step "Liens"

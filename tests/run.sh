@@ -61,8 +61,9 @@ commit_remote() { git -C "$REMOTE" -c user.name=t -c user.email=t@t add -A && gi
 printf '# bashrc d origine\nexport ORIG_BASHRC=1\n' >"$HOME/.bashrc"
 printf '# zshrc d origine\nexport ORIG_ZSHRC=1\n' >"$HOME/.zshrc"
 printf '# profile d origine\n' >"$HOME/.profile"
+printf '[alias]\n\tst = status\n' >"$HOME/.gitconfig"
 mkdir -p "$T/orig"
-cp "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$T/orig/"
+cp "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.gitconfig" "$T/orig/"
 
 # =============================================================================
 section "1. Bootstrap (équivalent de curl | sh)"
@@ -240,6 +241,18 @@ printf 'KPSYNC_LOCAL=%s\nKPSYNC_REMOTE=%s\n' "$T/local-file" "$T/remote-file" >>
 [ "$(cat "$T/local-file")" = distant ] && [ "$(cat "$T/local-file~")" = local ] && ok "kpsync : la version récente gagne, l'ancienne est gardée" || ko "kpsync"
 sed -i '/^KPSYNC_/d' "$LOCAL/config.sh"
 
+section "5f. Git"
+r=$(git config --global --includes user.name; git config --global --includes pull.ff; git config --global alias.st)
+[ "$r" = "Gauthier
+only
+status" ] && ok "git : config du dépôt incluse, config existante conservée" || ko "git : inclusion" "$r"
+printf '[user]\n\tname = Autre\n' >"$LOCAL/gitconfig"
+r=$(git config --global --includes user.name)
+[ "$r" = Autre ] && ok "git : la config locale a le dernier mot" || ko "git : surcharge locale" "$r"
+rm "$LOCAL/gitconfig"
+"$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+[ "$(git config --global --get-all include.path | grep -c "$DOTF_DIR/config/git/config")" = 1 ] && ok "git : inclusion ajoutée une seule fois" || ko "git : inclusion en double"
+
 section "5d. Moteur des modules (module factice, hors ligne)"
 cat >"$DOTF_DIR/modules/fake.sh" <<'MOD'
 # shellcheck shell=sh disable=SC2034
@@ -273,6 +286,7 @@ pkg_needs="fake"
 pkg_latest() { echo 1; }
 pkg_install() { echo 'export T_FAKE_ENV=ok' >.env.sh; }
 pkg_update() { echo maj >>updated; }
+pkg_remove() { touch "$HOME/fake-dep-removed"; }
 MOD
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="fake-dep"/' "$LOCAL/config.sh"
 out=$("$DOTF_DIR/bin/dotf" install 2>&1)
@@ -281,6 +295,12 @@ r=$(run_shell bash -lc 'echo "${T_FAKE_ENV-}"')
 [ "$r" = ok ] && ok ".env.sh du module chargé par les shells" || ko ".env.sh" "$r"
 "$DOTF_DIR/bin/dotf" install --update >/dev/null 2>&1
 [ "$(cat "$HOME/.local/opt/fake-dep/updated" 2>/dev/null)" = maj ] && ok "pkg_update : mise à jour sur place" || ko "pkg_update"
+sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
+"$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+check "pkg_remove appelé à la désinstallation" test -e "$HOME/fake-dep-removed"
+rm -f "$HOME/fake-dep-removed"
+sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="fake-dep"/' "$LOCAL/config.sh"
+"$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
 rm "$DOTF_DIR/modules/fake.sh" "$DOTF_DIR/modules/fake-dep.sh"
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
@@ -376,7 +396,7 @@ r=$(run_shell zsh -ic 'true')
 
 section "7. Désinstallation"
 "$DOTF_DIR/bin/dotf" uninstall >/dev/null 2>&1
-for f in .profile .bashrc .zshrc .bash_profile; do
+for f in .profile .bashrc .zshrc .bash_profile .gitconfig; do
   check "$f identique à l'original" cmp -s "$HOME/$f" "$T/orig/$f"
 done
 check ".zshenv (créé par dotf) supprimé" test ! -e "$HOME/.zshenv"

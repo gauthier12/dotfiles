@@ -64,6 +64,9 @@ dotf update                      # sur chacune des autres
 - `~/.profile`, `~/.zshenv` et `~/.bash_profile` s'il existe : chargent `shell/env.sh` (PATH, variables) ;
 - `~/.bashrc` et `~/.zshrc` : chargent `shell/init.sh` (shells interactifs).
 
+Pour git, `~/.gitconfig` reçoit une ligne `include.path` vers `config/git/config` du dépôt, qui inclut à son
+tour `~/.config/dotf/gitconfig` (propre à la machine, prioritaire).
+
 **Pour débrancher à la main, il suffit de supprimer ces lignes.** Si le dépôt disparaît, elles ne font rien et
 les shells démarrent normalement.
 
@@ -104,6 +107,7 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 ni supprimé par dotf.
 
 - `config.sh` : `DOTF_MODULES`, `DOTF_PROFILES` et autres réglages ;
+- `gitconfig` : config git de la machine (adresse, identité par dossier, certificats, identifiants…) ;
 - `env.d/*.sh` : variables d'environnement (proxy, PATH supplémentaires…) ;
 - `rc.d/*.sh|bash|zsh` : alias, fonctions, réglages interactifs ;
 - `bin/` : scripts propres à la machine, ajoutés au PATH.
@@ -129,7 +133,7 @@ le prochain `dotf install` le désinstalle.
 | `gitleaks` | détection de secrets pour le garde-fou |
 | `joplin` | Joplin, version bureau (AppImage). Les notes ne sont jamais touchées. |
 | `zsh-autosuggestions` | suggestion grisée tirée de l'historique pendant la frappe ; → ou Fin l'accepte |
-| `rustup` | Rust (rustup, cargo, rustc) dans `~/.local/opt/rustup`. Requis par les modules installés avec cargo. |
+| `rustup` | Rust (rustup, cargo, rustc), aux emplacements standard `~/.rustup` et `~/.cargo`. Requis par les modules installés avec cargo. Le retirer désinstalle Rust, y compris ce qui a été installé à la main avec cargo. |
 | `zsh-syntax-highlighting` | colore la commande pendant la frappe (rouge si elle n'existe pas) |
 
 ### Écrire un module
@@ -151,7 +155,8 @@ pkg_install() {                           # installe la version $1 dans le dossi
 Facultatif :
 - `pkg_needs="rustup"` : modules requis, installés avant (sans avoir à les mettre dans `DOTF_MODULES`) ;
 - `pkg_update` : mise à jour sur place, au lieu de réinstaller (ex. `rustup update`) ;
-- un fichier `.env.sh` écrit par `pkg_install` dans son dossier : chargé par les shells (ex. `CARGO_HOME`).
+- `pkg_remove` : à faire en plus à la désinstallation, pour ce qui est installé hors de son dossier ;
+- un fichier `.env.sh` écrit par `pkg_install` dans son dossier : chargé par les shells et avant chaque installation (ex. PATH).
 
 dotf fait le reste :
 - installe dans `~/.local/opt/<nom>`, en remplaçant d'un coup l'ancienne version une fois la nouvelle prête ;

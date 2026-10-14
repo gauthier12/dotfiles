@@ -29,3 +29,6 @@ pkg_install() {
 
 # Facultatif : mise à jour sur place, dans le dossier du module (sinon : réinstallation).
 # pkg_update() { outil self-update; }
+
+# Facultatif : à faire en plus à la désinstallation (installation hors du dossier du module).
+# pkg_remove() { rm -rf "$HOME/.outil"; }
