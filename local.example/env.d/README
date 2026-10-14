@@ -1,0 +1,4 @@
+Fichiers *.sh (sh POSIX) chargés par tous les shells, login compris, après shell/env.sh.
+Usage : variables d'environnement et PATH propres à cette machine.
+Exemple (proxy.sh) :
+  export https_proxy=http://proxy.example:3128

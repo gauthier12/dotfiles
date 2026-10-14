@@ -1,0 +1,29 @@
+# Configuration starship, écrite de zéro et volontairement minimale pour l'instant.
+# Référence : https://starship.rs/config/
+# Une machine peut utiliser son propre fichier : STARSHIP_CONFIG=... dans ~/.config/dotf/env.d/
+"$schema" = "https://starship.rs/config-schema.json"
+
+add_newline = false
+
+format = """
+$status\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$cmd_duration\
+$line_break\
+$character"""
+
+[status]
+disabled = false
+format = "[$status]($style) "
+
+[username]
+show_always = true
+format = "[$user]($style)@"
+
+[hostname]
+ssh_only = false
+format = "[$hostname]($style) "

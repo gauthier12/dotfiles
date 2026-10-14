@@ -1,0 +1,7 @@
+# Liste noire du garde-fou anti-fuite (jamais versionnée).
+# Un motif par ligne (expression régulière étendue), comparé en minuscules et en mot entier.
+# Tout commit ou push du dépôt dotf contenant l'un de ces motifs est refusé.
+# Y mettre ce qui t'identifie : domaines, noms de machines, identifiants, employeur…
+# Exemples :
+# example\.org
+# mon-serveur[0-9]*

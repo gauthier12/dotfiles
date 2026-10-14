@@ -1,0 +1,7 @@
+# Liens symboliques posés par « dotf install » : <source dans le dépôt>  <cible>
+# Une cible existante est sauvegardée dans ~/.local/state/dotf/backup/, puis restaurée à la désinstallation.
+# Retirer une ligne ici puis relancer « dotf install » retire le lien.
+# Pas d'espace dans les chemins.
+#
+# Exemple :
+# config/helix/config.toml   ~/.config/helix/config.toml

@@ -1,0 +1,5 @@
+Fragments chargés par les shells interactifs, APRÈS ceux du dépôt (ils peuvent donc les surcharger).
+Ordre alphabétique ; préfixer par un numéro pour le maîtriser (10-alias.sh, 50-projet.zsh…).
+  *.sh    chargés par bash et zsh (syntaxe commune)
+  *.bash  chargés par bash uniquement
+  *.zsh   chargés par zsh uniquement
