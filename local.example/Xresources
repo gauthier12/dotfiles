@@ -1,0 +1,4 @@
+! Ressources X propres à cette machine (hors git), chargées après config/x/Xresources du dépôt.
+! Après modification : « xrdb -merge ~/.Xresources », ou une nouvelle session.
+
+! URxvt*font: xft:Hasklug Nerd Font Mono:size=13

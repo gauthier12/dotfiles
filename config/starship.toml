@@ -1,4 +1,5 @@
 # Config starship (https://starship.rs/config/).
+# Icônes : police Nerd Font (module nerd-fonts sur le poste, réglée dans le terminal).
 # HOST_COLOR est remplacé par la couleur de la machine (shell/rc.d/85-host-color.sh).
 "$schema" = "https://starship.rs/config-schema.json"
 
@@ -27,5 +28,9 @@ format = "[$user]($style)@"
 
 [hostname]
 ssh_only = false
+ssh_symbol = " "
 style = "bold HOST_COLOR"
-format = "[$hostname]($style) "
+format = "[$ssh_symbol$hostname]($style) "
+
+[directory]
+read_only = " 󰌾"

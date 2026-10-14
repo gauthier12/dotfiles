@@ -63,8 +63,9 @@ printf '# zshrc d origine\nexport ORIG_ZSHRC=1\n' >"$HOME/.zshrc"
 printf '# profile d origine\n' >"$HOME/.profile"
 printf '[alias]\n\tst = status\n' >"$HOME/.gitconfig"
 printf '" vimrc d origine\nlet g:orig_vimrc = 1\n' >"$HOME/.vimrc"
+printf '! Xresources d origine\nXTerm*test: orig\n' >"$HOME/.Xresources"
 mkdir -p "$T/orig"
-cp "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.gitconfig" "$HOME/.vimrc" "$T/orig/"
+cp "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.gitconfig" "$HOME/.vimrc" "$HOME/.Xresources" "$T/orig/"
 
 # =============================================================================
 section "1. Bootstrap (équivalent de curl | sh)"
@@ -75,6 +76,7 @@ for f in .profile .bashrc .zshenv .zshrc; do
   check "$f branché" grep -q '# dotf-hook' "$HOME/$f"
 done
 check ".vimrc branché" grep -q '" dotf-hook' "$HOME/.vimrc"
+check ".Xresources branché (2 inclusions protégées)" test "$(grep -c '^#include .*dotf-hook' "$HOME/.Xresources")" = 2
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
   if printf '%s' "$out" | grep -q 'starship : dernière version introuvable'; then ok "hors ligne : échec du module signalé sans interrompre l'installation"; else ko "échec du module signalé" "$out"; fi
   # Pour la suite : pas de module.
@@ -83,9 +85,9 @@ fi
 
 section "2. Idempotence"
 mkdir -p "$T/after1"
-cp "$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshenv" "$HOME/.zshrc" "$T/after1/"
+cp "$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshenv" "$HOME/.zshrc" "$HOME/.vimrc" "$HOME/.Xresources" "$T/after1/"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
-for f in .profile .bashrc .zshenv .zshrc; do
+for f in .profile .bashrc .zshenv .zshrc .vimrc .Xresources; do
   check "$f inchangé après une 2e installation" cmp -s "$HOME/$f" "$T/after1/$f"
 done
 
@@ -190,6 +192,13 @@ _broot _dust" ] && stderr_clean && ok "zsh : br et complétions broot, dust" || 
 1
 onedark
 2" ] && ok "vim : onedark et lightline à ses couleurs" || ko "vim : modules" "$r"
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="nerd-fonts"\nDOTF_FONTS="FiraCode"/' "$LOCAL/config.sh"
+  "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+  r=$(fc-list : family 2>/dev/null | cut -d, -f1 | grep -i 'firacode' | sort -u)
+  [ "$r" = "FiraCode Nerd Font Mono" ] && ok "nerd-fonts : FiraCode Mono visible (fc-list), sans les autres variantes" || ko "nerd-fonts" "$r"
+  sed -i -e 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' -e '/^DOTF_FONTS=/d' "$LOCAL/config.sh"
+  "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+  check "nerd-fonts : lien des polices retiré" test ! -e "$HOME/.local/share/fonts/nerd-fonts" -a ! -L "$HOME/.local/share/fonts/nerd-fonts"
   check "broot : marqueur de br retiré" test ! -e "$HOME/.config/broot/launcher"
   check "broot, difft, dust, gitui désinstallés" test ! -e "$HOME/.local/bin/broot" -a ! -e "$HOME/.local/bin/difft" -a ! -e "$HOME/.local/bin/dust" -a ! -e "$HOME/.local/bin/gitui"
 fi
@@ -324,6 +333,18 @@ gcode
 0,0,4,8,4,0,4,0,0,0
 1" ] && ok "vim : thème de repli, vimrc d'origine gardé, F9, souris, types de fichiers, indentation Gibiane" || ko "vim" "$r"
 check "vim : mot ajouté dans la config locale, pas dans le dépôt" test -f "$LOCAL/vim/spell/fr.utf-8.add" -a ! -e "$DOTF_DIR/config/vim/spell/fr.utf-8.add"
+
+section "5i. Ressources X"
+if command -v cpp >/dev/null 2>&1; then
+  printf 'URxvt*font: xft:Local:size=13\n' >"$LOCAL/Xresources"
+  r=$(cpp -P "$HOME/.Xresources" 2>&1 | grep -E 'test|URxvt\*font')
+  [ "$r" = "XTerm*test: orig
+URxvt*font: xft:Hasklug Nerd Font Mono:size=11
+URxvt*font: xft:Local:size=13" ] && ok "Xresources : d'origine, puis dépôt, puis local (prioritaire)" || ko "Xresources" "$r"
+  rm "$LOCAL/Xresources"
+else
+  ok "Xresources : cpp absent, test sauté"
+fi
 
 section "5d. Moteur des modules (module factice, hors ligne)"
 cat >"$DOTF_DIR/modules/fake.sh" <<'MOD'
@@ -468,7 +489,7 @@ r=$(run_shell zsh -ic 'true')
 
 section "7. Désinstallation"
 "$DOTF_DIR/bin/dotf" uninstall >/dev/null 2>&1
-for f in .profile .bashrc .zshrc .bash_profile .gitconfig .vimrc; do
+for f in .profile .bashrc .zshrc .bash_profile .gitconfig .vimrc .Xresources; do
   check "$f identique à l'original" cmp -s "$HOME/$f" "$T/orig/$f"
 done
 check ".zshenv (créé par dotf) supprimé" test ! -e "$HOME/.zshenv"
@@ -483,6 +504,9 @@ run_shell bash -ic 'true'; rc=$?
 [ $rc -eq 0 ] && stderr_clean && ok "bash démarre sans erreur" || ko "bash sans dépôt" "$(cat "$T/stderr.f")"
 r=$(run_shell zsh -ic 'echo $?')
 [ "$r" = 0 ] && stderr_clean && ok "zsh démarre sans erreur (statut 0)" || ko "zsh sans dépôt" "$r $(cat "$T/stderr.f")"
+if command -v cpp >/dev/null 2>&1; then
+  check "Xresources lisible sans erreur" sh -c 'cpp -P "$1" >/dev/null 2>&1' _ "$HOME/.Xresources"
+fi
 check "vim démarre sans erreur" env -i HOME="$HOME" PATH="$BASE_PATH" vim -n -i NONE -es -u "$HOME/.vimrc" -c q </dev/null
 mv "$T/dotf.moved" "$DOTF_DIR"
 

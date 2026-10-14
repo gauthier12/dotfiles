@@ -63,7 +63,9 @@ dotf update                      # sur chacune des autres
 
 - `~/.profile`, `~/.zshenv` et `~/.bash_profile` s'il existe : chargent `shell/env.sh` (PATH, variables) ;
 - `~/.bashrc` et `~/.zshrc` : chargent `shell/init.sh` (shells interactifs) ;
-- `~/.vimrc` (ou `~/.vim/vimrc` si c'est lui qui sert), marquée `" dotf-hook` : charge `config/vim/vimrc`.
+- `~/.vimrc` (ou `~/.vim/vimrc` si c'est lui qui sert), marquée `" dotf-hook` : charge `config/vim/vimrc` ;
+- `~/.Xresources`, si `xrdb` est présent : un petit bloc qui inclut `config/x/Xresources` puis
+  `~/.config/dotf/Xresources`, chacun seulement s'il existe. `dotf install` les recharge dans une session graphique.
 
 Pour git, `~/.gitconfig` reçoit une ligne `include.path` vers `config/git/config` du dépôt, qui inclut à son
 tour `~/.config/dotf/gitconfig` (propre à la machine, prioritaire).
@@ -122,7 +124,13 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | Indentation | 3 espaces ; recherche insensible à la casse |
 | netrw (`:Explore`) | en arbre, sans bandeau |
 | Types de fichiers | Gibiane (`.dgibi`, `.gibi`, `.proc`, `.procedur` : coloration, indentation), Esope (`.eso`, `.INC` → Fortran), G-code (`.nc`, `.ngc`, `.gcode`, `.gco`) |
-| gvim | police Hasklug Nerd Font, sans barre d'outils |
+| gvim | police Hasklug Nerd Font Mono, sans barre d'outils |
+
+### Terminal et polices
+
+- `config/x/Xresources` : urxvt (Hasklug Nerd Font Mono 11), et xterm en repli.
+- Le prompt starship et la barre lightline utilisent des icônes Nerd Font : le terminal doit afficher une police
+  Nerd Font (module `nerd-fonts` sur un poste Linux ; pour Windows Terminal, l'installer côté Windows).
 
 ## Personnaliser une machine
 
@@ -134,6 +142,7 @@ ni supprimé par dotf.
 - `env.d/*.sh` : variables d'environnement (proxy, PATH supplémentaires…) ;
 - `rc.d/*.sh|bash|zsh` : alias, fonctions, réglages interactifs ;
 - `bin/` : scripts propres à la machine, ajoutés au PATH ;
+- `Xresources` : ressources X de la machine, prioritaires ;
 - `vimrc` : réglages vim, chargés en dernier ; `vim/` : runtime vim de la machine (syntaxes, dictionnaires…), prioritaire sur celui du dépôt.
 
 ## Profils
@@ -165,6 +174,7 @@ le prochain `dotf install` le désinstalle.
 | `gitui` | interface git en terminal |
 | `lowfi` | musique lo-fi, compilé avec cargo (`rustup` installé avant). Demande `pkg-config` et les en-têtes ALSA et OpenSSL (Debian : `pkg-config libasound2-dev libssl-dev`). |
 | `vim-onedark`, `vim-lightline` | thème et barre d'état de vim |
+| `nerd-fonts` | polices Nerd Font, variante Mono, listées dans `DOTF_FONTS` (par défaut Hasklig et FiraCode), dans `~/.local/share/fonts/nerd-fonts`. Changer la liste : `dotf update`. |
 
 Chaque outil est installé par la méthode recommandée par son projet. Les complétions bash et zsh qu'un module
 fournit sont chargées automatiquement.

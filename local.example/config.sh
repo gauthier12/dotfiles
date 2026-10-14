@@ -10,9 +10,13 @@
 #   difftastic diff qui comprend la syntaxe (difft ; git dlog -p, dshow, ddiff)
 #   dust, gitui
 #   vim-onedark, vim-lightline  thème et barre d'état de vim
+#   nerd-fonts  polices Nerd Font Mono de DOTF_FONTS (postes avec session graphique)
 #   lowfi     compilé avec cargo (rustup installé avant) ; demande pkg-config et les en-têtes ALSA/OpenSSL
 # Après modification : « dotf install ». Un module retiré de la liste est désinstallé.
 DOTF_MODULES="starship zsh-autosuggestions zsh-syntax-highlighting broot difftastic dust gitui vim-onedark vim-lightline"
+
+# Polices du module nerd-fonts (noms des archives sur github.com/ryanoasis/nerd-fonts/releases).
+# DOTF_FONTS="Hasklig FiraCode"
 
 # Profils (dossier $DOTF/profiles), ex. nfs-home : home sur le réseau, caches sur le disque local.
 # DOTF_PROFILES="nfs-home"

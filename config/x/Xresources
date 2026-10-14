@@ -1,0 +1,13 @@
+! Ressources X communes, incluses depuis ~/.Xresources par dotf (puis ~/.config/dotf/Xresources, prioritaire).
+! Police : Nerd Font Mono, du module nerd-fonts.
+
+! urxvt
+URxvt*font: xft:Hasklug Nerd Font Mono:size=11
+URxvt*scrollstyle: plain
+URxvt*termName: rxvt-unicode
+
+! xterm, en repli
+XTerm*faceName: Hasklug Nerd Font Mono
+XTerm*faceSize: 10
+XTerm*locale: true
+XTerm*scrollBar: true

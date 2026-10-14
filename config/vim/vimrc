@@ -40,16 +40,21 @@ catch
 endtry
 
 " Barre d'état lightline (module vim-lightline), aux couleurs du thème ; le mode y est affiché.
+" Séparateurs en flèche : police Nerd Font.
 if !empty(globpath(&runtimepath, 'plugin/lightline.vim'))
   set laststatus=2 noshowmode
   let g:loaded_airline = 1 " un airline installé par le système prendrait la barre
+  let g:lightline = {
+        \ 'separator': {'left': "\ue0b0", 'right': "\ue0b2"},
+        \ 'subseparator': {'left': "\ue0b1", 'right': "\ue0b3"},
+        \ }
   if get(g:, 'colors_name', '') ==# 'onedark'
-    let g:lightline = {'colorscheme': 'onedark'}
+    let g:lightline.colorscheme = 'onedark'
   endif
 endif
 
 " gvim
-set guifont=Hasklug\ Nerd\ Font\ 11
+set guifont=Hasklug\ Nerd\ Font\ Mono\ 11
 set guioptions-=T
 
 " Orthographe
