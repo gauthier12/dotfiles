@@ -19,6 +19,11 @@
 	conflictStyle = zdiff3   # les conflits montrent aussi la version d'origine
 [credential]
 	helper = cache
+[alias]
+	# difftastic (module difftastic), à la demande : git dlog -p, git dshow, git ddiff
+	dlog = -c diff.external=difft log --ext-diff
+	dshow = -c diff.external=difft show --ext-diff
+	ddiff = -c diff.external=difft diff
 
 [include]
 	path = ~/.config/dotf/gitconfig

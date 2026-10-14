@@ -6,6 +6,9 @@ autoload -Uz compinit
 _dotf_zcache="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
 [[ -d $_dotf_zcache ]] || mkdir -p "$_dotf_zcache"
 
+# Complétions des modules.
+fpath=("$HOME"/.local/opt/*/completions/zsh(N) $fpath)
+
 # -i : ignore sans demander les dossiers de fonctions non sûrs.
 (( $+functions[compdef] )) || compinit -i -d "$_dotf_zcache/zcompdump-$ZSH_VERSION"
 

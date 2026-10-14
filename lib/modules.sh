@@ -10,6 +10,8 @@
 #   pkg_update         mise à jour sur place (dans son dossier), au lieu d'une réinstallation
 #   pkg_remove         à faire en plus à la désinstallation (installation hors de son dossier)
 #   .env.sh            fichier écrit dans son dossier, chargé par les shells et avant chaque installation
+#   .rc.bash, .rc.zsh  fichiers écrits dans son dossier, chargés par les shells interactifs (ex. fonctions)
+#   completions/       complétions : bash/<commande> et zsh/_<commande> (voir add_completion)
 #
 # dotf fait le reste : dossier ~/.local/opt/<nom>, mise à jour, liens, désinstallation.
 
@@ -29,9 +31,14 @@ fetch() { # fetch <url> : sur la sortie standard
   fi
 }
 
+# Lit la redirection de /releases/latest vers /releases/tag/<tag> : l'API GitHub limite à 60 requêtes par heure.
 gh_latest() { # gh_latest <dépôt GitHub> : dernière release, sans le « v »
-  fetch "https://api.github.com/repos/$1/releases/latest" |
-    sed -n 's/.*"tag_name": *"v\{0,1\}\([^"]*\)".*/\1/p' | head -n 1
+  _url="https://github.com/$1/releases/latest"
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsI "$_url"
+  else
+    wget -qS --spider --max-redirect=0 "$_url" 2>&1
+  fi | tr -d '\r' | sed -n 's|^ *[Ll]ocation: .*/releases/tag/v\{0,1\}||p' | head -n 1
 }
 
 download() { # download <url> [<url des sommes>] : dans le dossier courant, vérifié si sommes données
@@ -56,6 +63,14 @@ check_sum() { # check_sum <fichier> <sommes> : « somme  nom » par ligne, ou un
     *) return 1 ;;
   esac
   [ "$($_cmd "$1" | cut -d ' ' -f 1)" = "$_sum" ]
+}
+
+add_completion() { # add_completion <bash|zsh> <commande> : l'entrée standard devient sa complétion
+  case $1 in
+    bash) _d=completions/bash _n=$2 ;;
+    zsh) _d=completions/zsh _n=_$2 ;;
+  esac
+  mkdir -p "$_d" && cat >"$_d/$_n"
 }
 
 git_latest() { # git_latest <url> : dernier tag de version (x.y.z ou vx.y.z), tel quel

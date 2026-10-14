@@ -27,6 +27,11 @@ pkg_install() {
   # cargo install -q outil --version "$1"
 }
 
+# Facultatif, dans pkg_install : complétions, fonctions shell.
+#   ./outil completions bash | add_completion bash outil
+#   ./outil completions zsh | add_completion zsh outil
+#   ./outil init bash >.rc.bash
+
 # Facultatif : mise à jour sur place, dans le dossier du module (sinon : réinstallation).
 # pkg_update() { outil self-update; }
 

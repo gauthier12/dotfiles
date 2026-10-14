@@ -168,8 +168,20 @@ else
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="broot difftastic dust gitui"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
   for b in broot difft dust gitui; do check "$b installé" "$HOME/.local/bin/$b" --version; done
+  r=$(run_shell zsh -ic 'whence -w br; print ${_comps[broot]} ${_comps[dust]}')
+  [ "$r" = "br: function
+_broot _dust" ] && stderr_clean && ok "zsh : br et complétions broot, dust" || ko "zsh : br/complétions" "$r $(cat "$T/stderr.f")"
+  r=$(run_shell bash -ic 'type -t br; complete -p broot dust | wc -l')
+  [ "$r" = "function
+2" ] && stderr_clean && ok "bash : br et complétions broot, dust" || ko "bash : br/complétions" "$r $(cat "$T/stderr.f")"
+  check "broot ne propose pas d'écrire br dans les rc" test -e "$HOME/.config/broot/launcher/installed-v5"
+  git init -q "$T/dft" && printf 'a = 1\n' >"$T/dft/f.py" && git -C "$T/dft" add f.py
+  printf 'a = 2\n' >"$T/dft/f.py"
+  r=$(PATH="$HOME/.local/bin:$PATH" git -C "$T/dft" -c core.pager=cat ddiff 2>&1 | head -n 1)
+  [ "$r" = "f.py --- Python" ] && ok "git ddiff passe par difft" || ko "git ddiff" "$r"
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+  check "broot : marqueur de br retiré" test ! -e "$HOME/.config/broot/launcher"
   check "broot, difft, dust, gitui désinstallés" test ! -e "$HOME/.local/bin/broot" -a ! -e "$HOME/.local/bin/difft" -a ! -e "$HOME/.local/bin/dust" -a ! -e "$HOME/.local/bin/gitui"
 fi
 

@@ -13,5 +13,7 @@ pkg_install() {
   esac
   _f="gitleaks_$1_linux_$_arch.tar.gz"
   gh_get gitleaks/gitleaks "v$1" "$_f" "gitleaks_$1_checksums.txt" &&
-    tar -xzf "$_f" gitleaks && rm "$_f"
+    tar -xzf "$_f" gitleaks && rm "$_f" || return 1
+  ./gitleaks completion bash | add_completion bash gitleaks
+  ./gitleaks completion zsh | add_completion zsh gitleaks
 }

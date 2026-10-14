@@ -6,10 +6,12 @@
 #   gitleaks  détection de secrets pour le garde-fou (utile sur les machines où l'on commite)
 #   joplin    application de notes Joplin (bureau), commande « joplin »
 #   zsh-autosuggestions, zsh-syntax-highlighting
-#   broot, difftastic (difft), dust, gitui
+#   broot     navigation dans l'arborescence (br : cd en quittant)
+#   difftastic diff qui comprend la syntaxe (difft ; git dlog -p, dshow, ddiff)
+#   dust, gitui
 #   lowfi     compilé avec cargo (rustup installé avant) ; demande pkg-config et les en-têtes ALSA/OpenSSL
 # Après modification : « dotf install ». Un module retiré de la liste est désinstallé.
-DOTF_MODULES="starship zsh-autosuggestions zsh-syntax-highlighting"
+DOTF_MODULES="starship zsh-autosuggestions zsh-syntax-highlighting broot difftastic dust gitui"
 
 # Profils (dossier $DOTF/profiles), ex. nfs-home : home sur le réseau, caches sur le disque local.
 # DOTF_PROFILES="nfs-home"
