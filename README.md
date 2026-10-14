@@ -94,6 +94,10 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | `history` | bash, zsh | historique daté (zsh : en entier). 50 000 lignes en mémoire, 10 000 sur disque, partagé entre les terminaux ouverts. Une commande précédée d'une espace n'est pas enregistrée. |
 | Tab | zsh | menu navigable, insensible à la casse, mots partiels (`f-b` → `foo-bar`) |
 | Tab sur `kill` | zsh | menu de ses propres processus |
+| URL tapée ou collée | zsh | `?`, `&`… protégés automatiquement |
+| Ctrl-Z sur une ligne vide | zsh | reprend le programme suspendu (`fg`) |
+| `zmv` | zsh | renommage en masse : `zmv '(*).jpeg' '$1.jpg'` |
+| `# commentaire` | bash, zsh | accepté dans une commande tapée |
 | Mode vi | bash, zsh | ligne de commande en mode vi : Échap → mode normal. Le curseur l'indique (barre en insertion, bloc en normal), et le prompt starship aussi en zsh. |
 | ↑ ↓, et `k` `j` en mode normal | bash, zsh | historique filtré par le début de ce qui est déjà tapé |
 | `v` en mode normal | bash, zsh | édite la ligne dans `$EDITOR` (bash l'exécute en sortant) |

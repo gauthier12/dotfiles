@@ -63,6 +63,22 @@ bindkey -M viins '^S' history-incremental-search-forward
 bindkey -M viins '^A' beginning-of-line
 bindkey -M viins '^E' end-of-line
 
+# URL tapée ou collée : ? & … protégés automatiquement.
+autoload -Uz url-quote-magic bracketed-paste-magic
+zle -N self-insert url-quote-magic
+zle -N bracketed-paste bracketed-paste-magic
+
+# Ctrl-Z sur une ligne vide : reprend le programme suspendu (fg).
+_dotf_fg() {
+  if [[ -z $BUFFER ]]; then
+    BUFFER=fg
+    zle accept-line
+  fi
+}
+zle -N _dotf_fg
+bindkey -M viins '^Z' _dotf_fg
+bindkey -M vicmd '^Z' _dotf_fg
+
 # Édite la ligne dans $EDITOR.
 bindkey -M vicmd v edit-command-line
 bindkey -M viins '^X^E' edit-command-line

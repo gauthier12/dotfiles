@@ -242,6 +242,8 @@ printf 'KPSYNC_LOCAL=%s\nKPSYNC_REMOTE=%s\n' "$T/local-file" "$T/remote-file" >>
 sed -i '/^KPSYNC_/d' "$LOCAL/config.sh"
 
 section "5f. Git"
+r=$(git config --global --includes user.email)
+[ "$r" = gauthier12@users.noreply.github.com ] && ok "git : adresse générique GitHub par défaut" || ko "git : adresse" "$r"
 r=$(git config --global --includes user.name; git config --global --includes pull.ff; git config --global alias.st)
 [ "$r" = "Gauthier
 only
@@ -252,6 +254,13 @@ r=$(git config --global --includes user.name)
 rm "$LOCAL/gitconfig"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
 [ "$(git config --global --get-all include.path | grep -c "$DOTF_DIR/config/git/config")" = 1 ] && ok "git : inclusion ajoutée une seule fois" || ko "git : inclusion en double"
+
+section "5g. Options zsh"
+r=$(run_shell zsh -ic 'print $options[interactivecomments] $options[beep] $options[histreduceblanks]; whence -w zmv; print ${widgets[self-insert]} ${widgets[bracketed-paste]}; bindkey -M viins "^Z"')
+[ "$r" = 'on off on
+zmv: function
+user:url-quote-magic user:bracketed-paste-magic
+"^Z" _dotf_fg' ] && stderr_clean && ok "zsh : commentaires, sans bip, zmv, URL protégées, Ctrl-Z → fg" || ko "zsh : options" "$r $(cat "$T/stderr.f")"
 
 section "5d. Moteur des modules (module factice, hors ligne)"
 cat >"$DOTF_DIR/modules/fake.sh" <<'MOD'

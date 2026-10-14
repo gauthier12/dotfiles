@@ -3,6 +3,7 @@
 
 [user]
 	name = Gauthier
+	email = gauthier12@users.noreply.github.com   # adresse générique GitHub, publiable
 [init]
 	defaultBranch = main
 [pull]
