@@ -1,0 +1,74 @@
+" Config vim commune, chargée depuis ~/.vimrc par dotf.
+" ~/.config/dotf/vimrc (propre à la machine) est chargé à la fin : il a le dernier mot.
+
+" UTF-8 même sous une locale C (le dictionnaire français est en UTF-8).
+set encoding=utf-8
+
+" Runtime : config locale (prioritaire), dépôt, plugins installés en modules (~/.local/opt/vim-*).
+let s:dotf = fnamemodify(resolve(expand('<sfile>:p')), ':h:h:h')
+let s:local = empty($DOTF_LOCAL) ? expand('~/.config/dotf') : $DOTF_LOCAL
+function! s:rtp_prepend(dir) abort
+  if index(split(&runtimepath, ','), a:dir) < 0
+    let &runtimepath = a:dir . ',' . &runtimepath
+  endif
+endfunction
+for s:dir in glob('~/.local/opt/vim-*', 1, 1)
+  call s:rtp_prepend(s:dir)
+endfor
+call s:rtp_prepend(s:dotf . '/config/vim')
+" La config locale passe en premier : vim écrit les mots ajoutés (zg) dans son dossier spell, s'il existe.
+call s:rtp_prepend(s:local . '/vim')
+if !isdirectory(s:local . '/vim/spell')
+  call mkdir(s:local . '/vim/spell', 'p')
+endif
+
+" Réglages de base de vim, qu'il saute dès qu'un ~/.vimrc existe. Après le runtime : ils activent la détection des types de fichiers.
+unlet! skip_defaults_vim
+source $VIMRUNTIME/defaults.vim
+
+" Thème : onedark (module vim-onedark), sinon un thème fourni avec vim.
+" Fautes d'orthographe soulignées dans le terminal, quel que soit le thème.
+augroup dotf_colors
+  autocmd!
+  autocmd ColorScheme * hi SpellBad cterm=underline ctermfg=NONE ctermbg=NONE
+augroup END
+set background=dark
+try
+  colorscheme onedark
+catch
+  silent! colorscheme habamax
+endtry
+
+" gvim
+set guifont=Hasklug\ Nerd\ Font\ 11
+set guioptions-=T
+
+" Orthographe
+command! Spellfr setlocal spell spelllang=fr
+command! Spellen setlocal spell spelllang=en
+command! Spellno setlocal nospell
+
+" Affichage et fenêtres
+set cursorline
+set splitright
+set visualbell
+set mousemodel=popup
+nnoremap <F9> :set number!<CR>
+nnoremap <F10> :set relativenumber!<CR>
+
+" Recherche de fichiers (:find dans les sous-dossiers), explorateur netrw en arbre
+set path+=**
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
+
+" Indentation : 3 espaces ; recherche insensible à la casse
+set expandtab tabstop=3 softtabstop=3 shiftwidth=3
+set smartindent
+set ignorecase
+
+" Fortran : tabulations autorisées
+let g:fortran_have_tabs = 1
+
+if filereadable(s:local . '/vimrc')
+  execute 'source' fnameescape(s:local . '/vimrc')
+endif

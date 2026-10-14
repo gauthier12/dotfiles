@@ -1,9 +1,9 @@
 # shellcheck shell=sh
-# Une ligne marquée « # dotf-hook » par fichier rc. La supprimer suffit à débrancher.
+# Une ligne marquée « dotf-hook » par fichier rc. La supprimer suffit à débrancher.
 
-HOOK_MARK='# dotf-hook'
+HOOK_MARK='dotf-hook'
 
-# « fichier:type », type env (shell/env.sh) ou init (shell/init.sh).
+# « fichier:type », type env (shell/env.sh), init (shell/init.sh) ou vim (config/vim/vimrc).
 hook_targets() {
   _z=${ZDOTDIR:-$HOME}
   echo "$HOME/.profile:env"
@@ -13,11 +13,21 @@ hook_targets() {
     echo "$_z/.zshenv:env"
     echo "$_z/.zshrc:init"
   fi
+  if command -v vim >/dev/null 2>&1 || command -v gvim >/dev/null 2>&1; then echo "$(hook_vimrc):vim"; fi
+}
+
+# vim lit ~/.vimrc, sinon ~/.vim/vimrc : on branche celui qui sert.
+hook_vimrc() {
+  if [ ! -e "$HOME/.vimrc" ] && [ -e "$HOME/.vim/vimrc" ]; then echo "$HOME/.vim/vimrc"; else echo "$HOME/.vimrc"; fi
 }
 
 hook_line() {
-  printf "if [ -r '%s/shell/%s.sh' ]; then DOTF='%s'; . '%s/shell/%s.sh'; fi  %s\n" \
-    "$DOTF" "$1" "$DOTF" "$DOTF" "$1" "$HOOK_MARK"
+  if [ "$1" = vim ]; then
+    printf "if filereadable('%s/config/vim/vimrc') | source %s/config/vim/vimrc | endif  \" %s\n" "$DOTF" "$DOTF" "$HOOK_MARK"
+  else
+    printf "if [ -r '%s/shell/%s.sh' ]; then DOTF='%s'; . '%s/shell/%s.sh'; fi  # %s\n" \
+      "$DOTF" "$1" "$DOTF" "$DOTF" "$1" "$HOOK_MARK"
+  fi
 }
 
 hook_present() { [ -f "$1" ] && grep -qF -- "$HOOK_MARK" "$1"; }
@@ -65,7 +75,7 @@ hooks_install() {
 # Tous les fichiers possibles, même ceux qui ne sont plus des cibles.
 hooks_remove() {
   _z=${ZDOTDIR:-$HOME}
-  for _f in "$HOME/.profile" "$HOME/.bash_profile" "$HOME/.bashrc" "$_z/.zshenv" "$_z/.zshrc"; do
+  for _f in "$HOME/.profile" "$HOME/.bash_profile" "$HOME/.bashrc" "$_z/.zshenv" "$_z/.zshrc" "$HOME/.vimrc" "$HOME/.vim/vimrc"; do
     hook_remove "$_f"
   done
 }

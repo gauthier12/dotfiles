@@ -1,6 +1,6 @@
 # dotf
 
-Mon environnement shell (bash et zsh) : installation en une commande, mise à jour, désinstallation propre,
+Mon environnement shell (bash et zsh), git et vim : installation en une commande, mise à jour, désinstallation propre,
 et personnalisation par machine hors git.
 
 ## Installation
@@ -62,7 +62,8 @@ dotf update                      # sur chacune des autres
 `dotf install` ajoute **une ligne** marquée `# dotf-hook` à la fin des fichiers suivants :
 
 - `~/.profile`, `~/.zshenv` et `~/.bash_profile` s'il existe : chargent `shell/env.sh` (PATH, variables) ;
-- `~/.bashrc` et `~/.zshrc` : chargent `shell/init.sh` (shells interactifs).
+- `~/.bashrc` et `~/.zshrc` : chargent `shell/init.sh` (shells interactifs) ;
+- `~/.vimrc` (ou `~/.vim/vimrc` si c'est lui qui sert), marquée `" dotf-hook` : charge `config/vim/vimrc`.
 
 Pour git, `~/.gitconfig` reçoit une ligne `include.path` vers `config/git/config` du dépôt, qui inclut à son
 tour `~/.config/dotf/gitconfig` (propre à la machine, prioritaire).
@@ -104,6 +105,23 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | Ctrl-← → | bash, zsh | mot précédent ou suivant |
 | Ctrl-A, Ctrl-E, Ctrl-R, Ctrl-W, Ctrl-U | zsh (bash : sauf Ctrl-W et Ctrl-U, déjà présents) | restent disponibles en insertion. Ctrl-W s'arrête aux `/ . - =`. |
 | Ctrl-S | bash, zsh | ne fige plus le terminal |
+| `br` | bash, zsh | broot, puis va dans le dossier choisi en le quittant (module `broot`) |
+| `git ddiff`, `git dshow`, `git dlog -p` | git | diff, show et log avec difftastic (module `difftastic`) |
+
+### vim
+
+`config/vim/vimrc` part des réglages de base de vim (`defaults.vim`), puis :
+
+| Élément | Effet |
+|---|---|
+| Thème | onedark (module `vim-onedark`), sinon habamax ; barre d'état airline (module `vim-airline`) |
+| `:Spellfr`, `:Spellen`, `:Spellno` | orthographe française, anglaise, ou aucune. Fautes soulignées dans le terminal. Le dictionnaire français est dans le dépôt (marche hors ligne) ; les mots ajoutés (`zg`) vont dans `~/.config/dotf/vim/spell/`. |
+| F9, F10 | numéros de ligne, numéros relatifs |
+| `:find` | cherche aussi dans les sous-dossiers |
+| Indentation | 3 espaces ; recherche insensible à la casse |
+| netrw (`:Explore`) | en arbre, sans bandeau |
+| Types de fichiers | Gibiane (`.dgibi`, `.gibi`, `.proc`, `.procedur` : coloration, indentation), Esope (`.eso`, `.INC` → Fortran), G-code (`.nc`, `.ngc`, `.gcode`, `.gco`) |
+| gvim | police Hasklug Nerd Font, sans barre d'outils |
 
 ## Personnaliser une machine
 
@@ -114,7 +132,8 @@ ni supprimé par dotf.
 - `gitconfig` : config git de la machine (adresse, identité par dossier, certificats, identifiants…) ;
 - `env.d/*.sh` : variables d'environnement (proxy, PATH supplémentaires…) ;
 - `rc.d/*.sh|bash|zsh` : alias, fonctions, réglages interactifs ;
-- `bin/` : scripts propres à la machine, ajoutés au PATH.
+- `bin/` : scripts propres à la machine, ajoutés au PATH ;
+- `vimrc` : réglages vim, chargés en dernier ; `vim/` : runtime vim de la machine (syntaxes, dictionnaires…), prioritaire sur celui du dépôt.
 
 ## Profils
 
@@ -139,6 +158,15 @@ le prochain `dotf install` le désinstalle.
 | `zsh-autosuggestions` | suggestion grisée tirée de l'historique pendant la frappe ; → ou Fin l'accepte |
 | `rustup` | Rust (rustup, cargo, rustc), aux emplacements standard `~/.rustup` et `~/.cargo`. Requis par les modules installés avec cargo. Le retirer désinstalle Rust, y compris ce qui a été installé à la main avec cargo. |
 | `zsh-syntax-highlighting` | colore la commande pendant la frappe (rouge si elle n'existe pas) |
+| `broot` | navigation dans l'arborescence, et `br` pour y changer de dossier |
+| `difftastic` | `difft`, diff qui comprend la syntaxe |
+| `dust` | `du` lisible (installé par son script officiel) |
+| `gitui` | interface git en terminal |
+| `lowfi` | musique lo-fi, compilé avec cargo (`rustup` installé avant). Demande `pkg-config` et les en-têtes ALSA et OpenSSL (Debian : `pkg-config libasound2-dev libssl-dev`). |
+| `vim-onedark`, `vim-airline` | thème et barre d'état de vim |
+
+Chaque outil est installé par la méthode recommandée par son projet. Les complétions bash et zsh qu'un module
+fournit sont chargées automatiquement.
 
 ### Écrire un module
 
@@ -160,7 +188,9 @@ Facultatif :
 - `pkg_needs="rustup"` : modules requis, installés avant (sans avoir à les mettre dans `DOTF_MODULES`) ;
 - `pkg_update` : mise à jour sur place, au lieu de réinstaller (ex. `rustup update`) ;
 - `pkg_remove` : à faire en plus à la désinstallation, pour ce qui est installé hors de son dossier ;
-- un fichier `.env.sh` écrit par `pkg_install` dans son dossier : chargé par les shells et avant chaque installation (ex. PATH).
+- un fichier `.env.sh` écrit par `pkg_install` dans son dossier : chargé par les shells et avant chaque installation (ex. PATH) ;
+- des fichiers `.rc.bash` et `.rc.zsh` dans son dossier : chargés par les shells interactifs (ex. la fonction `br`) ;
+- des complétions dans `completions/bash/<commande>` et `completions/zsh/_<commande>` (voir `add_completion`).
 
 dotf fait le reste :
 - installe dans `~/.local/opt/<nom>`, en remplaçant d'un coup l'ancienne version une fois la nouvelle prête ;
@@ -177,6 +207,8 @@ Outils disponibles :
 | `download <url> [<url des sommes>]` | télécharge dans le dossier courant et vérifie la somme |
 | `crate_latest <crate>` | dernière version stable sur crates.io |
 | `git_latest <url>` | dernier tag de version d'un dépôt git, tel quel |
+| `git_head <url>` | commit de la branche principale, pour un dépôt sans tags |
+| `add_completion <bash\|zsh> <commande>` | enregistre l'entrée standard comme complétion de la commande |
 | `fetch <url>` | télécharge sur la sortie standard |
 
 ## Liens symboliques

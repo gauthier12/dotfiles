@@ -62,8 +62,9 @@ printf '# bashrc d origine\nexport ORIG_BASHRC=1\n' >"$HOME/.bashrc"
 printf '# zshrc d origine\nexport ORIG_ZSHRC=1\n' >"$HOME/.zshrc"
 printf '# profile d origine\n' >"$HOME/.profile"
 printf '[alias]\n\tst = status\n' >"$HOME/.gitconfig"
+printf '" vimrc d origine\nlet g:orig_vimrc = 1\n' >"$HOME/.vimrc"
 mkdir -p "$T/orig"
-cp "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.gitconfig" "$T/orig/"
+cp "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.gitconfig" "$HOME/.vimrc" "$T/orig/"
 
 # =============================================================================
 section "1. Bootstrap (équivalent de curl | sh)"
@@ -73,6 +74,7 @@ check "config locale créée depuis local.example" test -f "$LOCAL/config.sh"
 for f in .profile .bashrc .zshenv .zshrc; do
   check "$f branché" grep -q '# dotf-hook' "$HOME/$f"
 done
+check ".vimrc branché" grep -q '" dotf-hook' "$HOME/.vimrc"
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
   if printf '%s' "$out" | grep -q 'starship : dernière version introuvable'; then ok "hors ligne : échec du module signalé sans interrompre l'installation"; else ko "échec du module signalé" "$out"; fi
   # Pour la suite : pas de module.
@@ -181,6 +183,11 @@ _broot _dust" ] && stderr_clean && ok "zsh : br et complétions broot, dust" || 
   [ "$r" = "f.py --- Python" ] && ok "git ddiff passe par difft" || ko "git ddiff" "$r"
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="vim-onedark vim-airline"/' "$LOCAL/config.sh"
+  "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+  r=$(env -i HOME="$HOME" PATH="$BASE_PATH" vim -n -i NONE -es -u "$HOME/.vimrc" -c 'call writefile([g:colors_name, exists("g:loaded_airline")], "/dev/stdout")' -c 'qa!' </dev/null)
+  [ "$r" = "onedark
+1" ] && ok "vim : onedark et airline" || ko "vim : modules" "$r"
   check "broot : marqueur de br retiré" test ! -e "$HOME/.config/broot/launcher"
   check "broot, difft, dust, gitui désinstallés" test ! -e "$HOME/.local/bin/broot" -a ! -e "$HOME/.local/bin/difft" -a ! -e "$HOME/.local/bin/dust" -a ! -e "$HOME/.local/bin/gitui"
 fi
@@ -279,6 +286,41 @@ r=$(run_shell zsh -ic 'print $options[interactivecomments] $options[beep] $optio
 zmv: function
 user:url-quote-magic user:bracketed-paste-magic
 "^Z" _dotf_fg' ] && stderr_clean && ok "zsh : commentaires, sans bip, zmv, URL protégées, Ctrl-Z → fg" || ko "zsh : options" "$r $(cat "$T/stderr.f")"
+
+section "5h. vim"
+mkdir -p "$T/vim"
+printf "* commentaire\nSI (A > 1);\nREPE B 3;\nX = 1;\nFIN B;\nSINON;\nY = 2;\nFINSI;\n'SI' (A < 0); Z = 3; 'FINSI';\nW = 4;\n" >"$T/vim/t.dgibi"
+echo 'C fixe' >"$T/vim/t.eso"
+echo 'G01 X1 (coupe)' >"$T/vim/t.nc"
+cat >"$T/vim/probe.vim" <<'VIM'
+let out = [g:colors_name, exists('g:orig_vimrc'), maparg('<F9>', 'n'), &ignorecase . &smartcase . &shiftwidth]
+for f in ['t.dgibi', 't.eso', 't.nc']
+  execute 'edit!' f
+  call add(out, &filetype)
+endfor
+edit! t.dgibi
+normal! gg=G
+call add(out, join(map(getline(1, '$'), 'indent(v:key + 1)'), ','))
+setlocal spell spelllang=fr
+spellgood motajoute
+let n = len(split(&runtimepath, ','))
+source ~/.vimrc
+call add(out, n == len(split(&runtimepath, ',')))
+call writefile(out, 'out')
+qa!
+VIM
+(cd "$T/vim" && env -i HOME="$HOME" PATH="$BASE_PATH" vim -n -i NONE -es -u "$HOME/.vimrc" -S probe.vim </dev/null)
+r=$(cat "$T/vim/out" 2>/dev/null)
+[ "$r" = "habamax
+1
+:set number!<CR>
+103
+gibiane
+fortran
+gcode
+0,0,4,8,4,0,4,0,0,0
+1" ] && ok "vim : thème de repli, vimrc d'origine gardé, F9, types de fichiers, indentation Gibiane" || ko "vim" "$r"
+check "vim : mot ajouté dans la config locale, pas dans le dépôt" test -f "$LOCAL/vim/spell/fr.utf-8.add" -a ! -e "$DOTF_DIR/config/vim/spell/fr.utf-8.add"
 
 section "5d. Moteur des modules (module factice, hors ligne)"
 cat >"$DOTF_DIR/modules/fake.sh" <<'MOD'
@@ -423,7 +465,7 @@ r=$(run_shell zsh -ic 'true')
 
 section "7. Désinstallation"
 "$DOTF_DIR/bin/dotf" uninstall >/dev/null 2>&1
-for f in .profile .bashrc .zshrc .bash_profile .gitconfig; do
+for f in .profile .bashrc .zshrc .bash_profile .gitconfig .vimrc; do
   check "$f identique à l'original" cmp -s "$HOME/$f" "$T/orig/$f"
 done
 check ".zshenv (créé par dotf) supprimé" test ! -e "$HOME/.zshenv"
@@ -438,6 +480,7 @@ run_shell bash -ic 'true'; rc=$?
 [ $rc -eq 0 ] && stderr_clean && ok "bash démarre sans erreur" || ko "bash sans dépôt" "$(cat "$T/stderr.f")"
 r=$(run_shell zsh -ic 'echo $?')
 [ "$r" = 0 ] && stderr_clean && ok "zsh démarre sans erreur (statut 0)" || ko "zsh sans dépôt" "$r $(cat "$T/stderr.f")"
+check "vim démarre sans erreur" env -i HOME="$HOME" PATH="$BASE_PATH" vim -n -i NONE -es -u "$HOME/.vimrc" -c q </dev/null
 mv "$T/dotf.moved" "$DOTF_DIR"
 
 section "9. Purge"

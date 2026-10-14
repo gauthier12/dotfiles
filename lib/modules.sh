@@ -78,6 +78,10 @@ git_latest() { # git_latest <url> : dernier tag de version (x.y.z ou vx.y.z), te
     grep -E '^v?[0-9]+(\.[0-9]+)*$' | sort -V | tail -n 1
 }
 
+git_head() { # git_head <url> : commit de la branche par défaut (12 caractères), pour un dépôt sans tags
+  git ls-remote "$1" HEAD | cut -c1-12
+}
+
 crate_latest() { # crate_latest <crate> : dernière version stable publiée sur crates.io
   case ${#1} in
     1) _path=1/$1 ;;

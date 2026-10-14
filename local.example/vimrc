@@ -1,0 +1,4 @@
+" Réglages vim propres à cette machine (hors git), chargés après config/vim/vimrc du dépôt.
+" Un dossier vim/ à côté (syntax/, ftdetect/, spell/…) est aussi pris en compte, avant celui du dépôt.
+
+" set background=light
