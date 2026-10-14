@@ -46,7 +46,7 @@ EOF
 
 cmd_install() {
   _update=
-  [ "${1-}" = --update ] && _update=1
+  [ "${1-}" = --update ] && _update=update
 
   log_step "Config locale"
   if [ -d "$DOTF_LOCAL" ]; then

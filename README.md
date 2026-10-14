@@ -54,7 +54,8 @@ dotf update                      # sur chacune des autres
 | `~/.local/share/dotf` | ce dépôt | oui |
 | `~/.config/dotf` | config propre à la machine | **non** |
 | `~/.local/state/dotf` | sauvegardes, liste des liens et modules posés | non |
-| `~/.local/bin` | binaires installés par les modules | non |
+| `~/.local/opt` | logiciels installés par les modules | non |
+| `~/.local/bin` | liens vers leurs exécutables | non |
 
 ## Comment c'est branché
 
@@ -106,15 +107,46 @@ ni supprimé par dotf.
 
 ## Modules
 
-Un module est un fichier `modules/<nom>.sh` qui définit `mod_installed`, `mod_install`, `mod_update` et
-`mod_remove`. On l'active en ajoutant son nom à `DOTF_MODULES`. Si on l'en retire, le prochain `dotf install`
-le désinstalle.
+Un module est un logiciel installé en espace utilisateur, sans root. On l'active en ajoutant son nom à
+`DOTF_MODULES`. `dotf install` l'installe, `dotf update` le met à jour, et si on le retire de la liste,
+le prochain `dotf install` le désinstalle.
 
 | Module | Rôle |
 |---|---|
-| `starship` | prompt commun à bash et zsh, configuré dans `config/starship.toml`. Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. |
-| `gitleaks` | détection de secrets utilisée par le garde-fou. Binaire officiel vérifié par SHA-256, mis à jour par `dotf update`. |
-| `joplin` | Joplin (bureau) : AppImage officielle vérifiée par SHA-512, rangée dans `~/.local/opt/joplin` et lancée par la commande `joplin`. Mise à jour par `dotf update`. Les notes ne sont jamais touchées. |
+| `starship` | prompt commun à bash et zsh (`config/starship.toml`). Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. |
+| `gitleaks` | détection de secrets pour le garde-fou |
+| `joplin` | Joplin, version bureau (AppImage). Les notes ne sont jamais touchées. |
+
+### Écrire un module
+
+`modules/<nom>.sh` définit trois choses :
+
+```sh
+pkg_bins=gitleaks                         # exécutables à lier dans ~/.local/bin
+
+pkg_latest() { gh_latest gitleaks/gitleaks; }   # dernière version
+
+pkg_install() {                           # installe la version $1 dans le dossier courant
+  _f="gitleaks_$1_linux_x64.tar.gz"
+  gh_get gitleaks/gitleaks "v$1" "$_f" "gitleaks_$1_checksums.txt" &&
+    tar -xzf "$_f" gitleaks && rm "$_f"
+}
+```
+
+dotf fait le reste :
+- installe dans `~/.local/opt/<nom>`, en remplaçant d'un coup l'ancienne version une fois la nouvelle prête ;
+- enregistre la version ;
+- pose les liens, sans jamais écraser un fichier qui n'est pas à lui ;
+- met à jour quand la version change, et désinstalle.
+
+Outils disponibles :
+
+| Outil | Rôle |
+|---|---|
+| `gh_latest <dépôt>` | dernière release GitHub, sans le « v » |
+| `gh_get <dépôt> <tag> <fichier> [<sommes>]` | télécharge une pièce de release et vérifie sa somme SHA-256 ou SHA-512 |
+| `git_latest <url>` | dernier tag de version d'un dépôt git |
+| `fetch <url>` | télécharge sur la sortie standard |
 
 ## Liens symboliques
 

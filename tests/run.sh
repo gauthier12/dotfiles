@@ -76,7 +76,7 @@ for f in .profile .bashrc .zshenv .zshrc; do
   check "$f branché" grep -q '# dotf-hook' "$HOME/$f"
 done
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
-  if printf '%s' "$out" | grep -q 'module starship : échec'; then ok "hors ligne : échec du module signalé sans interrompre l'installation"; else ko "échec du module signalé" "$out"; fi
+  if printf '%s' "$out" | grep -q 'starship : dernière version introuvable'; then ok "hors ligne : échec du module signalé sans interrompre l'installation"; else ko "échec du module signalé" "$out"; fi
   # Pour la suite : pas de module.
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
 fi
@@ -145,12 +145,12 @@ else
   [ "$r" = "_dotf_prompt;_dotf_history_sync" ] && stderr_clean && ok "TERM=dumb : prompt de repli malgré starship" || ko "TERM=dumb" "$r $(cat "$T/stderr.f")"
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="gitleaks"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
-  check "module retiré de DOTF_MODULES : starship désinstallé" test ! -e "$HOME/.local/bin/starship"
+  check "module retiré de DOTF_MODULES : starship désinstallé" test ! -e "$HOME/.local/bin/starship" -a ! -e "$HOME/.local/opt/starship"
   check "gitleaks installé dans ~/.local/bin" "$HOME/.local/bin/gitleaks" version
   out=$("$DOTF_DIR/bin/dotf" status 2>&1)
   case $out in *"gitleaks utilisé en complément"*) ok "status : gitleaks détecté hors PATH" ;; *) ko "status : gitleaks" "$out" ;; esac
   out=$("$DOTF_DIR/bin/dotf" update 2>&1)
-  case $out in *"module gitleaks : à jour"*) ok "update : module gitleaks mis à jour" ;; *) ko "update gitleaks" "$out" ;; esac
+  case $out in *"gitleaks "*" à jour"*) ok "update : module gitleaks mis à jour" ;; *) ko "update gitleaks" "$out" ;; esac
   # Clé Stripe factice : inconnue des règles intégrées, reconnue par gitleaks.
   printf 'stripe = "sk_%s_%s"\n' live 4eC39HqLyjWDarjtT1zdp7dc >"$DOTF_DIR/fuite.txt"
   git -C "$DOTF_DIR" add fuite.txt
@@ -206,12 +206,41 @@ mkdir -p "$HOME/.local/bin"
 echo autre >"$HOME/.local/bin/joplin"
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="joplin"/' "$LOCAL/config.sh"
 out=$("$DOTF_DIR/bin/dotf" install 2>&1)
-case $out in *"joplin : $HOME/.local/bin/joplin existe déjà"*) ok "joplin : refuse d'écraser un autre joplin" ;; *) ko "joplin : écrasement" "$out" ;; esac
+case $out in *"joplin : ~/.local/bin/joplin existe déjà"*) ok "joplin : refuse d'écraser un autre joplin" ;; *) ko "joplin : écrasement" "$out" ;; esac
 check "joplin : fichier existant intact" grep -qx autre "$HOME/.local/bin/joplin"
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
 check "joplin : fichier existant intact après retrait du module" grep -qx autre "$HOME/.local/bin/joplin"
 rm -f "$HOME/.local/bin/joplin"
+
+section "5d. Moteur des modules (module factice, hors ligne)"
+cat >"$DOTF_DIR/modules/fake.sh" <<'MOD'
+# shellcheck shell=sh disable=SC2034
+pkg_bins="bin/fake"
+pkg_latest() { cat "$HOME/fake-version"; }
+pkg_install() { mkdir bin && printf '#!/bin/sh\necho fake %s\n' "$1" >bin/fake && chmod +x bin/fake; }
+MOD
+echo 1.0 >"$HOME/fake-version"
+sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="fake"/' "$LOCAL/config.sh"
+"$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+r=$("$HOME/.local/bin/fake" 2>&1)
+[ "$r" = "fake 1.0" ] && ok "install : version 1.0, lien dans ~/.local/bin" || ko "install fake" "$r"
+echo 2.0 >"$HOME/fake-version"
+"$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+r=$("$HOME/.local/bin/fake")
+[ "$r" = "fake 1.0" ] && ok "install : ne met pas à jour" || ko "install a mis à jour" "$r"
+out=$("$DOTF_DIR/bin/dotf" install --update 2>&1)
+r=$("$HOME/.local/bin/fake")
+[ "$r" = "fake 2.0" ] && ok "install --update : passe en 2.0" || ko "update fake" "$r $out"
+out=$("$DOTF_DIR/bin/dotf" install --update 2>&1)
+case $out in *"fake 2.0 à jour"*) ok "update : rien à faire si déjà à jour" ;; *) ko "update à jour" "$out" ;; esac
+out=$("$DOTF_DIR/bin/dotf" status 2>&1)
+case $out in *"fake 2.0"*) ok "status : version affichée" ;; *) ko "status fake" "$out" ;; esac
+rm "$DOTF_DIR/modules/fake.sh"
+sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
+"$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+check "module retiré (et supprimé du dépôt) : désinstallé" test ! -e "$HOME/.local/bin/fake" -a ! -e "$HOME/.local/opt/fake"
+rm -f "$HOME/fake-version"
 
 section "6. Mise à jour et liens"
 mkdir -p "$REMOTE/config/test" "$HOME/.config"

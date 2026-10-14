@@ -1,23 +1,12 @@
-# shellcheck shell=sh
-# starship : prompt commun à bash et zsh (https://starship.rs).
-# Binaire installé dans ~/.local/bin ; la config est dans $DOTF/config/starship.toml.
+# shellcheck shell=sh disable=SC2034
+# Prompt commun à bash et zsh. Config : $DOTF/config/starship.toml.
 
-_starship_bin="$HOME/.local/bin/starship"
+pkg_bins=starship
 
-mod_installed() {
-  [ -x "$_starship_bin" ]
-}
+pkg_latest() { gh_latest starship/starship; }
 
-mod_install() {
-  mkdir -p "$(dirname "$_starship_bin")"
-  _installer=$(fetch https://starship.rs/install.sh) || return 1
-  printf '%s\n' "$_installer" | sh -s -- --yes --bin-dir "$(dirname "$_starship_bin")" >/dev/null
-}
-
-mod_update() {
-  mod_install
-}
-
-mod_remove() {
-  rm -f "$_starship_bin"
+pkg_install() {
+  _f="starship-$(uname -m)-unknown-linux-musl.tar.gz"
+  gh_get starship/starship "v$1" "$_f" "$_f.sha256" &&
+    tar -xzf "$_f" starship && rm "$_f"
 }
