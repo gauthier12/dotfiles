@@ -84,6 +84,10 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | `-` | bash, zsh | retour au dossier précédent (`cd -`) |
 | `d` | zsh | les 10 derniers dossiers visités, numérotés (chaque `cd` les empile) |
 | `1` … `9` | zsh | retour au dossier n° 1 … 9 de cette liste |
+| `history` | bash, zsh | historique daté (zsh : en entier). 50 000 lignes en mémoire, 10 000 sur disque, partagé entre les terminaux ouverts. Une commande précédée d'une espace n'est pas enregistrée. |
+| Tab | zsh | menu navigable, insensible à la casse, mots partiels (`f-b` → `foo-bar`) |
+| Ctrl-W, Alt-B/F | zsh | s'arrêtent aux `/ . - =` |
+| Ctrl-S | bash, zsh | ne fige plus le terminal |
 
 ## Personnaliser une machine
 

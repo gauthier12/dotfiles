@@ -128,7 +128,7 @@ check "~/.bash_profile existant : branché lui aussi" grep -q '# dotf-hook' "$HO
 section "5. Prompt"
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
   r=$(run_shell bash -ic 'echo "$PROMPT_COMMAND"')
-  [ "$r" = "_dotf_prompt" ] && ok "bash : prompt de repli sans starship" || ko "bash : prompt de repli" "$r"
+  [ "$r" = "_dotf_prompt;_dotf_history_sync" ] && ok "bash : prompt de repli sans starship" || ko "bash : prompt de repli" "$r"
   r=$(run_shell zsh -ic 'echo "$PROMPT"')
   case $r in *'%n@%m'*) ok "zsh : prompt de repli sans starship" ;; *) ko "zsh : prompt de repli" "$r" ;; esac
 else
@@ -137,10 +137,12 @@ else
   check "starship installé dans ~/.local/bin" test -x "$HOME/.local/bin/starship"
   r=$(run_shell bash -ic 'echo "$PROMPT_COMMAND"')
   case $r in *starship*) ok "bash : prompt starship" ;; *) ko "bash : prompt starship" "$r" ;; esac
+  r=$(run_shell bash -ic 'echo "$STARSHIP_PROMPT_COMMAND"')
+  [ "$r" = "_dotf_history_sync" ] && ok "bash : starship conserve la synchro de l'historique" || ko "bash : STARSHIP_PROMPT_COMMAND" "$r"
   r=$(run_shell zsh -ic 'echo "$STARSHIP_CONFIG"')
   [ "$r" = "$DOTF_DIR/config/starship.toml" ] && ok "zsh : STARSHIP_CONFIG pointe vers le dépôt" || ko "zsh : STARSHIP_CONFIG" "$r"
   r=$(RUN_TERM=dumb run_shell bash -ic 'echo "$PROMPT_COMMAND"')
-  [ "$r" = "_dotf_prompt" ] && stderr_clean && ok "TERM=dumb : prompt de repli malgré starship" || ko "TERM=dumb" "$r $(cat "$T/stderr.f")"
+  [ "$r" = "_dotf_prompt;_dotf_history_sync" ] && stderr_clean && ok "TERM=dumb : prompt de repli malgré starship" || ko "TERM=dumb" "$r $(cat "$T/stderr.f")"
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="gitleaks"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
   check "module retiré de DOTF_MODULES : starship désinstallé" test ! -e "$HOME/.local/bin/starship"
@@ -172,6 +174,20 @@ pushd
 3" ] && stderr_clean && ok "zsh : ls en couleur, pile des dossiers (1-9, d)" || ko "zsh : alias" "$r $(cat "$T/stderr.f")"
 r=$(run_shell zsh -ic 'setTitle "t i" | od -An -c | tr -s " " | tr -d "\n"')
 [ "$r" = " 033 ] 0 ; t i \\a" ] && ok "zsh : setTitle" || ko "zsh : setTitle" "$r"
+
+section "5c. Complétion, historique, édition de ligne"
+r=$(run_shell zsh -ic 'print $+functions[compdef] $options[sharehistory] $options[histignorespace] $SAVEHIST; print -r -- $WORDCHARS; whence -w history')
+[ "$r" = '1 on on 10000
+*?_[]~&;!#$%^(){}<>
+history: function' ] && stderr_clean && ok "zsh : compinit, historique partagé, WORDCHARS, history" || ko "zsh : complétion/historique" "$r $(cat "$T/stderr.f")"
+check "zsh : dump de complétion dans ~/.cache/zsh" test -f "$HOME/.cache/zsh/zcompdump-$(zsh -c 'echo $ZSH_VERSION')"
+check "zsh : compinit global de Debian évité (pas de ~/.zcompdump)" test ! -e "$HOME/.zcompdump"
+r=$(run_shell bash -ic 'echo "$HISTSIZE $HISTFILESIZE $HISTCONTROL"; shopt -q histappend && shopt -q histverify && echo shopt')
+[ "$r" = "50000 10000 ignoreboth
+shopt" ] && stderr_clean && ok "bash : historique (taille, ignoreboth, histappend)" || ko "bash : historique" "$r $(cat "$T/stderr.f")"
+printf 'echo autre-terminal\n' >>"$HOME/.bash_history"
+r=$(run_shell bash -ic '_dotf_history_sync; history | grep -c autre-terminal')
+[ "$r" = 1 ] && ok "bash : lit les commandes des autres terminaux" || ko "bash : synchro historique" "$r"
 
 # Module joplin : ne remplace jamais un ~/.local/bin/joplin qui n'est pas le sien.
 mkdir -p "$HOME/.local/bin"

@@ -27,6 +27,11 @@ _dotf_glob_end() {
   unset _dotf_ng_was_set
 }
 
+# zsh : la complétion est initialisée par shell/rc.d/30-completion.zsh. On demande à /etc/zsh/zshrc
+# (Debian, Ubuntu) de ne pas lancer compinit avant, ce qui le ferait tourner deux fois.
+# shellcheck disable=SC2034
+if [ -n "${ZSH_VERSION-}" ]; then skip_global_compinit=1; fi
+
 dotf_path_prepend "$HOME/.local/bin"
 dotf_path_prepend "$DOTF/bin"
 dotf_path_prepend "$DOTF_LOCAL/bin"
