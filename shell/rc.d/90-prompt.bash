@@ -1,15 +1,15 @@
 # starship, sinon un prompt simple.
 
 if [ "${TERM-}" != dumb ] && command -v starship >/dev/null 2>&1; then
-  export STARSHIP_CONFIG="${STARSHIP_CONFIG:-$DOTF/config/starship.toml}"
+  STARSHIP_CONFIG=${STARSHIP_CONFIG:-$(_dotf_starship_config)}
+  export STARSHIP_CONFIG
   eval "$(starship init bash)"
 else
-  # [code retour] user@hôte dossier $
+  # user@hôte dossier $ ($ rouge si erreur)
   _dotf_prompt() {
-    local status=$?
-    PS1=''
-    if [ "$status" -ne 0 ]; then PS1='\[\e[31m\]'"$status"' \[\e[0m\]'; fi
-    PS1+='\u@\h \[\e[34m\]\w\[\e[0m\] \$ '
+    local status=$? color=0
+    [ "$status" -eq 0 ] || color=31
+    PS1='\u@\[\e[1;38;5;'"$DOTF_HOST_COLOR"'m\]\h\[\e[0m\] \[\e[34m\]\w\[\e[0m\] \[\e['"$color"'m\]\$\[\e[0m\] '
   }
   case ";${PROMPT_COMMAND-};" in
     *";_dotf_prompt;"*) ;;

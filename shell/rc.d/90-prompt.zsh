@@ -1,9 +1,9 @@
 # starship, sinon un prompt simple.
 
 if [ "${TERM-}" != dumb ] && command -v starship >/dev/null 2>&1; then
-  export STARSHIP_CONFIG="${STARSHIP_CONFIG:-$DOTF/config/starship.toml}"
+  export STARSHIP_CONFIG=${STARSHIP_CONFIG:-$(_dotf_starship_config)}
   eval "$(starship init zsh)"
 else
-  # [code retour] user@hôte dossier %
-  PROMPT='%(?..%F{red}%? %f)%n@%m %F{blue}%~%f %# '
+  # user@hôte dossier % (% rouge si erreur)
+  PROMPT="%n@%B%F{$DOTF_HOST_COLOR}%m%f%b %F{blue}%~%f %(?..%F{red})%#%f "
 fi

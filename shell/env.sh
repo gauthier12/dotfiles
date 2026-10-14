@@ -30,15 +30,28 @@ _dotf_glob_end() {
 # shellcheck disable=SC2034
 if [ -n "${ZSH_VERSION-}" ]; then skip_global_compinit=1; fi
 
+dotf_path_prepend "$HOME/.cargo/bin"
+dotf_path_prepend "$HOME/bin"
 dotf_path_prepend "$HOME/.local/bin"
 dotf_path_prepend "$DOTF/bin"
 dotf_path_prepend "$DOTF_LOCAL/bin"
 export PATH
 
+if command -v vim >/dev/null 2>&1; then EDITOR='vim'; else EDITOR='vi'; fi
+VISUAL=$EDITOR
+export EDITOR VISUAL
+
+# Config locale, puis profils (DOTF_PROFILES), puis env.d local.
 if [ -r "$DOTF_LOCAL/config.sh" ]; then
   # shellcheck source=/dev/null
   . "$DOTF_LOCAL/config.sh"
 fi
+
+for _dotf_p in ${DOTF_PROFILES-}; do
+  # shellcheck source=/dev/null
+  if [ -r "$DOTF/profiles/$_dotf_p.sh" ]; then . "$DOTF/profiles/$_dotf_p.sh"; fi
+done
+unset _dotf_p
 
 _dotf_glob_begin
 for _dotf_f in "$DOTF_LOCAL"/env.d/*.sh; do

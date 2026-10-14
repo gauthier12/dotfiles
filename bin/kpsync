@@ -1,0 +1,14 @@
+#!/bin/sh
+# Synchronise un fichier avec sa copie distante : la version la plus récente gagne.
+# Réglages dans ~/.config/dotf/config.sh : KPSYNC_LOCAL et KPSYNC_REMOTE (hôte:chemin).
+set -eu
+
+# shellcheck source=/dev/null
+. "${DOTF_LOCAL:-${XDG_CONFIG_HOME:-$HOME/.config}/dotf}/config.sh"
+: "${KPSYNC_LOCAL:?à régler dans la config locale}" "${KPSYNC_REMOTE:?à régler dans la config locale}"
+
+# -u : ne remplace pas un fichier plus récent ; -b : garde l'ancienne version en <fichier>~.
+echo "Réception"
+rsync -uvtb "$KPSYNC_REMOTE" "$KPSYNC_LOCAL"
+echo "Envoi"
+rsync -uvtb "$KPSYNC_LOCAL" "$KPSYNC_REMOTE"

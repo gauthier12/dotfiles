@@ -81,7 +81,10 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | Commande | Shells | Effet |
 |---|---|---|
 | `ls` | bash, zsh | en couleur (si le `ls` du système le permet) |
-| `setTitle <texte>` | bash, zsh | change le titre de la fenêtre du terminal |
+| Prompt | bash, zsh | heure, user@hôte (une couleur propre à chaque machine, tirée de son nom), dossier, git ; `❯` rouge si la commande a échoué |
+| Titre du terminal | bash, zsh | hôte et dossier ; en zsh, la commande pendant qu'elle tourne |
+| `setTitle <texte>` | bash, zsh | fixe le titre ; sans argument, revient au titre automatique |
+| `kpsync` | bash, zsh | synchronise un fichier avec sa copie distante, la version la plus récente gagne (l'ancienne est gardée en `fichier~`). Réglages `KPSYNC_LOCAL` et `KPSYNC_REMOTE` dans la config locale. |
 | `-` | bash, zsh | retour au dossier précédent (`cd -`) |
 | `d` | zsh | les 10 derniers dossiers visités, numérotés (chaque `cd` les empile) |
 | `1` … `9` | zsh | retour au dossier n° 1 … 9 de cette liste |
@@ -100,10 +103,19 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 `~/.config/dotf/` est créé depuis `local.example/` au premier `dotf install`, puis n'est plus jamais modifié
 ni supprimé par dotf.
 
-- `config.sh` : `DOTF_MODULES="starship …"` et autres réglages ;
+- `config.sh` : `DOTF_MODULES`, `DOTF_PROFILES` et autres réglages ;
 - `env.d/*.sh` : variables d'environnement (proxy, PATH supplémentaires…) ;
 - `rc.d/*.sh|bash|zsh` : alias, fonctions, réglages interactifs ;
 - `bin/` : scripts propres à la machine, ajoutés au PATH.
+
+## Profils
+
+Un profil regroupe des réglages propres à un type de machine ou de réseau : `profiles/<nom>.sh`, chargé par tous
+les shells quand `<nom>` figure dans `DOTF_PROFILES` (config locale).
+
+| Profil | Rôle |
+|---|---|
+| `nfs-home` | home sur le réseau : les caches (`XDG_CACHE_HOME`) vont sur le disque local |
 
 ## Modules
 

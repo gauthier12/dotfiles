@@ -125,9 +125,9 @@ check "~/.bash_profile existant : branché lui aussi" grep -q '# dotf-hook' "$HO
 section "5. Prompt"
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
   r=$(run_shell bash -ic 'echo "$PROMPT_COMMAND"')
-  [ "$r" = "_dotf_prompt;_dotf_history_sync" ] && ok "bash : prompt de repli sans starship" || ko "bash : prompt de repli" "$r"
+  [ "$r" = "_dotf_prompt;_dotf_title_prompt;_dotf_history_sync" ] && ok "bash : prompt de repli sans starship" || ko "bash : prompt de repli" "$r"
   r=$(run_shell zsh -ic 'echo "$PROMPT"')
-  case $r in *'%n@%m'*) ok "zsh : prompt de repli sans starship" ;; *) ko "zsh : prompt de repli" "$r" ;; esac
+  case $r in *'%n@%B%F{'*'}%m'*) ok "zsh : prompt de repli sans starship" ;; *) ko "zsh : prompt de repli" "$r" ;; esac
 else
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="starship"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
@@ -135,11 +135,15 @@ else
   r=$(run_shell bash -ic 'echo "$PROMPT_COMMAND"')
   case $r in *starship*) ok "bash : prompt starship" ;; *) ko "bash : prompt starship" "$r" ;; esac
   r=$(run_shell bash -ic 'echo "$STARSHIP_PROMPT_COMMAND"')
-  [ "$r" = "_dotf_history_sync" ] && ok "bash : starship conserve la synchro de l'historique" || ko "bash : STARSHIP_PROMPT_COMMAND" "$r"
-  r=$(run_shell zsh -ic 'echo "$STARSHIP_CONFIG"')
-  [ "$r" = "$DOTF_DIR/config/starship.toml" ] && ok "zsh : STARSHIP_CONFIG pointe vers le dépôt" || ko "zsh : STARSHIP_CONFIG" "$r"
+  [ "$r" = "_dotf_title_prompt;_dotf_history_sync" ] && ok "bash : starship conserve titre et synchro de l'historique" || ko "bash : STARSHIP_PROMPT_COMMAND" "$r"
+  r=$(run_shell zsh -ic 'echo "$STARSHIP_CONFIG"; grep "^style" "$STARSHIP_CONFIG"; echo "$DOTF_HOST_COLOR"')
+  c=$(printf '%s\n' "$r" | sed -n 3p)
+  [ "$(printf '%s\n' "$r" | sed -n 1p)" = "$HOME/.cache/dotf/starship-$c.toml" ] &&
+    [ "$(printf '%s\n' "$r" | sed -n 2p)" = "style = \"bold $c\"" ] && ok "zsh : config starship avec la couleur de l'hôte" || ko "zsh : STARSHIP_CONFIG" "$r"
+  r=$(run_shell bash -ic 'starship prompt' | sed -e 's/\x1b\[[0-9;]*m//g' -e 's/\\[][]//g')
+  case $r in *"$(id -un)@$(uname -n) "*) stderr_clean && ok "bash : prompt starship avec user@hôte" || ko "bash : erreurs starship" "$(cat "$T/stderr.f")" ;; *) ko "bash : prompt starship" "$r" ;; esac
   r=$(RUN_TERM=dumb run_shell bash -ic 'echo "$PROMPT_COMMAND"')
-  [ "$r" = "_dotf_prompt;_dotf_history_sync" ] && stderr_clean && ok "TERM=dumb : prompt de repli malgré starship" || ko "TERM=dumb" "$r $(cat "$T/stderr.f")"
+  [ "$r" = "_dotf_prompt;_dotf_title_prompt;_dotf_history_sync" ] && stderr_clean && ok "TERM=dumb : prompt de repli malgré starship" || ko "TERM=dumb" "$r $(cat "$T/stderr.f")"
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="zsh-autosuggestions zsh-syntax-highlighting"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
   r=$(run_shell zsh -ic 'print $+functions[_zsh_autosuggest_start] $+functions[_zsh_highlight]')
@@ -213,6 +217,28 @@ sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
 check "joplin : fichier existant intact après retrait du module" grep -qx autre "$HOME/.local/bin/joplin"
 rm -f "$HOME/.local/bin/joplin"
+
+section "5e. Couleur d'hôte, titre, environnement, profils, kpsync"
+r=$(run_shell bash -ic 'echo $DOTF_HOST_COLOR'; run_shell zsh -ic 'echo $DOTF_HOST_COLOR')
+c=$(printf '%s\n' "$r" | head -n 1)
+case $c in [1-6] | 9 | 1[0-4]) [ "$(printf '%s\n' "$r" | sort -u | wc -l)" = 1 ] && ok "couleur d'hôte $c, la même en bash et zsh" || ko "couleur d'hôte différente" "$r" ;; *) ko "couleur d'hôte" "$r" ;; esac
+r=$(run_shell zsh -ic 'cd; _dotf_title_precmd; setTitle fixe; _dotf_title_precmd; setTitle; _dotf_title_precmd' | od -An -c | tr -d ' \n')
+h=$(uname -n | cut -d. -f1)
+case $r in *"033]0;$h:~\\a033]0;fixe\\a033]0;\\a033]0;$h:~\\a"*) ok "titre automatique, setTitle le fixe puis le libère" ;; *) ko "titre" "$r" ;; esac
+mkdir -p "$HOME/bin"
+r=$(run_shell bash -lc 'echo "$EDITOR $VISUAL"; case :$PATH: in *:$HOME/bin:*) echo bin ;; esac')
+e='vi'; command -v vim >/dev/null && e='vim'
+[ "$r" = "$e $e
+bin" ] && ok "EDITOR=$e, ~/bin dans le PATH" || ko "env" "$r"
+echo 'DOTF_PROFILES="nfs-home"' >>"$LOCAL/config.sh"
+r=$(run_shell bash -lc 'echo "$XDG_CACHE_HOME"')
+[ "$r" = "/tmp/$(id -un)/.cache" ] && ok "profil nfs-home : cache sur le disque local" || ko "profil nfs-home" "$r"
+sed -i '/^DOTF_PROFILES=/d' "$LOCAL/config.sh"
+echo distant >"$T/remote-file"; echo local >"$T/local-file"; touch -d '2000-01-01' "$T/local-file"
+printf 'KPSYNC_LOCAL=%s\nKPSYNC_REMOTE=%s\n' "$T/local-file" "$T/remote-file" >>"$LOCAL/config.sh"
+"$DOTF_DIR/bin/kpsync" >/dev/null 2>&1
+[ "$(cat "$T/local-file")" = distant ] && [ "$(cat "$T/local-file~")" = local ] && ok "kpsync : la version récente gagne, l'ancienne est gardée" || ko "kpsync"
+sed -i '/^KPSYNC_/d' "$LOCAL/config.sh"
 
 section "5d. Moteur des modules (module factice, hors ligne)"
 cat >"$DOTF_DIR/modules/fake.sh" <<'MOD'

@@ -20,6 +20,9 @@ zstyle ':completion:*' matcher-list '' \
   'm:{a-zA-Z}={A-Za-z} r:|[._-]=* r:|=*' \
   'm:{a-zA-Z}={A-Za-z} l:|=* r:|=*'
 
+# Fichiers ignorés par la complétion (sauf s'il n'y a qu'eux).
+fignore=(.o .old)
+
 # cd : sous-dossiers, puis pile des dossiers.
 zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
 
