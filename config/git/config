@@ -3,10 +3,19 @@
 
 [user]
 	name = Gauthier
+[init]
+	defaultBranch = main
 [pull]
 	ff = only
+[fetch]
+	prune = true             # oublie les branches supprimées sur le serveur
+[push]
+	autoSetupRemote = true   # premier push d'une branche sans -u
+[diff]
+	algorithm = histogram
 [merge]
 	tool = meld
+	conflictStyle = zdiff3   # les conflits montrent aussi la version d'origine
 [credential]
 	helper = cache
 
