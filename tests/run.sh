@@ -225,7 +225,7 @@ fg=#585b70" ] && stderr_clean && ok "zsh : coloration latte puis mocha sans rela
   [ "$r" = "FiraCode Nerd Font Mono" ] && ok "nerd-fonts : FiraCode Mono visible (fc-list), sans les autres variantes" || ko "nerd-fonts" "$r"
   sed -i -e 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' -e '/^DOTF_FONTS=/d' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
-  check "nerd-fonts : lien des polices retiré" test ! -e "$HOME/.local/share/fonts/nerd-fonts" -a ! -L "$HOME/.local/share/fonts/nerd-fonts"
+  check "nerd-fonts : lien des polices retiré" test ! -e "$HOME/.local/share/fonts/NerdFonts" -a ! -L "$HOME/.local/share/fonts/NerdFonts"
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="nvim catppuccin vim-catppuccin vim-lightline"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
   check "nvim : branché dès la première installation du module" grep -q 'dotf-hook' "$HOME/.config/nvim/init.vim"

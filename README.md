@@ -193,8 +193,8 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 |---|---|
 | `starship` | prompt commun à bash et zsh (`config/starship.toml`). Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. |
 | `gitleaks` | détection de secrets pour le garde-fou |
-| `joplin` | Joplin, version bureau (AppImage). Les notes ne sont jamais touchées. |
-| `lapce` | éditeur graphique Lapce, version stable (binaire officiel). Thèmes Catppuccin installés (module `catppuccin`, ajouté avec lui) ; Catppuccin Mocha par défaut au premier lancement, puis réglages de Lapce, jamais touchés. Ne suit pas `dotf theme`. |
+| `joplin` | Joplin, version bureau (AppImage), avec lanceur et icône dans le menu des applications. Les notes ne sont jamais touchées. |
+| `lapce` | éditeur graphique Lapce, version stable (binaire officiel), avec lanceur et icône. Thèmes Catppuccin installés (module `catppuccin`, ajouté avec lui) ; Catppuccin Mocha par défaut au premier lancement, puis réglages de Lapce, jamais touchés. Ne suit pas `dotf theme`. |
 | `zsh-autosuggestions` | suggestion grisée tirée de l'historique pendant la frappe ; → ou Fin l'accepte |
 | `rustup` | Rust (rustup, cargo, rustc), aux emplacements standard `~/.rustup` et `~/.cargo`. Requis par les modules installés avec cargo. Le retirer désinstalle Rust, y compris ce qui a été installé à la main avec cargo. |
 | `zsh-syntax-highlighting` | colore la commande pendant la frappe (rouge si elle n'existe pas) |
@@ -207,7 +207,7 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 | `vim-catppuccin`, `vim-lightline` | thème et barre d'état de vim |
 | `nvim` | Neovim, archive officielle (x86_64, arm64 ; glibc 2.34 et plus). Passe avant celui du système, et utilise le vimrc commun. |
 | `typst` | composition de documents (binaire officiel, statique). Pas de sommes publiées : archive non vérifiée. |
-| `nerd-fonts` | polices Nerd Font, variante Mono, listées dans `DOTF_FONTS` (par défaut Hasklig et FiraCode), dans `~/.local/share/fonts/nerd-fonts`. Changer la liste : `dotf update`. |
+| `nerd-fonts` | polices Nerd Font, variante Mono, listées dans `DOTF_FONTS` (par défaut Hasklig et FiraCode), dans `~/.local/share/fonts/NerdFonts`. Changer la liste : `dotf update`. |
 
 Chaque outil est installé par la méthode recommandée par son projet. Les complétions bash et zsh qu'un module
 fournit sont chargées automatiquement.
