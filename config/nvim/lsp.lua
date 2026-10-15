@@ -1,5 +1,5 @@
 -- Serveurs de langage de nvim (0.11 et plus), chargé par le vimrc commun. Chaque serveur n'est activé que s'il est
--- installé (modules rust-analyzer, ruff, tinymist). Raccourcis d'origine de nvim : K, grn, gra, grr, gri, [d, ]d, gO.
+-- installé (modules rustup, ruff, tinymist). Raccourcis d'origine de nvim : K, grn, gra, grr, gri, [d, ]d, gO.
 if vim.fn.has('nvim-0.11') == 0 then return end
 
 vim.lsp.config('rust_analyzer', {

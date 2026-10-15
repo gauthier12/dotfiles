@@ -149,7 +149,7 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 ### nvim : serveurs de langage
 
 nvim (0.11 et plus, module `nvim`) se sert des serveurs de langage installés, configurés dans `config/nvim/lsp.lua` :
-Rust (module `rust-analyzer`), Python (`ruff`) et Typst (`tinymist`). Un serveur absent est simplement ignoré.
+Rust (module `rustup`), Python (`ruff`) et Typst (`tinymist`). Un serveur absent est simplement ignoré.
 vim n'est pas concerné.
 
 - complétion pendant la frappe, erreurs dans la marge et en fin de ligne ;
@@ -258,7 +258,7 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 | `joplin` | Joplin, version bureau (AppImage), avec lanceur et icône dans le menu des applications. Les notes ne sont jamais touchées. |
 | `lapce` | éditeur graphique Lapce, version stable (binaire officiel), avec lanceur et icône. Thèmes Catppuccin installés (module `catppuccin`, ajouté avec lui) ; Catppuccin Mocha par défaut au premier lancement, puis réglages de Lapce, jamais touchés. Ne suit pas `dotf theme`. |
 | `zsh-autosuggestions` | suggestion grisée tirée de l'historique pendant la frappe ; → ou Fin l'accepte |
-| `rustup` | Rust (rustup, cargo, rustc), aux emplacements standard `~/.rustup` et `~/.cargo`. Requis par les modules installés avec cargo. Le retirer désinstalle Rust, y compris ce qui a été installé à la main avec cargo. |
+| `rustup` | Rust (rustup, cargo, rustc), aux emplacements standard `~/.rustup` et `~/.cargo`, avec rust-analyzer (serveur de langage de nvim), rustfmt et clippy. Requis par les modules installés avec cargo. Le retirer désinstalle Rust, y compris ce qui a été installé à la main avec cargo. |
 | `zsh-syntax-highlighting` | colore la commande pendant la frappe (rouge si elle n'existe pas) |
 | `broot` | navigation dans l'arborescence, et `br` pour y changer de dossier |
 | `difftastic` | `difft`, diff qui comprend la syntaxe |
@@ -268,7 +268,6 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 | `catppuccin` | thèmes Catppuccin : palette du terminal, zsh-syntax-highlighting, broot, gitui, lapce |
 | `vim-catppuccin`, `vim-lightline` | thème et barre d'état de vim |
 | `nvim` | Neovim, archive officielle (x86_64, arm64 ; glibc 2.34 et plus). Passe avant celui du système, et utilise le vimrc commun. |
-| `rust-analyzer` | serveur de langage Rust pour nvim, avec rustfmt et clippy : composants rustup (`rustup` installé avant). Suit les mises à jour de Rust. |
 | `ruff` | linter et formateur Python ; serveur de langage pour nvim (`ruff server`) |
 | `tinymist` | serveur de langage Typst pour nvim : complétion, erreurs, formatage (typstyle), aperçu |
 | `typst` | composition de documents (binaire officiel, statique). Pas de sommes publiées : archive non vérifiée. |
