@@ -406,6 +406,11 @@ r=$(run_shell zsh -ic 'echo $DOTF_THEME'; echo 'DOTF_THEME_DARK=macchiato' >>"$L
 latte
 macchiato" ] && ok "dotf theme : variante choisie, bascule vers DOTF_THEME_DARK" || ko "dotf theme variantes" "$r"
 sed -i '/^DOTF_THEME_DARK=/d' "$LOCAL/config.sh"
+r=$("$DOTF_DIR/bin/dotf" theme list 2>&1)
+[ "$r" = "  latte
+  frappe
+* macchiato
+  mocha" ] && ok "dotf theme list : de la plus claire à la plus sombre, actuelle marquée" || ko "dotf theme list" "$r"
 if "$DOTF_DIR/bin/dotf" theme mauve >/dev/null 2>&1; then ko "dotf theme : variante inconnue acceptée"; else ok "dotf theme : variante inconnue refusée"; fi
 "$DOTF_DIR/bin/dotf" theme dark >/dev/null 2>&1
 if command -v tmux >/dev/null 2>&1; then

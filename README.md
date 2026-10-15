@@ -35,7 +35,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/gauthier12/dotfiles/main/s
 | `dotf update` | `git pull --ff-only`, puis `install`, puis mise à jour des modules actifs |
 | `dotf status` | état des branchements, liens, modules, retard ou avance sur le dépôt distant |
 | `dotf edit` | ouvre la config locale de la machine |
-| `dotf theme [variante\|dark\|light]` | thème Catppuccin : mocha, macchiato, frappe ou latte ; sans argument, bascule sombre/clair |
+| `dotf theme [variante\|dark\|light\|list]` | thème Catppuccin : mocha, macchiato, frappe ou latte ; sans argument, bascule sombre/clair ; `list` : les variantes |
 | `dotf uninstall` | débranche tout, retire liens et modules, restaure les fichiers sauvegardés |
 | `dotf uninstall --purge` | idem, puis supprime le dépôt et l'état (refusé s'il reste du travail non commité ou non poussé) |
 
@@ -148,7 +148,8 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 Les quatre variantes Catppuccin sont disponibles : **mocha** (la plus sombre, par défaut), **macchiato**, **frappe**
 (sombres, de plus en plus douces) et **latte** (claire). `dotf theme <variante>` en choisit une. `dotf theme`
 bascule entre la variante sombre préférée et latte ; `dotf theme dark|light` force l'une ou l'autre. La variante
-sombre préférée est mocha, ou celle de `DOTF_THEME_DARK` dans la config locale. Le choix est propre à la machine (`~/.local/state/dotf/theme`).
+sombre préférée est mocha, ou celle de `DOTF_THEME_DARK` dans la config locale. `dotf theme list` liste les variantes, de la plus claire à la plus sombre, et marque
+l'actuelle d'une `*`. Le choix est propre à la machine (`~/.local/state/dotf/theme`).
 
 - Le shell envoie la palette au terminal, quel qu'il soit (urxvt, xterm, Windows Terminal, volet tmux, y compris en
   ssh), à chaque prompt : une bascule s'applique au prompt suivant, et le terminal retrouve ses couleurs en sortant
