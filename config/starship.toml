@@ -1,6 +1,7 @@
 # Config starship (https://starship.rs/config/).
 # Icônes : police Nerd Font (module nerd-fonts sur le poste, réglée dans le terminal), notées \uXXXX.
-# HOST_COLOR est remplacé par la couleur de la machine (shell/rc.d/85-host-color.sh).
+# HOST_COLOR et HOST_ICON sont remplacés par la couleur de la machine et son icône, ordinateur ou serveur en ssh
+# (shell/rc.d/85-host-color.sh).
 "$schema" = "https://starship.rs/config-schema.json"
 
 add_newline = false
@@ -12,6 +13,7 @@ $hostname\
 $directory\
 $git_branch\
 $git_status\
+$python\
 $fill\
 $cmd_duration\
 $status\
@@ -34,9 +36,8 @@ format = "[$user]($style) "
 
 [hostname]
 ssh_only = false
-ssh_symbol = "\U000f08c0 " # ssh
 style = "bold HOST_COLOR"
-format = "[$ssh_symbol\U000f01c5 $hostname]($style) " # ordinateur
+format = "[HOST_ICON $hostname]($style) "
 
 [directory]
 read_only = " \U000f033e" # cadenas
@@ -47,4 +48,12 @@ format = "[\ue613 $path]($style)[$read_only]($read_only_style) " # dossier
 disabled = false
 success_symbol = "[\uf00c](bold green)"
 symbol = "[\uf00d $status](bold red)"
-format = "$symbol"
+format = "$symbol "
+
+# Environnement virtuel Python, seulement quand il est actif.
+[python]
+detect_extensions = []
+detect_files = []
+detect_folders = []
+symbol = "\ue73c "
+format = "[$symbol$virtualenv( $version)]($style) "

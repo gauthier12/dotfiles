@@ -37,6 +37,9 @@ dotf_path_prepend "$DOTF/bin"
 dotf_path_prepend "$DOTF_LOCAL/bin"
 export PATH
 
+# Le venv Python actif est affiché par le prompt (starship) : « activate » n'y ajoute rien.
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
 if command -v vim >/dev/null 2>&1; then EDITOR='vim'; else EDITOR='vi'; fi
 VISUAL=$EDITOR
 export EDITOR VISUAL
