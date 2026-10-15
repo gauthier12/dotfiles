@@ -7,6 +7,7 @@
 #   joplin    application de notes Joplin (bureau, AppImage x86_64)
 #   catppuccin-xfce  thèmes Catppuccin pour XFCE (GTK, fenêtres, curseurs), appliqués par « dotf theme »
 #   lapce     éditeur graphique Lapce, avec les thèmes Catppuccin
+#   rust-analyzer, ruff, tinymist  serveurs de langage de nvim (Rust, Python, Typst) ; rust-analyzer installe rustup
 #   lowfi     compilé avec cargo (rustup installé avant) ; demande pkg-config et les en-têtes ALSA/OpenSSL
 #   rustup    Rust (rustup, cargo) ; inutile de l'ajouter pour lowfi
 # Liste et rôle de chaque module : README, section Modules. Après modification : « dotf install ».

@@ -76,6 +76,11 @@ if !empty(globpath(&runtimepath, 'plugin/lightline.vim'))
   endif
 endif
 
+" nvim : serveurs de langage (Rust, Python, Typst).
+if has('nvim')
+  execute 'luafile' fnameescape(s:dotf . '/config/nvim/lsp.lua')
+endif
+
 " gvim
 set guifont=Hasklug\ Nerd\ Font\ Mono\ 11
 if exists('+guioptions')

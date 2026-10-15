@@ -146,6 +146,20 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | Types de fichiers | Gibiane (`.dgibi`, `.gibi`, `.proc`, `.procedur` : coloration, indentation), Esope (`.eso`, `.INC` → Fortran), G-code (`.nc`, `.ngc`, `.gcode`, `.gco`) |
 | gvim | police Hasklug Nerd Font Mono, sans barre d'outils |
 
+### nvim : serveurs de langage
+
+nvim (0.11 et plus, module `nvim`) se sert des serveurs de langage installés, configurés dans `config/nvim/lsp.lua` :
+Rust (module `rust-analyzer`), Python (`ruff`) et Typst (`tinymist`). Un serveur absent est simplement ignoré.
+vim n'est pas concerné.
+
+- complétion pendant la frappe, erreurs dans la marge et en fin de ligne ;
+- formatage à l'enregistrement (rustfmt, ruff, typstyle) ;
+- raccourcis d'origine de nvim : `K` documentation, `grn` renommer, `gra` actions, `grr` références,
+  `gri` implémentations, `gO` symboles du fichier, `[d` / `]d` erreur précédente / suivante, Ctrl-S signature.
+
+Pour Rust, les vérifications sont celles de clippy. Pour Python, les règles de ruff se règlent par projet
+(`[tool.ruff]` dans `pyproject.toml`).
+
 ### Thème Catppuccin, sombre ou clair
 
 Les quatre variantes Catppuccin sont disponibles : **mocha** (la plus sombre, par défaut), **macchiato**, **frappe**
@@ -229,7 +243,8 @@ les shells quand `<nom>` figure dans `DOTF_PROFILES` (config locale).
 ## Modules
 
 Un module est un logiciel installé en espace utilisateur, sans root. Les modules du socle, listés dans
-`modules/default`, sont installés sur toutes les machines ; tous sauf `kitty`, `catppuccin-xfce`, `joplin`, `lapce`, `rustup` et `lowfi`.
+`modules/default`, sont installés sur toutes les machines : les outils en ligne de commande sans prérequis. Les autres (applications
+graphiques, Rust et ce qui en dépend, serveurs de langage) s'ajoutent par machine.
 Dans la config locale, `DOTF_MODULES` donne l'écart de la machine : `nom` ajoute un module, `-nom` retire un
 module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` installe ce qui manque, `dotf update` met
 à jour, et un module qui n'est plus choisi est désinstallé.
@@ -253,6 +268,9 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 | `catppuccin` | thèmes Catppuccin : palette du terminal, zsh-syntax-highlighting, broot, gitui, lapce |
 | `vim-catppuccin`, `vim-lightline` | thème et barre d'état de vim |
 | `nvim` | Neovim, archive officielle (x86_64, arm64 ; glibc 2.34 et plus). Passe avant celui du système, et utilise le vimrc commun. |
+| `rust-analyzer` | serveur de langage Rust pour nvim, avec rustfmt et clippy : composants rustup (`rustup` installé avant). Suit les mises à jour de Rust. |
+| `ruff` | linter et formateur Python ; serveur de langage pour nvim (`ruff server`) |
+| `tinymist` | serveur de langage Typst pour nvim : complétion, erreurs, formatage (typstyle), aperçu |
 | `typst` | composition de documents (binaire officiel, statique). Pas de sommes publiées : archive non vérifiée. |
 | `nerd-fonts` | polices Nerd Font, variante Mono, listées dans `DOTF_FONTS` (par défaut Hasklig et FiraCode), dans `~/.local/share/fonts/NerdFonts`. Changer la liste : `dotf update`. |
 
