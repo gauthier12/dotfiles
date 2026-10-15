@@ -81,6 +81,9 @@ dotf update                      # sur chacune des autres
   clé, retirées à la désinstallation ; les autres clés ne sont jamais touchées ;
 - `~/.tmux.conf` (ou `~/.config/tmux/tmux.conf` si c'est lui qui sert), si tmux est présent : `source-file -q` de
   `config/tmux/tmux.conf` puis de `~/.config/dotf/tmux.conf` ;
+- `~/.config/kitty/kitty.conf`, si kitty est présent ou choisi : `include` de `config/kitty/dotf-hook.conf`, qui
+  inclut `config/kitty/kitty.conf` puis `~/.config/dotf/kitty.conf`. kitty n'accepte pas de commentaire en fin de
+  ligne : le marqueur est dans le nom du fichier inclus ;
 - `~/.Xresources`, si `xrdb` est présent : un petit bloc qui inclut `config/x/Xresources` puis
   `~/.config/dotf/Xresources`, chacun seulement s'il existe. `dotf install` les recharge dans une session graphique.
 
@@ -167,7 +170,17 @@ l'agent. Pour ne pas réutiliser une connexion : `ssh -o ControlMaster=no …`.
 
 ### Terminal et polices
 
+- `config/kitty/kitty.conf` : kitty (module `kitty`), recommandé : couleurs 24 bits, ligatures de Hasklig (sauf
+  sous le curseur), icônes. Police Hasklug Nerd Font Mono 11, historique de 10 000 lignes, pas de bip, pas de
+  vérification de mise à jour (c'est `dotf update` qui s'en charge). Son intégration shell est gardée (sauter d'un
+  prompt à l'autre, voir la sortie de la dernière commande), sans le curseur ni le titre, que dotf gère déjà.
 - `config/x/Xresources` : urxvt (Hasklug Nerd Font Mono 11), et xterm en repli.
+- Couleurs 24 bits : vim et nvim prennent les couleurs exactes du thème si le terminal l'annonce
+  (`COLORTERM=truecolor`, comme kitty). Sinon, ils prennent des couleurs proches. `COLORTERM` est transmis en ssh
+  (`LC_DOTF_COLORTERM`). Pour un terminal qui gère le 24 bits sans l'annoncer (urxvt compilé avec
+  `--enable-24-bit-color`) : `DOTF_TRUECOLOR=1` dans la config locale.
+- `~/.terminfo/x/xterm-kitty` est posé sur toutes les machines (`links`) : depuis kitty, ssh vers une machine dotf
+  fonctionne sans réglage. Vers une autre machine : `kitten ssh` copie cette description.
 - Le prompt starship et la barre lightline utilisent des icônes Nerd Font : le terminal doit afficher une police
   Nerd Font (module `nerd-fonts` sur un poste Linux ; pour Windows Terminal, l'installer côté Windows).
 
@@ -196,7 +209,9 @@ Les réglages par défaut sont dans le dépôt. Deux façons de les changer :
 | tmux | `config/tmux/tmux.conf` | `tmux.conf` (ex. `set -g mouse off`) |
 | ssh | `config/ssh/config` | `ssh_config` ; les hôtes de `~/.ssh/config` passent avant les deux |
 | git | `config/git/config` | `gitconfig` (identité, adresse, identifiants…) |
+| kitty (police, taille…) | `config/kitty/kitty.conf` | `kitty.conf` (relu par kitty avec Ctrl+Maj+F5) |
 | urxvt, xterm (police, taille…) | `config/x/Xresources` | `Xresources`, puis `xrdb -merge ~/.Xresources` |
+| couleurs 24 bits | si le terminal l'annonce | `config.sh` : `DOTF_TRUECOLOR=1` |
 | scripts | `bin/` | `bin/`, ajouté au PATH avant celui du dépôt |
 
 Un shell déjà ouvert ne relit pas ces fichiers : `exec $SHELL` pour en profiter tout de suite.
@@ -213,7 +228,7 @@ les shells quand `<nom>` figure dans `DOTF_PROFILES` (config locale).
 ## Modules
 
 Un module est un logiciel installé en espace utilisateur, sans root. Les modules du socle, listés dans
-`modules/default`, sont installés sur toutes les machines ; tous sauf `joplin`, `lapce`, `rustup` et `lowfi`.
+`modules/default`, sont installés sur toutes les machines ; tous sauf `kitty`, `joplin`, `lapce`, `rustup` et `lowfi`.
 Dans la config locale, `DOTF_MODULES` donne l'écart de la machine : `nom` ajoute un module, `-nom` retire un
 module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` installe ce qui manque, `dotf update` met
 à jour, et un module qui n'est plus choisi est désinstallé.
@@ -222,6 +237,7 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 |---|---|
 | `starship` | prompt commun à bash et zsh (`config/starship.toml`). Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. |
 | `gitleaks` | détection de secrets pour le garde-fou |
+| `kitty` | terminal kitty, par son installeur officiel, dans `~/.local/kitty.app` (son emplacement par défaut), avec lanceurs et icône. Config : `config/kitty/kitty.conf`. |
 | `joplin` | Joplin, version bureau (AppImage), avec lanceur et icône dans le menu des applications. Les notes ne sont jamais touchées. |
 | `lapce` | éditeur graphique Lapce, version stable (binaire officiel), avec lanceur et icône. Thèmes Catppuccin installés (module `catppuccin`, ajouté avec lui) ; Catppuccin Mocha par défaut au premier lancement, puis réglages de Lapce, jamais touchés. Ne suit pas `dotf theme`. |
 | `zsh-autosuggestions` | suggestion grisée tirée de l'historique pendant la frappe ; → ou Fin l'accepte |

@@ -61,6 +61,14 @@ for _dotf_p in ${DOTF_PROFILES-}; do
 done
 unset _dotf_p
 
+# Couleurs 24 bits : forcées par DOTF_TRUECOLOR=1 (terminal qui ne l'annonce pas), sinon celles du poste en ssh.
+if [ "${DOTF_TRUECOLOR-}" = 1 ]; then
+  export COLORTERM=truecolor
+elif [ -z "${COLORTERM-}" ] && [ -n "${SSH_CONNECTION-}" ] && [ -n "${LC_DOTF_COLORTERM-}" ]; then
+  export COLORTERM="$LC_DOTF_COLORTERM"
+fi
+if [ -n "${COLORTERM-}" ]; then export LC_DOTF_COLORTERM="$COLORTERM"; fi
+
 _dotf_glob_begin
 for _dotf_f in "$DOTF_LOCAL"/env.d/*.sh; do
   # shellcheck source=/dev/null

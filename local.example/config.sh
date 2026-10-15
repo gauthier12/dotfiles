@@ -3,6 +3,7 @@
 
 # Modules : ceux du socle ($DOTF/modules/default) sont installés partout. Ici, l'écart de cette machine :
 # « nom » ajoute un module, « -nom » en retire un du socle. Ex. : DOTF_MODULES="joplin -nerd-fonts"
+#   kitty     terminal kitty (24 bits, ligatures), config dans $DOTF/config/kitty
 #   joplin    application de notes Joplin (bureau, AppImage x86_64)
 #   lapce     éditeur graphique Lapce, avec les thèmes Catppuccin
 #   lowfi     compilé avec cargo (rustup installé avant) ; demande pkg-config et les en-têtes ALSA/OpenSSL
@@ -15,6 +16,9 @@ DOTF_MODULES=""
 
 # Variante sombre de « dotf theme dark » et de la bascule : mocha, macchiato ou frappe.
 # DOTF_THEME_DARK=frappe
+
+# Couleurs 24 bits pour vim et les autres outils, si le terminal les gère sans l'annoncer (urxvt truecolor).
+# DOTF_TRUECOLOR=1
 
 # Profils (dossier $DOTF/profiles), ex. nfs-home : home sur le réseau, caches sur le disque local.
 # DOTF_PROFILES="nfs-home"

@@ -2,8 +2,8 @@
 # ssh garde la première valeur trouvée : ces réglages par défaut ne passent qu'après les tiens.
 
 Host *
-  # Thème du poste transmis à la session distante (voir « dotf theme »).
-  SendEnv LC_DOTF_THEME
+  # Thème et couleurs 24 bits du poste transmis à la session distante (voir « dotf theme »).
+  SendEnv LC_DOTF_THEME LC_DOTF_COLORTERM
   # Connexion maintenue (pare-feu, NAT) ; abandon après 3 minutes sans réponse.
   ServerAliveInterval 60
   ServerAliveCountMax 3

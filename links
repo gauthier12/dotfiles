@@ -5,3 +5,6 @@
 #
 # Exemple :
 # config/helix/config.toml   ~/.config/helix/config.toml
+
+# Description du terminal kitty (fichier de kitty) : connue de toutes les machines, pour ssh depuis kitty.
+config/terminfo/x/xterm-kitty   ~/.terminfo/x/xterm-kitty

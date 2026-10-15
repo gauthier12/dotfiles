@@ -4,7 +4,8 @@
 HOOK_MARK='dotf-hook'
 
 # « fichier:type », type env (shell/env.sh), init (shell/init.sh), vim (config/vim/vimrc), xres (config/x/Xresources)
-# tmux (config/tmux/tmux.conf), ssh (config/ssh/config), authkeys (config/ssh/authorized_keys) ou nvim (vimrc, en lua).
+# tmux (config/tmux/tmux.conf), kitty (config/kitty/kitty.conf), ssh (config/ssh/config), authkeys (config/ssh/authorized_keys)
+# ou nvim (vimrc, en lua).
 hook_targets() {
   _z=${ZDOTDIR:-$HOME}
   echo "$HOME/.profile:env"
@@ -19,6 +20,7 @@ hook_targets() {
   if command -v tmux >/dev/null 2>&1; then echo "$(hook_tmuxconf):tmux"; fi
   # nvim : aussi s'il va être installé par son module (les modules passent après les branchements).
   if command -v nvim >/dev/null 2>&1 || module_list | grep -qx nvim; then hook_nvim; fi
+  if command -v kitty >/dev/null 2>&1 || module_list | grep -qx kitty; then echo "$(hook_kittyconf):kitty"; fi
   if command -v ssh >/dev/null 2>&1; then echo "$HOME/.ssh/config:ssh"; fi
   if [ -n "$(hook_line authkeys)" ]; then echo "$HOME/.ssh/authorized_keys:authkeys"; fi
 }
@@ -34,6 +36,8 @@ hook_tmuxconf() {
   _x=${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf
   if [ ! -e "$HOME/.tmux.conf" ] && [ -e "$_x" ]; then echo "$_x"; else echo "$HOME/.tmux.conf"; fi
 }
+
+hook_kittyconf() { echo "${KITTY_CONFIG_DIRECTORY:-${XDG_CONFIG_HOME:-$HOME/.config}/kitty}/kitty.conf"; }
 
 # vim lit ~/.vimrc, sinon ~/.vim/vimrc : on branche celui qui sert.
 hook_vimrc() {
@@ -65,6 +69,10 @@ hook_line() {
     tmux)
       # Le format est répété : une ligne par fichier.
       printf "source-file -q '%s' # %s\n" "$DOTF/config/tmux/tmux.conf" "$HOOK_MARK" "$DOTF_LOCAL/tmux.conf" "$HOOK_MARK"
+      ;;
+    kitty)
+      # Pas de commentaire en fin de ligne dans kitty : le marqueur est dans le nom du fichier inclus.
+      printf "include %s\n" "$DOTF/config/kitty/$HOOK_MARK.conf"
       ;;
     ssh)
       # À la fin, « Match all » : hors de tout bloc Host, et après les réglages existants (la première valeur l'emporte).
@@ -131,7 +139,7 @@ hooks_remove() {
   _z=${ZDOTDIR:-$HOME}
   for _f in "$HOME/.profile" "$HOME/.bash_profile" "$HOME/.bashrc" "$_z/.zshenv" "$_z/.zshrc" "$HOME/.vimrc" "$HOME/.vim/vimrc" "$HOME/.Xresources" \
     "$HOME/.tmux.conf" "${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf" "$HOME/.ssh/config" "$HOME/.ssh/authorized_keys" \
-    "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/init.vim" "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/init.lua"; do
+    "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/init.vim" "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/init.lua" "$(hook_kittyconf)"; do
     hook_remove "$_f"
   done
 }

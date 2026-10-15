@@ -395,6 +395,7 @@ r=$(env -i HOME="$HOME" PATH="$BASE_PATH" SSH_CONNECTION='1 2 3 4' LC_DOTF_THEME
 mocha mocha" ] && ok "thème : session ssh sur celui du poste ; hors ssh, LC_DOTF_THEME suit la machine" || ko "LC_DOTF_THEME" "$r"
 r=$(ssh -F "$HOME/.ssh/config" -G perso 2>/dev/null | grep -E '^(sendenv LC_DOTF|serveraliveinterval|controlmaster)' | sort)
 [ "$r" = "controlmaster auto
+sendenv LC_DOTF_COLORTERM
 sendenv LC_DOTF_THEME
 serveraliveinterval 5" ] && ok "ssh : réglages communs après ceux de ~/.ssh/config, thème envoyé" || ko "ssh -G" "$r"
 out=$(DOTF_THEME_SSH=latte "$DOTF_DIR/bin/dotf" theme 2>&1)
@@ -417,6 +418,23 @@ if command -v tmux >/dev/null 2>&1; then
   r=$(tmux -L "dotf$$" -f "$HOME/.tmux.conf" start-server \; show -s terminal-features \; show -g @orig \; kill-server 2>&1 | grep -c 'xterm-256color:RGB\|@orig 1')
   [ "$r" = 2 ] && ok "tmux : config d'origine et couleurs 24 bits" || ko "tmux" "$r"
 fi
+
+section "5k. kitty et couleurs 24 bits"
+mkdir -p "$T/kittybin"
+printf '#!/bin/sh\n' >"$T/kittybin/kitty" && chmod +x "$T/kittybin/kitty"
+PATH="$T/kittybin:$PATH" "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+r=$(cat "$HOME/.config/kitty/kitty.conf" 2>&1)
+[ "$r" = "include $DOTF_DIR/config/kitty/dotf-hook.conf" ] && [ -f "$DOTF_DIR/config/kitty/dotf-hook.conf" ] &&
+  ok "kitty présent : kitty.conf branché" || ko "kitty.conf" "$r"
+if command -v infocmp >/dev/null 2>&1; then
+  check "terminfo xterm-kitty connu (~/.terminfo)" env HOME="$HOME" infocmp xterm-kitty
+fi
+r=$(env -i HOME="$HOME" PATH="$BASE_PATH" SSH_CONNECTION='1 2 3 4' LC_DOTF_COLORTERM=truecolor bash -lc 'echo $COLORTERM' 2>/dev/null)
+[ "$r" = truecolor ] && ok "ssh : COLORTERM du poste repris" || ko "COLORTERM en ssh" "$r"
+echo 'DOTF_TRUECOLOR=1' >>"$LOCAL/config.sh"
+r=$(env -i HOME="$HOME" PATH="$BASE_PATH" COLORTERM=rxvt-xpm zsh -lc 'echo $COLORTERM $LC_DOTF_COLORTERM' 2>/dev/null)
+sed -i '/^DOTF_TRUECOLOR=/d' "$LOCAL/config.sh"
+[ "$r" = "truecolor truecolor" ] && ok "DOTF_TRUECOLOR=1 : 24 bits forcé, transmis en ssh" || ko "DOTF_TRUECOLOR" "$r"
 
 section "5d. Moteur des modules (module factice, hors ligne)"
 cat >"$DOTF_DIR/modules/fake.sh" <<'MOD'
@@ -573,6 +591,8 @@ for f in .profile .bashrc .zshrc .bash_profile .gitconfig .vimrc .Xresources .tm
   check "$f identique à l'original" cmp -s "$HOME/$f" "$T/orig/$f"
 done
 check ".zshenv (créé par dotf) supprimé" test ! -e "$HOME/.zshenv"
+check "kitty.conf (créé par dotf) supprimé" test ! -e "$HOME/.config/kitty/kitty.conf"
+check "terminfo xterm-kitty retiré" test ! -e "$HOME/.terminfo/x/xterm-kitty"
 [ "$(cat "$HOME/.config/a.conf" 2>/dev/null)" = "a d'origine" ] && ! [ -L "$HOME/.config/a.conf" ] && ok "a.conf d'origine restauré" || ko "restauration de a.conf"
 check "config locale conservée" test -f "$LOCAL/config.sh"
 check "hooks désactivés" test -z "$(git -C "$DOTF_DIR" config --get core.hooksPath)"
