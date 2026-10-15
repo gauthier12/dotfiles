@@ -22,9 +22,7 @@ $character"""
 [fill]
 symbol = " "
 
-# ❯ toujours vert : le résultat de la commande est affiché à droite.
-[character]
-error_symbol = "[❯](bold green)"
+# ❯ vert si la dernière commande a réussi, rouge sinon.
 
 [time]
 disabled = false
