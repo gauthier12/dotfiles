@@ -12,12 +12,19 @@ $hostname\
 $directory\
 $git_branch\
 $git_status\
+$fill\
 $cmd_duration\
 $status\
 $line_break\
 $character"""
 
-# ❯ vert si la dernière commande a réussi, rouge sinon.
+# À droite de la première ligne : durée (commandes longues), puis coche ou croix et code retour.
+[fill]
+symbol = " "
+
+# ❯ toujours vert : le résultat de la commande est affiché à droite.
+[character]
+error_symbol = "[❯](bold green)"
 
 [time]
 disabled = false
@@ -42,4 +49,4 @@ format = "[\ue613 $path]($style)[$read_only]($read_only_style) " # dossier
 disabled = false
 success_symbol = "[\uf00c](bold green)"
 symbol = "[\uf00d $status](bold red)"
-format = "$symbol "
+format = "$symbol"
