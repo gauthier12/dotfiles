@@ -1,5 +1,6 @@
 # shellcheck shell=sh
-# Modules : logiciels installés en espace utilisateur, choisis par machine dans DOTF_MODULES.
+# Modules : logiciels installés en espace utilisateur. Ceux du socle (modules/default), plus ou moins
+# ceux de DOTF_MODULES (config locale) : « nom » en ajoute un, « -nom » en retire un.
 #
 # Un module modules/<nom>.sh définit :
 #   pkg_latest         affiche la dernière version
@@ -179,9 +180,15 @@ _module_with_needs() { # le module, précédé de ses dépendances
   echo "$1"
 }
 
-# DOTF_MODULES et leurs dépendances, chacun une fois, dépendances d'abord.
+# Modules choisis : le socle, plus ou moins DOTF_MODULES.
+module_list() {
+  { sed '/^#/d' "$DOTF/modules/default"; for _m in ${DOTF_MODULES-}; do echo "$_m"; done; } |
+    awk '/^-/ { skip[substr($0, 2)] = 1; next } NF { l[++n] = $0 } END { for (i = 1; i <= n; i++) if (!skip[l[i]]) print l[i] }'
+}
+
+# Modules choisis et leurs dépendances, chacun une fois, dépendances d'abord.
 module_wanted() {
-  for _m in ${DOTF_MODULES-}; do _module_with_needs "$_m"; done | awk '!seen[$0]++'
+  for _m in $(module_list); do _module_with_needs "$_m"; done | awk '!seen[$0]++'
 }
 
 # Modules installés, dernier installé d'abord : un module part avant ses dépendances.

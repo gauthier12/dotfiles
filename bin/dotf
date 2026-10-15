@@ -65,7 +65,8 @@ cmd_install() {
   repo_install
   log_step "Liens"
   links_install
-  log_step "Modules (${DOTF_MODULES:-aucun})"
+  _mods=$(module_list | paste -sd ' ' -)
+  log_step "Modules (${_mods:-aucun})"
   if [ "${1-}" = --update ]; then module_sync update; else module_sync; fi
 
   echo

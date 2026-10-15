@@ -52,6 +52,7 @@ stderr_clean() { [ ! -s "$T/stderr.f" ]; }
 REMOTE="$T/remote"
 mkdir -p "$REMOTE"
 (cd "$SRC" && tar --exclude=.git -cf - .) | tar -C "$REMOTE" -xf -
+sed -i '/^[^#]/d' "$REMOTE/modules/default" # socle vide : chaque test choisit ses modules
 git -C "$REMOTE" init -q -b main
 git -C "$REMOTE" -c user.name=t -c user.email=t@t add -A
 git -C "$REMOTE" -c user.name=t -c user.email=t@t commit -qm init
@@ -86,8 +87,9 @@ check ".ssh/authorized_keys : passe-partout ajouté, clé d'origine gardée" tes
 check ".tmux.conf branché" test "$(grep -c "^source-file -q .*dotf-hook" "$HOME/.tmux.conf")" = 2
 check ".Xresources branché (2 inclusions protégées)" test "$(grep -c '^#include .*dotf-hook' "$HOME/.Xresources")" = 2
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
-  if printf '%s' "$out" | grep -q 'starship : dernière version introuvable'; then ok "hors ligne : échec du module signalé sans interrompre l'installation"; else ko "échec du module signalé" "$out"; fi
-  # Pour la suite : pas de module.
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="starship"/' "$LOCAL/config.sh"
+  out=$("$DOTF_DIR/bin/dotf" install 2>&1)
+  case $out in *'starship : dernière version introuvable'*Terminé*) ok "hors ligne : échec du module signalé sans interrompre l'installation" ;; *) ko "échec du module signalé" "$out" ;; esac
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
 fi
 
@@ -451,6 +453,14 @@ check "pkg_remove appelé, avant le retrait de la dépendance" test -e "$HOME/fa
 rm -f "$HOME/fake-dep-removed"
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="fake-dep"/' "$LOCAL/config.sh"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+echo fake >>"$DOTF_DIR/modules/default"
+sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
+out=$("$DOTF_DIR/bin/dotf" install 2>&1)
+case $out in *"Modules (fake)"*) check "socle : module de modules/default installé" test -x "$HOME/.local/bin/fake" ;; *) ko "socle" "$out" ;; esac
+sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="-fake fake-dep"/' "$LOCAL/config.sh"
+out=$("$DOTF_DIR/bin/dotf" install 2>&1)
+case $out in *"Modules (fake-dep)"*) ok "DOTF_MODULES : -nom retire du socle, nom ajoute" ;; *) ko "écart local" "$out" ;; esac
+git -C "$DOTF_DIR" checkout -q modules/default
 rm "$DOTF_DIR/modules/fake.sh" "$DOTF_DIR/modules/fake-dep.sh"
 sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1

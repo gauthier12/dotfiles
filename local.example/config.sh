@@ -1,22 +1,13 @@
 # Configuration propre à cette machine (hors git).
 # Chargée par les shells (via shell/env.sh) et par la commande dotf.
 
-# Modules optionnels à installer, séparés par des espaces (voir $DOTF/modules/) :
-#   starship  prompt
-#   gitleaks  détection de secrets pour le garde-fou (utile sur les machines où l'on commite)
-#   joplin    application de notes Joplin (bureau), commande « joplin »
-#   zsh-autosuggestions, zsh-syntax-highlighting
-#   broot     navigation dans l'arborescence (br : cd en quittant)
-#   difftastic diff qui comprend la syntaxe (difft ; git dlog -p, dshow, ddiff)
-#   dust, gitui
-#   catppuccin  thèmes Catppuccin (terminal, zsh, broot, gitui) ; « dotf theme » bascule sombre/clair
-#   vim-catppuccin, vim-lightline  thème et barre d'état de vim
-#   nvim      Neovim récent (glibc 2.34 et plus), avec le vimrc commun ; remplace celui du système
-#   nerd-fonts  polices Nerd Font Mono de DOTF_FONTS (postes avec session graphique)
-#   typst     composition de documents (typst compile, watch)
+# Modules : ceux du socle ($DOTF/modules/default) sont installés partout. Ici, l'écart de cette machine :
+# « nom » ajoute un module, « -nom » en retire un du socle. Ex. : DOTF_MODULES="joplin -nerd-fonts"
+#   joplin    application de notes Joplin (bureau, AppImage x86_64)
 #   lowfi     compilé avec cargo (rustup installé avant) ; demande pkg-config et les en-têtes ALSA/OpenSSL
-# Après modification : « dotf install ». Un module retiré de la liste est désinstallé.
-DOTF_MODULES="starship zsh-autosuggestions zsh-syntax-highlighting broot difftastic dust gitui catppuccin vim-catppuccin vim-lightline"
+#   rustup    Rust (rustup, cargo) ; inutile de l'ajouter pour lowfi
+# Liste et rôle de chaque module : README, section Modules. Après modification : « dotf install ».
+DOTF_MODULES=""
 
 # Polices du module nerd-fonts (noms des archives sur github.com/ryanoasis/nerd-fonts/releases).
 # DOTF_FONTS="Hasklig FiraCode"

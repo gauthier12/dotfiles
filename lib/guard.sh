@@ -174,6 +174,6 @@ guard_status() {
   if guard_gitleaks_bin >/dev/null; then
     log_ok "gitleaks utilisé en complément"
   else
-    log_info "gitleaks absent (facultatif : ajouter « gitleaks » à DOTF_MODULES)"
+    log_info "gitleaks absent : « dotf install » l'installe (module du socle)"
   fi
 }

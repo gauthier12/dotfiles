@@ -1,0 +1,16 @@
+# Modules du socle, installés sur toutes les machines.
+# Par machine, dans DOTF_MODULES : « nom » en ajoute un, « -nom » en retire un.
+starship
+zsh-autosuggestions
+zsh-syntax-highlighting
+broot
+difftastic
+dust
+gitui
+gitleaks
+catppuccin
+vim-catppuccin
+vim-lightline
+nvim
+nerd-fonts
+typst

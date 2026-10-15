@@ -1,5 +1,5 @@
 # shellcheck shell=sh disable=SC2034
-# Modèle : copier en modules/<nom>.sh, puis ajouter <nom> à DOTF_MODULES.
+# Modèle : copier en modules/<nom>.sh, puis ajouter <nom> à modules/default (socle) ou à DOTF_MODULES (une machine).
 # pkg_install travaille dans un dossier vide qui deviendra ~/.local/opt/<nom>.
 
 # Exécutables à lier dans ~/.local/bin, relatifs au dossier (vide si aucun).

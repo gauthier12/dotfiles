@@ -164,7 +164,7 @@ l'agent. Pour ne pas réutiliser une connexion : `ssh -o ControlMaster=no …`.
 `~/.config/dotf/` est créé depuis `local.example/` au premier `dotf install`, puis n'est plus jamais modifié
 ni supprimé par dotf.
 
-- `config.sh` : `DOTF_MODULES`, `DOTF_PROFILES` et autres réglages ;
+- `config.sh` : `DOTF_MODULES` (modules ajoutés ou retirés du socle), `DOTF_PROFILES` et autres réglages ;
 - `gitconfig` : config git de la machine (adresse, identité par dossier, certificats, identifiants…) ;
 - `env.d/*.sh` : variables d'environnement (proxy, PATH supplémentaires…) ;
 - `rc.d/*.sh|bash|zsh` : alias, fonctions, réglages interactifs ;
@@ -183,9 +183,11 @@ les shells quand `<nom>` figure dans `DOTF_PROFILES` (config locale).
 
 ## Modules
 
-Un module est un logiciel installé en espace utilisateur, sans root. On l'active en ajoutant son nom à
-`DOTF_MODULES`. `dotf install` l'installe, `dotf update` le met à jour, et si on le retire de la liste,
-le prochain `dotf install` le désinstalle.
+Un module est un logiciel installé en espace utilisateur, sans root. Les modules du socle, listés dans
+`modules/default`, sont installés sur toutes les machines ; tous sauf `joplin`, `rustup` et `lowfi`.
+Dans la config locale, `DOTF_MODULES` donne l'écart de la machine : `nom` ajoute un module, `-nom` retire un
+module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` installe ce qui manque, `dotf update` met
+à jour, et un module qui n'est plus choisi est désinstallé.
 
 | Module | Rôle |
 |---|---|
@@ -226,7 +228,7 @@ pkg_install() {                           # installe la version $1 dans le dossi
 ```
 
 Facultatif :
-- `pkg_needs="rustup"` : modules requis, installés avant (sans avoir à les mettre dans `DOTF_MODULES`) ;
+- `pkg_needs="rustup"` : modules requis, installés avant (sans avoir à les choisir) ;
 - `pkg_update` : mise à jour sur place, au lieu de réinstaller (ex. `rustup update`) ;
 - `pkg_remove` : à faire en plus à la désinstallation, pour ce qui est installé hors de son dossier ;
 - un fichier `.env.sh` écrit par `pkg_install` dans son dossier : chargé par les shells et avant chaque installation (ex. PATH) ;
