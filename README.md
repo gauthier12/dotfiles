@@ -203,6 +203,7 @@ le prochain `dotf install` le désinstalle.
 | `catppuccin` | thèmes Catppuccin : palette du terminal, zsh-syntax-highlighting, broot, gitui |
 | `vim-catppuccin`, `vim-lightline` | thème et barre d'état de vim |
 | `nvim` | Neovim, archive officielle (x86_64, arm64 ; glibc 2.34 et plus). Passe avant celui du système, et utilise le vimrc commun. |
+| `typst` | composition de documents (binaire officiel, statique). Pas de sommes publiées : archive non vérifiée. |
 | `nerd-fonts` | polices Nerd Font, variante Mono, listées dans `DOTF_FONTS` (par défaut Hasklig et FiraCode), dans `~/.local/share/fonts/nerd-fonts`. Changer la liste : `dotf update`. |
 
 Chaque outil est installé par la méthode recommandée par son projet. Les complétions bash et zsh qu'un module

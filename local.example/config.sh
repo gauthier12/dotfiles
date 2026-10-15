@@ -13,6 +13,7 @@
 #   vim-catppuccin, vim-lightline  thème et barre d'état de vim
 #   nvim      Neovim récent (glibc 2.34 et plus), avec le vimrc commun ; remplace celui du système
 #   nerd-fonts  polices Nerd Font Mono de DOTF_FONTS (postes avec session graphique)
+#   typst     composition de documents (typst compile, watch)
 #   lowfi     compilé avec cargo (rustup installé avant) ; demande pkg-config et les en-têtes ALSA/OpenSSL
 # Après modification : « dotf install ». Un module retiré de la liste est désinstallé.
 DOTF_MODULES="starship zsh-autosuggestions zsh-syntax-highlighting broot difftastic dust gitui catppuccin vim-catppuccin vim-lightline"
