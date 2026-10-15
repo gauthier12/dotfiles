@@ -65,8 +65,12 @@ printf '[alias]\n\tst = status\n' >"$HOME/.gitconfig"
 printf '" vimrc d origine\nlet g:orig_vimrc = 1\n' >"$HOME/.vimrc"
 printf '! Xresources d origine\nXTerm*test: orig\n' >"$HOME/.Xresources"
 printf '# tmux.conf d origine\nset -g @orig 1\n' >"$HOME/.tmux.conf"
+mkdir -p "$HOME/.ssh" "$T/orig/.ssh"
+printf 'Host perso\n  ServerAliveInterval 5\n' >"$HOME/.ssh/config"
+printf 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOrigineOrigineOrigineOrigineOrigineOrigine origine\n' >"$HOME/.ssh/authorized_keys" # dotf-allow
 mkdir -p "$T/orig"
 cp "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.gitconfig" "$HOME/.vimrc" "$HOME/.Xresources" "$HOME/.tmux.conf" "$T/orig/"
+cp "$HOME/.ssh/config" "$HOME/.ssh/authorized_keys" "$T/orig/.ssh/"
 
 # =============================================================================
 section "1. Bootstrap (équivalent de curl | sh)"
@@ -77,6 +81,8 @@ for f in .profile .bashrc .zshenv .zshrc; do
   check "$f branché" grep -q '# dotf-hook' "$HOME/$f"
 done
 check ".vimrc branché" grep -q '" dotf-hook' "$HOME/.vimrc"
+check ".ssh/config branché (Match all + 2 Include)" test "$(grep -c "dotf-hook" "$HOME/.ssh/config")" = 3
+check ".ssh/authorized_keys : passe-partout ajouté, clé d'origine gardée" test "$(grep -c 'passe-partout dotf-allow dotf-hook$' "$HOME/.ssh/authorized_keys")-$(grep -c ' origine$' "$HOME/.ssh/authorized_keys")" = 1-1
 check ".tmux.conf branché" test "$(grep -c "^source-file -q .*dotf-hook" "$HOME/.tmux.conf")" = 2
 check ".Xresources branché (2 inclusions protégées)" test "$(grep -c '^#include .*dotf-hook' "$HOME/.Xresources")" = 2
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
@@ -371,11 +377,15 @@ r=$(cat "$STATE/theme"; run_shell bash -ic 'echo $DOTF_THEME'; "$DOTF_DIR/bin/do
 [ "$r" = "latte
 latte
 mocha" ] && ok "dotf theme : bascule mocha → latte → mocha, lue par bash et zsh" || ko "dotf theme" "$r"
-r=$(LC_DOTF_THEME=latte env -i HOME="$HOME" PATH="$BASE_PATH" LC_DOTF_THEME=latte bash -ic 'echo $DOTF_THEME' 2>/dev/null)
-[ "$r" = latte ] && ok "LC_DOTF_THEME (ssh) l'emporte sur le choix de la machine" || ko "LC_DOTF_THEME" "$r"
-r=$(run_shell bash -ic 'type ssh' | grep -c 'LC_DOTF_THEME=\$DOTF_THEME command ssh -o SendEnv=LC_DOTF_THEME')
-[ "$r" = 1 ] && ok "ssh transmet le thème (LC_DOTF_THEME)" || ko "ssh" "$r"
-out=$(LC_DOTF_THEME=latte "$DOTF_DIR/bin/dotf" theme 2>&1)
+r=$(env -i HOME="$HOME" PATH="$BASE_PATH" SSH_CONNECTION='1 2 3 4' LC_DOTF_THEME=latte bash -ic 'echo $DOTF_THEME $DOTF_THEME_SSH' 2>/dev/null
+  env -i HOME="$HOME" PATH="$BASE_PATH" LC_DOTF_THEME=latte bash -ic 'echo $DOTF_THEME $LC_DOTF_THEME' 2>/dev/null)
+[ "$r" = "latte latte
+mocha mocha" ] && ok "thème : session ssh sur celui du poste ; hors ssh, LC_DOTF_THEME suit la machine" || ko "LC_DOTF_THEME" "$r"
+r=$(ssh -F "$HOME/.ssh/config" -G perso 2>/dev/null | grep -E '^(sendenv LC_DOTF|serveraliveinterval|controlmaster)' | sort)
+[ "$r" = "controlmaster auto
+sendenv LC_DOTF_THEME
+serveraliveinterval 5" ] && ok "ssh : réglages communs après ceux de ~/.ssh/config, thème envoyé" || ko "ssh -G" "$r"
+out=$(DOTF_THEME_SSH=latte "$DOTF_DIR/bin/dotf" theme 2>&1)
 case $out in *"suit le thème du poste"*) ok "dotf theme prévient quand la session suit le poste" ;; *) ko "dotf theme sous LC_DOTF_THEME" "$out" ;; esac
 "$DOTF_DIR/bin/dotf" theme dark >/dev/null 2>&1
 if command -v tmux >/dev/null 2>&1; then
@@ -526,7 +536,7 @@ r=$(run_shell zsh -ic 'true')
 
 section "7. Désinstallation"
 "$DOTF_DIR/bin/dotf" uninstall >/dev/null 2>&1
-for f in .profile .bashrc .zshrc .bash_profile .gitconfig .vimrc .Xresources .tmux.conf; do
+for f in .profile .bashrc .zshrc .bash_profile .gitconfig .vimrc .Xresources .tmux.conf .ssh/config .ssh/authorized_keys; do
   check "$f identique à l'original" cmp -s "$HOME/$f" "$T/orig/$f"
 done
 check ".zshenv (créé par dotf) supprimé" test ! -e "$HOME/.zshenv"

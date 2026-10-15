@@ -1,8 +1,10 @@
-" Config vim commune, chargée depuis ~/.vimrc par dotf.
+" Config vim commune, chargée depuis ~/.vimrc par dotf (et par nvim, depuis son init).
 " ~/.config/dotf/vimrc (propre à la machine) est chargé à la fin : il a le dernier mot.
 
-" UTF-8 même sous une locale C (le dictionnaire français est en UTF-8).
-set encoding=utf-8
+" UTF-8 même sous une locale C (le dictionnaire français est en UTF-8). nvim l'est toujours.
+if !has('nvim')
+  set encoding=utf-8
+endif
 
 " Runtime : config locale (prioritaire), dépôt, plugins installés en modules (~/.local/opt/vim-*).
 let s:dotf = fnamemodify(resolve(expand('<sfile>:p')), ':h:h:h')
@@ -23,8 +25,11 @@ if !isdirectory(s:local . '/vim/spell')
 endif
 
 " Réglages de base de vim, qu'il saute dès qu'un ~/.vimrc existe. Après le runtime : ils activent la détection des types de fichiers.
-unlet! skip_defaults_vim
-source $VIMRUNTIME/defaults.vim
+" nvim les a d'origine.
+if !has('nvim')
+  unlet! skip_defaults_vim
+  source $VIMRUNTIME/defaults.vim
+endif
 
 " Thème Catppuccin du mode choisi par « dotf theme » (module vim-catppuccin), sinon un thème fourni avec vim.
 " Fautes d'orthographe soulignées dans le terminal, quel que soit le thème.
@@ -35,10 +40,10 @@ augroup END
 if $COLORTERM =~# 'truecolor\|24bit'
   set termguicolors
 endif
-" Relu à chaque « dotf theme » (signal USR1) : même ordre que le shell, LC_DOTF_THEME puis le fichier d'état.
+" Relu à chaque « dotf theme » (signal USR1) : comme le shell, thème du poste en ssh, sinon le fichier d'état.
 function! s:load_theme() abort
   let file = expand('~/.local/state/dotf/theme')
-  let theme = !empty($LC_DOTF_THEME) ? $LC_DOTF_THEME : filereadable(file) ? get(readfile(file), 0, 'mocha') : 'mocha'
+  let theme = !empty($DOTF_THEME_SSH) ? $DOTF_THEME_SSH : filereadable(file) ? get(readfile(file), 0, 'mocha') : 'mocha'
   try
     execute 'colorscheme catppuccin_' . theme
   catch
@@ -53,6 +58,8 @@ endfunction
 call s:load_theme()
 if exists('##SigUSR1')
   autocmd dotf_colors SigUSR1 * call s:load_theme() | redraw!
+elseif has('nvim')
+  autocmd dotf_colors Signal SIGUSR1 call s:load_theme() | redraw!
 endif
 
 " Barre d'état lightline (module vim-lightline), aux couleurs du thème ; le mode y est affiché.
@@ -71,7 +78,9 @@ endif
 
 " gvim
 set guifont=Hasklug\ Nerd\ Font\ Mono\ 11
-set guioptions-=T
+if exists('+guioptions')
+  set guioptions-=T
+endif
 
 " Orthographe
 command! Spellfr setlocal spell spelllang=fr

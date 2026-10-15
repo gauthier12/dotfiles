@@ -1,8 +1,15 @@
 # shellcheck shell=sh
-# Thème Catppuccin : mocha (sombre, par défaut) ou latte (clair), choisi par « dotf theme », ou LC_DOTF_THEME (transmis par ssh).
+# Thème Catppuccin : mocha (sombre, par défaut) ou latte (clair), choisi par « dotf theme ».
+
+# Session ssh : on garde le thème du poste, reçu dans LC_DOTF_THEME (SendEnv de config/ssh/config).
+if [ -n "${SSH_CONNECTION-}" ] && [ -n "${LC_DOTF_THEME-}" ] && [ -z "${DOTF_THEME_SSH-}" ]; then
+  export DOTF_THEME_SSH="$LC_DOTF_THEME"
+fi
+
 _dotf_theme() {
-  DOTF_THEME=${LC_DOTF_THEME:-$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/dotf/theme" 2>/dev/null)}
-  export DOTF_THEME="${DOTF_THEME:-mocha}"
+  DOTF_THEME=${DOTF_THEME_SSH:-$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/dotf/theme" 2>/dev/null)}
+  DOTF_THEME=${DOTF_THEME:-mocha}
+  export DOTF_THEME LC_DOTF_THEME="$DOTF_THEME"
   # zsh : couleurs de la ligne de commande, rechargées quand le thème change.
   if [ -n "${ZSH_VERSION-}" ] && [ "$DOTF_THEME" != "${_dotf_theme_zsh-}" ]; then
     _dotf_theme_zsh=$DOTF_THEME
@@ -18,5 +25,3 @@ _dotf_theme() {
     while read -r _dotf_osc; do printf '\033]%s\007' "$_dotf_osc"; done
 }
 _dotf_theme
-# ssh : la session distante prend le thème du poste.
-ssh() { LC_DOTF_THEME=$DOTF_THEME command ssh -o SendEnv=LC_DOTF_THEME "$@"; }

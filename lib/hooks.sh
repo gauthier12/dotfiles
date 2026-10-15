@@ -4,7 +4,7 @@
 HOOK_MARK='dotf-hook'
 
 # « fichier:type », type env (shell/env.sh), init (shell/init.sh), vim (config/vim/vimrc), xres (config/x/Xresources)
-# ou tmux (config/tmux/tmux.conf).
+# tmux (config/tmux/tmux.conf), ssh (config/ssh/config), authkeys (config/ssh/authorized_keys) ou nvim (vimrc, en lua).
 hook_targets() {
   _z=${ZDOTDIR:-$HOME}
   echo "$HOME/.profile:env"
@@ -17,6 +17,15 @@ hook_targets() {
   if command -v vim >/dev/null 2>&1 || command -v gvim >/dev/null 2>&1; then echo "$(hook_vimrc):vim"; fi
   if command -v xrdb >/dev/null 2>&1 || [ -e "$HOME/.Xresources" ]; then echo "$HOME/.Xresources:xres"; fi
   if command -v tmux >/dev/null 2>&1; then echo "$(hook_tmuxconf):tmux"; fi
+  if command -v nvim >/dev/null 2>&1; then hook_nvim; fi
+  if command -v ssh >/dev/null 2>&1; then echo "$HOME/.ssh/config:ssh"; fi
+  if [ -n "$(hook_line authkeys)" ]; then echo "$HOME/.ssh/authorized_keys:authkeys"; fi
+}
+
+# nvim lit init.lua ou init.vim (pas les deux) : on branche celui qui existe, sinon init.vim.
+hook_nvim() {
+  _n=${XDG_CONFIG_HOME:-$HOME/.config}/nvim
+  if [ -e "$_n/init.lua" ]; then echo "$_n/init.lua:nvim"; else echo "$_n/init.vim:vim"; fi
 }
 
 # tmux lit ~/.tmux.conf, sinon ~/.config/tmux/tmux.conf.
@@ -36,18 +45,35 @@ _hook_xres_include() {
 }
 
 hook_line() {
-  if [ "$1" = tmux ]; then
-    # Le format est répété : une ligne par fichier.
-    printf "source-file -q '%s' # %s\n" "$DOTF/config/tmux/tmux.conf" "$HOOK_MARK" "$DOTF_LOCAL/tmux.conf" "$HOOK_MARK"
-  elif [ "$1" = xres ]; then
-    _hook_xres_include "$DOTF/config/x/Xresources"
-    _hook_xres_include "$DOTF_LOCAL/Xresources"
-  elif [ "$1" = vim ]; then
-    printf "if filereadable('%s/config/vim/vimrc') | source %s/config/vim/vimrc | endif  \" %s\n" "$DOTF" "$DOTF" "$HOOK_MARK"
-  else
-    printf "if [ -r '%s/shell/%s.sh' ]; then DOTF='%s'; . '%s/shell/%s.sh'; fi  # %s\n" \
-      "$DOTF" "$1" "$DOTF" "$DOTF" "$1" "$HOOK_MARK"
-  fi
+  case $1 in
+    env | init)
+      printf "if [ -r '%s/shell/%s.sh' ]; then DOTF='%s'; . '%s/shell/%s.sh'; fi  # %s\n" \
+        "$DOTF" "$1" "$DOTF" "$DOTF" "$1" "$HOOK_MARK"
+      ;;
+    vim)
+      printf "if filereadable('%s/config/vim/vimrc') | source %s/config/vim/vimrc | endif  \" %s\n" "$DOTF" "$DOTF" "$HOOK_MARK"
+      ;;
+    nvim)
+      printf "if vim.fn.filereadable('%s/config/vim/vimrc') == 1 then vim.cmd.source('%s/config/vim/vimrc') end -- %s\n" \
+        "$DOTF" "$DOTF" "$HOOK_MARK"
+      ;;
+    xres)
+      _hook_xres_include "$DOTF/config/x/Xresources"
+      _hook_xres_include "$DOTF_LOCAL/Xresources"
+      ;;
+    tmux)
+      # Le format est répété : une ligne par fichier.
+      printf "source-file -q '%s' # %s\n" "$DOTF/config/tmux/tmux.conf" "$HOOK_MARK" "$DOTF_LOCAL/tmux.conf" "$HOOK_MARK"
+      ;;
+    ssh)
+      # À la fin, « Match all » : hors de tout bloc Host, et après les réglages existants (la première valeur l'emporte).
+      printf 'Match all # %s\nInclude "%s" # %s\nInclude "%s" # %s\n' "$HOOK_MARK" \
+        "$DOTF_LOCAL/ssh_config" "$HOOK_MARK" "$DOTF/config/ssh/config" "$HOOK_MARK"
+      ;;
+    authkeys)
+      grep -vE '^[[:space:]]*(#|$)' "$DOTF/config/ssh/authorized_keys" 2>/dev/null | sed "s/\$/ $HOOK_MARK/"
+      ;;
+  esac
 }
 
 hook_present() { [ -f "$1" ] && grep -qF -- "$HOOK_MARK" "$1"; }
@@ -68,6 +94,8 @@ hook_add() {
     return 0
   fi
   if [ ! -e "$1" ]; then
+    # shellcheck disable=SC2174 # voulu : seul le dossier du fichier (ex. ~/.ssh) en 700
+    mkdir -p -m 700 "$(dirname "$1")"
     : >"$1"
     state_add created "$1"
   fi
@@ -101,7 +129,8 @@ hooks_install() {
 hooks_remove() {
   _z=${ZDOTDIR:-$HOME}
   for _f in "$HOME/.profile" "$HOME/.bash_profile" "$HOME/.bashrc" "$_z/.zshenv" "$_z/.zshrc" "$HOME/.vimrc" "$HOME/.vim/vimrc" "$HOME/.Xresources" \
-    "$HOME/.tmux.conf" "${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"; do
+    "$HOME/.tmux.conf" "${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf" "$HOME/.ssh/config" "$HOME/.ssh/authorized_keys" \
+    "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/init.vim" "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/init.lua"; do
     hook_remove "$_f"
   done
 }

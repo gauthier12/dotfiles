@@ -1,0 +1,6 @@
+# Config ssh propre à cette machine (hors git), lue avant config/ssh/config du dépôt.
+# Les hôtes de ~/.ssh/config passent avant les deux.
+
+# Host serveur
+#   HostName serveur.example
+#   User moi

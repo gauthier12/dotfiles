@@ -65,6 +65,11 @@ dotf update                      # sur chacune des autres
 - `~/.profile`, `~/.zshenv` et `~/.bash_profile` s'il existe : chargent `shell/env.sh` (PATH, variables) ;
 - `~/.bashrc` et `~/.zshrc` : chargent `shell/init.sh` (shells interactifs) ;
 - `~/.vimrc` (ou `~/.vim/vimrc` si c'est lui qui sert), marquée `" dotf-hook` : charge `config/vim/vimrc` ;
+- `~/.config/nvim/init.vim` (ou `init.lua` s'il existe), si nvim est présent : charge le même `config/vim/vimrc` ;
+- `~/.ssh/config`, à la fin : `Match all`, puis `Include` de `~/.config/dotf/ssh_config` et de `config/ssh/config`.
+  ssh garde la première valeur trouvée : tes hôtes passent avant la config locale, qui passe avant la commune ;
+- `~/.ssh/authorized_keys` : les clés de `config/ssh/authorized_keys` (la clé passe-partout), une ligne marquée par
+  clé, retirées à la désinstallation ; les autres clés ne sont jamais touchées ;
 - `~/.tmux.conf` (ou `~/.config/tmux/tmux.conf` si c'est lui qui sert), si tmux est présent : `source-file -q` de
   `config/tmux/tmux.conf` puis de `~/.config/dotf/tmux.conf` ;
 - `~/.Xresources`, si `xrdb` est présent : un petit bloc qui inclut `config/x/Xresources` puis
@@ -138,8 +143,15 @@ l'autre. Le choix est propre à la machine (`~/.local/state/dotf/theme`).
   ssh), à chaque prompt : une bascule s'applique au prompt suivant, et le terminal retrouve ses couleurs en sortant
   d'une session ssh. ls, difft, dust, starship… suivent.
 - Tout de suite : les vim ouverts (signal USR1) et la coloration de la ligne zsh. broot et gitui : au prochain lancement.
-- `ssh` transmet le mode du poste (`LC_DOTF_THEME`) : la session distante le suit, et `dotf theme` y prévient qu'il
-  n'aura d'effet qu'une fois la variable retirée. Le serveur doit accepter `LC_*` (`AcceptEnv`, le défaut sous Debian).
+- ssh transmet le mode du poste (`LC_DOTF_THEME`, par `SendEnv` dans `config/ssh/config`) : la session distante le
+  suit, et `dotf theme` y prévient qu'il n'a pas d'effet. Le serveur doit accepter `LC_*` (`AcceptEnv`, le défaut
+  sous Debian).
+
+### ssh
+
+`config/ssh/config`, pour tous les hôtes : envoi du thème, connexion maintenue (`ServerAliveInterval 60`), réutilisation
+de la première connexion vers un hôte pendant 10 minutes (`ControlMaster`, sockets `~/.ssh/cm-*`), clés ajoutées à
+l'agent. Pour ne pas réutiliser une connexion : `ssh -o ControlMaster=no …`.
 
 ### Terminal et polices
 
