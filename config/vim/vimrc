@@ -35,14 +35,25 @@ augroup END
 if $COLORTERM =~# 'truecolor\|24bit'
   set termguicolors
 endif
-let s:theme_file = expand('~/.local/state/dotf/theme')
-let s:theme = !empty($DOTF_THEME) ? $DOTF_THEME : filereadable(s:theme_file) ? get(readfile(s:theme_file), 0, 'mocha') : 'mocha'
-try
-  execute 'colorscheme catppuccin_' . s:theme
-catch
-  set background=dark
-  silent! colorscheme habamax
-endtry
+" Relu à chaque « dotf theme » (signal USR1) : même ordre que le shell, LC_DOTF_THEME puis le fichier d'état.
+function! s:load_theme() abort
+  let file = expand('~/.local/state/dotf/theme')
+  let theme = !empty($LC_DOTF_THEME) ? $LC_DOTF_THEME : filereadable(file) ? get(readfile(file), 0, 'mocha') : 'mocha'
+  try
+    execute 'colorscheme catppuccin_' . theme
+  catch
+    set background=dark
+    silent! colorscheme habamax
+  endtry
+  if exists('g:loaded_lightline') && g:colors_name =~# '^catppuccin_'
+    let g:lightline.colorscheme = g:colors_name
+    call lightline#init() | call lightline#colorscheme() | call lightline#update()
+  endif
+endfunction
+call s:load_theme()
+if exists('##SigUSR1')
+  autocmd dotf_colors SigUSR1 * call s:load_theme() | redraw!
+endif
 
 " Barre d'état lightline (module vim-lightline), aux couleurs du thème ; le mode y est affiché.
 " Séparateurs en flèche : police Nerd Font.

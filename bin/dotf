@@ -133,7 +133,10 @@ cmd_theme() {
     *) die "usage : dotf theme [dark|light|toggle]" ;;
   esac
   mkdir -p "$DOTF_STATE" && echo "$_t" >"$DOTF_STATE/theme"
-  log_ok "thème $_t : au prochain prompt pour le terminal, au prochain lancement pour vim, broot, gitui, zsh"
+  # Les vim en cours rechargent leur thème (autocommande SigUSR1 du vimrc).
+  pkill -USR1 -u "$(id -u)" -x 'g?vim|vi|vim\..*' 2>/dev/null || true
+  log_ok "thème $_t : terminaux au prochain prompt, vim tout de suite, broot et gitui au prochain lancement"
+  [ -z "${LC_DOTF_THEME-}" ] || log_warn "cette session suit le thème du poste (LC_DOTF_THEME=$LC_DOTF_THEME, transmis par ssh)"
 }
 
 cmd_scan() {

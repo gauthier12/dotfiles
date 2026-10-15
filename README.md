@@ -65,6 +65,8 @@ dotf update                      # sur chacune des autres
 - `~/.profile`, `~/.zshenv` et `~/.bash_profile` s'il existe : chargent `shell/env.sh` (PATH, variables) ;
 - `~/.bashrc` et `~/.zshrc` : chargent `shell/init.sh` (shells interactifs) ;
 - `~/.vimrc` (ou `~/.vim/vimrc` si c'est lui qui sert), marquée `" dotf-hook` : charge `config/vim/vimrc` ;
+- `~/.tmux.conf` (ou `~/.config/tmux/tmux.conf` si c'est lui qui sert), si tmux est présent : `source-file -q` de
+  `config/tmux/tmux.conf` puis de `~/.config/dotf/tmux.conf` ;
 - `~/.Xresources`, si `xrdb` est présent : un petit bloc qui inclut `config/x/Xresources` puis
   `~/.config/dotf/Xresources`, chacun seulement s'il existe. `dotf install` les recharge dans une session graphique.
 
@@ -132,10 +134,12 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 `dotf theme` bascule entre **mocha** (sombre, par défaut) et **latte** (clair) ; `dotf theme dark|light` force l'un ou
 l'autre. Le choix est propre à la machine (`~/.local/state/dotf/theme`).
 
-- Le shell envoie la palette au terminal, quel qu'il soit (urxvt, xterm, Windows Terminal, y compris en ssh) : au
-  démarrage, et au prompt qui suit une bascule. ls, difft, dust, starship… suivent.
-- vim, zsh-syntax-highlighting, broot et gitui prennent le thème Catppuccin du mode à leur prochain lancement.
-- En ssh, la variable `LC_DOTF_THEME` (si le poste l'envoie : `SendEnv LC_DOTF_THEME`) impose le mode du poste.
+- Le shell envoie la palette au terminal, quel qu'il soit (urxvt, xterm, Windows Terminal, volet tmux, y compris en
+  ssh), à chaque prompt : une bascule s'applique au prompt suivant, et le terminal retrouve ses couleurs en sortant
+  d'une session ssh. ls, difft, dust, starship… suivent.
+- Tout de suite : les vim ouverts (signal USR1) et la coloration de la ligne zsh. broot et gitui : au prochain lancement.
+- `ssh` transmet le mode du poste (`LC_DOTF_THEME`) : la session distante le suit, et `dotf theme` y prévient qu'il
+  n'aura d'effet qu'une fois la variable retirée. Le serveur doit accepter `LC_*` (`AcceptEnv`, le défaut sous Debian).
 
 ### Terminal et polices
 
@@ -153,7 +157,7 @@ ni supprimé par dotf.
 - `env.d/*.sh` : variables d'environnement (proxy, PATH supplémentaires…) ;
 - `rc.d/*.sh|bash|zsh` : alias, fonctions, réglages interactifs ;
 - `bin/` : scripts propres à la machine, ajoutés au PATH ;
-- `Xresources` : ressources X de la machine, prioritaires ;
+- `Xresources`, `tmux.conf` : ressources X et réglages tmux de la machine, prioritaires ;
 - `vimrc` : réglages vim, chargés en dernier ; `vim/` : runtime vim de la machine (syntaxes, dictionnaires…), prioritaire sur celui du dépôt.
 
 ## Profils

@@ -3,7 +3,8 @@
 
 HOOK_MARK='dotf-hook'
 
-# « fichier:type », type env (shell/env.sh), init (shell/init.sh), vim (config/vim/vimrc) ou xres (config/x/Xresources).
+# « fichier:type », type env (shell/env.sh), init (shell/init.sh), vim (config/vim/vimrc), xres (config/x/Xresources)
+# ou tmux (config/tmux/tmux.conf).
 hook_targets() {
   _z=${ZDOTDIR:-$HOME}
   echo "$HOME/.profile:env"
@@ -15,6 +16,13 @@ hook_targets() {
   fi
   if command -v vim >/dev/null 2>&1 || command -v gvim >/dev/null 2>&1; then echo "$(hook_vimrc):vim"; fi
   if command -v xrdb >/dev/null 2>&1 || [ -e "$HOME/.Xresources" ]; then echo "$HOME/.Xresources:xres"; fi
+  if command -v tmux >/dev/null 2>&1; then echo "$(hook_tmuxconf):tmux"; fi
+}
+
+# tmux lit ~/.tmux.conf, sinon ~/.config/tmux/tmux.conf.
+hook_tmuxconf() {
+  _x=${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf
+  if [ ! -e "$HOME/.tmux.conf" ] && [ -e "$_x" ]; then echo "$_x"; else echo "$HOME/.tmux.conf"; fi
 }
 
 # vim lit ~/.vimrc, sinon ~/.vim/vimrc : on branche celui qui sert.
@@ -28,7 +36,10 @@ _hook_xres_include() {
 }
 
 hook_line() {
-  if [ "$1" = xres ]; then
+  if [ "$1" = tmux ]; then
+    # Le format est répété : une ligne par fichier.
+    printf "source-file -q '%s' # %s\n" "$DOTF/config/tmux/tmux.conf" "$HOOK_MARK" "$DOTF_LOCAL/tmux.conf" "$HOOK_MARK"
+  elif [ "$1" = xres ]; then
     _hook_xres_include "$DOTF/config/x/Xresources"
     _hook_xres_include "$DOTF_LOCAL/Xresources"
   elif [ "$1" = vim ]; then
@@ -89,7 +100,8 @@ hooks_install() {
 # Tous les fichiers possibles, même ceux qui ne sont plus des cibles.
 hooks_remove() {
   _z=${ZDOTDIR:-$HOME}
-  for _f in "$HOME/.profile" "$HOME/.bash_profile" "$HOME/.bashrc" "$_z/.zshenv" "$_z/.zshrc" "$HOME/.vimrc" "$HOME/.vim/vimrc" "$HOME/.Xresources"; do
+  for _f in "$HOME/.profile" "$HOME/.bash_profile" "$HOME/.bashrc" "$_z/.zshenv" "$_z/.zshrc" "$HOME/.vimrc" "$HOME/.vim/vimrc" "$HOME/.Xresources" \
+    "$HOME/.tmux.conf" "${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"; do
     hook_remove "$_f"
   done
 }

@@ -64,8 +64,9 @@ printf '# profile d origine\n' >"$HOME/.profile"
 printf '[alias]\n\tst = status\n' >"$HOME/.gitconfig"
 printf '" vimrc d origine\nlet g:orig_vimrc = 1\n' >"$HOME/.vimrc"
 printf '! Xresources d origine\nXTerm*test: orig\n' >"$HOME/.Xresources"
+printf '# tmux.conf d origine\nset -g @orig 1\n' >"$HOME/.tmux.conf"
 mkdir -p "$T/orig"
-cp "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.gitconfig" "$HOME/.vimrc" "$HOME/.Xresources" "$T/orig/"
+cp "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.gitconfig" "$HOME/.vimrc" "$HOME/.Xresources" "$HOME/.tmux.conf" "$T/orig/"
 
 # =============================================================================
 section "1. Bootstrap (équivalent de curl | sh)"
@@ -76,6 +77,7 @@ for f in .profile .bashrc .zshenv .zshrc; do
   check "$f branché" grep -q '# dotf-hook' "$HOME/$f"
 done
 check ".vimrc branché" grep -q '" dotf-hook' "$HOME/.vimrc"
+check ".tmux.conf branché" test "$(grep -c "^source-file -q .*dotf-hook" "$HOME/.tmux.conf")" = 2
 check ".Xresources branché (2 inclusions protégées)" test "$(grep -c '^#include .*dotf-hook' "$HOME/.Xresources")" = 2
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
   if printf '%s' "$out" | grep -q 'starship : dernière version introuvable'; then ok "hors ligne : échec du module signalé sans interrompre l'installation"; else ko "échec du module signalé" "$out"; fi
@@ -85,9 +87,9 @@ fi
 
 section "2. Idempotence"
 mkdir -p "$T/after1"
-cp "$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshenv" "$HOME/.zshrc" "$HOME/.vimrc" "$HOME/.Xresources" "$T/after1/"
+cp "$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshenv" "$HOME/.zshrc" "$HOME/.vimrc" "$HOME/.Xresources" "$HOME/.tmux.conf" "$T/after1/"
 "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
-for f in .profile .bashrc .zshenv .zshrc .vimrc .Xresources; do
+for f in .profile .bashrc .zshenv .zshrc .vimrc .Xresources .tmux.conf; do
   check "$f inchangé après une 2e installation" cmp -s "$HOME/$f" "$T/after1/$f"
 done
 
@@ -195,12 +197,18 @@ catppuccin_mocha
   "$DOTF_DIR/bin/dotf" theme >/dev/null 2>&1
   r=$(env -i HOME="$HOME" PATH="$BASE_PATH" vim -n -i NONE -es -u "$HOME/.vimrc" -c 'call writefile([g:colors_name], "/dev/stdout")' -c 'qa!' </dev/null)
   [ "$r" = catppuccin_latte ] && ok "vim : latte après « dotf theme »" || ko "vim : bascule" "$r"
-  r=$(run_shell zsh -ic 'print ${ZSH_HIGHLIGHT_STYLES[comment]}; type gitui broot | grep -c function')
+  r=$(env -i HOME="$HOME" PATH="$BASE_PATH" vim -n -i NONE -es -u "$HOME/.vimrc" -c "call system('$DOTF_DIR/bin/dotf theme')" -c 'doautocmd SigUSR1' -c 'call writefile([g:colors_name, g:lightline.colorscheme], "/dev/stdout")' -c 'qa!' </dev/null)
+  [ "$r" = "catppuccin_mocha
+catppuccin_mocha" ] && ok "vim ouvert : thème et lightline rechargés sur SigUSR1" || ko "vim : SigUSR1" "$r"
+  "$DOTF_DIR/bin/dotf" theme light >/dev/null 2>&1
+  r=$(run_shell zsh -ic 'print ${ZSH_HIGHLIGHT_STYLES[comment]}; type gitui broot | grep -c function; dotf theme dark >/dev/null; _dotf_theme; print ${ZSH_HIGHLIGHT_STYLES[comment]}')
   [ "$r" = "fg=#acb0be
-2" ] && stderr_clean && ok "zsh : coloration latte, gitui et broot habillés" || ko "zsh : catppuccin" "$r $(cat "$T/stderr.f")"
+2
+fg=#585b70" ] && stderr_clean && ok "zsh : coloration latte puis mocha sans relancer, gitui et broot habillés" || ko "zsh : catppuccin" "$r $(cat "$T/stderr.f")"
+  "$DOTF_DIR/bin/dotf" theme light >/dev/null 2>&1
   if command -v script >/dev/null 2>&1; then
     r=$(env -i HOME="$HOME" PATH="$BASE_PATH" TERM=xterm-256color script -qec "bash -ic 'echo; _dotf_theme'" /dev/null </dev/null | grep -ao $'\e]11;#[0-9a-f]*' | tr -d '\033' | sort | uniq -c | tr -s ' ')
-    [ "$r" = " 1 ]11;#eff1f5" ] && ok "terminal : fond latte envoyé une seule fois" || ko "terminal : palette" "$r"
+    [ "$r" = " 2 ]11;#eff1f5" ] && ok "terminal : fond latte envoyé au démarrage et à chaque prompt" || ko "terminal : palette" "$r"
   fi
   "$DOTF_DIR/bin/dotf" theme dark >/dev/null 2>&1
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="nerd-fonts"\nDOTF_FONTS="FiraCode"/' "$LOCAL/config.sh"
@@ -365,7 +373,15 @@ latte
 mocha" ] && ok "dotf theme : bascule mocha → latte → mocha, lue par bash et zsh" || ko "dotf theme" "$r"
 r=$(LC_DOTF_THEME=latte env -i HOME="$HOME" PATH="$BASE_PATH" LC_DOTF_THEME=latte bash -ic 'echo $DOTF_THEME' 2>/dev/null)
 [ "$r" = latte ] && ok "LC_DOTF_THEME (ssh) l'emporte sur le choix de la machine" || ko "LC_DOTF_THEME" "$r"
+r=$(run_shell bash -ic 'type ssh' | grep -c 'LC_DOTF_THEME=\$DOTF_THEME command ssh -o SendEnv=LC_DOTF_THEME')
+[ "$r" = 1 ] && ok "ssh transmet le thème (LC_DOTF_THEME)" || ko "ssh" "$r"
+out=$(LC_DOTF_THEME=latte "$DOTF_DIR/bin/dotf" theme 2>&1)
+case $out in *"suit le thème du poste"*) ok "dotf theme prévient quand la session suit le poste" ;; *) ko "dotf theme sous LC_DOTF_THEME" "$out" ;; esac
 "$DOTF_DIR/bin/dotf" theme dark >/dev/null 2>&1
+if command -v tmux >/dev/null 2>&1; then
+  r=$(tmux -L "dotf$$" -f "$HOME/.tmux.conf" start-server \; show -s terminal-features \; show -g @orig \; kill-server 2>&1 | grep -c 'xterm-256color:RGB\|@orig 1')
+  [ "$r" = 2 ] && ok "tmux : config d'origine et couleurs 24 bits" || ko "tmux" "$r"
+fi
 
 section "5d. Moteur des modules (module factice, hors ligne)"
 cat >"$DOTF_DIR/modules/fake.sh" <<'MOD'
@@ -510,7 +526,7 @@ r=$(run_shell zsh -ic 'true')
 
 section "7. Désinstallation"
 "$DOTF_DIR/bin/dotf" uninstall >/dev/null 2>&1
-for f in .profile .bashrc .zshrc .bash_profile .gitconfig .vimrc .Xresources; do
+for f in .profile .bashrc .zshrc .bash_profile .gitconfig .vimrc .Xresources .tmux.conf; do
   check "$f identique à l'original" cmp -s "$HOME/$f" "$T/orig/$f"
 done
 check ".zshenv (créé par dotf) supprimé" test ! -e "$HOME/.zshenv"
