@@ -157,8 +157,8 @@ l'actuelle d'une `*`. Le choix est propre à la machine (`~/.local/state/dotf/th
 - Le shell envoie la palette au terminal, quel qu'il soit (urxvt, xterm, Windows Terminal, volet tmux, y compris en
   ssh), à chaque prompt : une bascule s'applique au prompt suivant, et le terminal retrouve ses couleurs en sortant
   d'une session ssh. ls, difft, dust, starship… suivent.
-- Tout de suite : les vim ouverts (signal USR1), la coloration de la ligne zsh, et XFCE (thème GTK, fenêtres et
-  curseur, avec le module `catppuccin-xfce`). broot et gitui : au prochain lancement.
+- Tout de suite : les vim ouverts (signal USR1), la coloration de la ligne zsh, et XFCE (thème GTK et curseur,
+  avec le module `catppuccin-xfce`). broot et gitui : au prochain lancement.
 - ssh transmet le mode du poste (`LC_DOTF_THEME`, par `SendEnv` dans `config/ssh/config`) : la session distante le
   suit, et `dotf theme` y prévient qu'il n'a pas d'effet. Le serveur doit accepter `LC_*` (`AcceptEnv`, le défaut
   sous Debian).
@@ -238,7 +238,7 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 |---|---|
 | `starship` | prompt commun à bash et zsh (`config/starship.toml`). Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. |
 | `gitleaks` | détection de secrets pour le garde-fou |
-| `catppuccin-xfce` | Catppuccin pour XFCE, accent mauve, les quatre variantes : GTK et fenêtres xfwm4 (catppuccin/gtk, archivé par Catppuccin mais fonctionnel), curseurs, thèmes de xfce4-terminal. Dans `~/.local/share/{themes,icons}` ; `dotf theme` les applique. |
+| `catppuccin-xfce` | Catppuccin pour XFCE, accent mauve, les quatre variantes : GTK (catppuccin/gtk, archivé par Catppuccin), curseurs, thèmes de xfce4-terminal. Pas les fenêtres : le thème xfwm4 de la dernière version est livré sans ses images. Dans `~/.local/share/{themes,icons}` ; `dotf theme` les applique. |
 | `kitty` | terminal kitty, par son installeur officiel, dans `~/.local/kitty.app` (son emplacement par défaut), avec lanceurs et icône. Config : `config/kitty/kitty.conf`. |
 | `joplin` | Joplin, version bureau (AppImage), avec lanceur et icône dans le menu des applications. Les notes ne sont jamais touchées. |
 | `lapce` | éditeur graphique Lapce, version stable (binaire officiel), avec lanceur et icône. Thèmes Catppuccin installés (module `catppuccin`, ajouté avec lui) ; Catppuccin Mocha par défaut au premier lancement, puis réglages de Lapce, jamais touchés. Ne suit pas `dotf theme`. |

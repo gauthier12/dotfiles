@@ -417,8 +417,7 @@ printf '#!/bin/sh\necho "$*" >>"$HOME/xfconf.log"\n' >"$T/xfbin/xfconf-query" &&
 PATH="$T/xfbin:$PATH" "$DOTF_DIR/bin/dotf" theme latte >/dev/null 2>&1
 r=$(cut -d ' ' -f 4,9 "$HOME/xfconf.log" 2>&1)
 [ "$r" = "/Net/ThemeName catppuccin-latte-mauve-standard+default
-/general/theme catppuccin-latte-mauve-standard+default
-/Gtk/CursorThemeName catppuccin-latte-dark-cursors" ] && ok "dotf theme : XFCE (GTK, fenêtres, curseur) suit" || ko "XFCE" "$r"
+/Gtk/CursorThemeName catppuccin-latte-dark-cursors" ] && ok "dotf theme : XFCE (GTK, curseur) suit" || ko "XFCE" "$r"
 rm -rf "$HOME/xfconf.log" "$HOME/.local/opt/catppuccin-xfce"
 if "$DOTF_DIR/bin/dotf" theme mauve >/dev/null 2>&1; then ko "dotf theme : variante inconnue acceptée"; else ok "dotf theme : variante inconnue refusée"; fi
 "$DOTF_DIR/bin/dotf" theme dark >/dev/null 2>&1
