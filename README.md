@@ -184,7 +184,7 @@ les shells quand `<nom>` figure dans `DOTF_PROFILES` (config locale).
 ## Modules
 
 Un module est un logiciel installé en espace utilisateur, sans root. Les modules du socle, listés dans
-`modules/default`, sont installés sur toutes les machines ; tous sauf `joplin`, `rustup` et `lowfi`.
+`modules/default`, sont installés sur toutes les machines ; tous sauf `joplin`, `lapce`, `rustup` et `lowfi`.
 Dans la config locale, `DOTF_MODULES` donne l'écart de la machine : `nom` ajoute un module, `-nom` retire un
 module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` installe ce qui manque, `dotf update` met
 à jour, et un module qui n'est plus choisi est désinstallé.
@@ -194,6 +194,7 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 | `starship` | prompt commun à bash et zsh (`config/starship.toml`). Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. |
 | `gitleaks` | détection de secrets pour le garde-fou |
 | `joplin` | Joplin, version bureau (AppImage). Les notes ne sont jamais touchées. |
+| `lapce` | éditeur graphique Lapce, version stable (binaire officiel). Thèmes Catppuccin installés (module `catppuccin`, ajouté avec lui) ; Catppuccin Mocha par défaut au premier lancement, puis réglages de Lapce, jamais touchés. Ne suit pas `dotf theme`. |
 | `zsh-autosuggestions` | suggestion grisée tirée de l'historique pendant la frappe ; → ou Fin l'accepte |
 | `rustup` | Rust (rustup, cargo, rustc), aux emplacements standard `~/.rustup` et `~/.cargo`. Requis par les modules installés avec cargo. Le retirer désinstalle Rust, y compris ce qui a été installé à la main avec cargo. |
 | `zsh-syntax-highlighting` | colore la commande pendant la frappe (rouge si elle n'existe pas) |
@@ -202,7 +203,7 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 | `dust` | `du` lisible (installé par son script officiel) |
 | `gitui` | interface git en terminal |
 | `lowfi` | musique lo-fi, compilé avec cargo (`rustup` installé avant). Demande `pkg-config` et les en-têtes ALSA et OpenSSL (Debian : `pkg-config libasound2-dev libssl-dev`). |
-| `catppuccin` | thèmes Catppuccin : palette du terminal, zsh-syntax-highlighting, broot, gitui |
+| `catppuccin` | thèmes Catppuccin : palette du terminal, zsh-syntax-highlighting, broot, gitui, lapce |
 | `vim-catppuccin`, `vim-lightline` | thème et barre d'état de vim |
 | `nvim` | Neovim, archive officielle (x86_64, arm64 ; glibc 2.34 et plus). Passe avant celui du système, et utilise le vimrc commun. |
 | `typst` | composition de documents (binaire officiel, statique). Pas de sommes publiées : archive non vérifiée. |

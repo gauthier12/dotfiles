@@ -4,6 +4,7 @@
 # Modules : ceux du socle ($DOTF/modules/default) sont installés partout. Ici, l'écart de cette machine :
 # « nom » ajoute un module, « -nom » en retire un du socle. Ex. : DOTF_MODULES="joplin -nerd-fonts"
 #   joplin    application de notes Joplin (bureau, AppImage x86_64)
+#   lapce     éditeur graphique Lapce, avec les thèmes Catppuccin
 #   lowfi     compilé avec cargo (rustup installé avant) ; demande pkg-config et les en-têtes ALSA/OpenSSL
 #   rustup    Rust (rustup, cargo) ; inutile de l'ajouter pour lowfi
 # Liste et rôle de chaque module : README, section Modules. Après modification : « dotf install ».
