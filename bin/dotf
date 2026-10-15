@@ -148,6 +148,13 @@ cmd_theme() {
   mkdir -p "$DOTF_STATE" && echo "$_t" >"$DOTF_STATE/theme"
   # Les vim en cours rechargent leur thème (autocommande SigUSR1 du vimrc).
   pkill -USR1 -u "$(id -u)" -x 'g?vim|vi|vim\..*|nvim' 2>/dev/null || true
+  # XFCE (module catppuccin-xfce) : GTK, fenêtres et curseur, tout de suite (hors session graphique : sans effet).
+  if [ -d "$DOTF_OPT/catppuccin-xfce" ] && command -v xfconf-query >/dev/null 2>&1; then
+    xfconf-query -c xsettings -p /Net/ThemeName -n -t string -s "catppuccin-$_t-mauve-standard+default" 2>/dev/null &&
+      xfconf-query -c xfwm4 -p /general/theme -n -t string -s "catppuccin-$_t-mauve-standard+default" 2>/dev/null &&
+      xfconf-query -c xsettings -p /Gtk/CursorThemeName -n -t string -s "catppuccin-$_t-dark-cursors" 2>/dev/null &&
+      log_ok "XFCE : catppuccin-$_t appliqué"
+  fi
   log_ok "thème $_t : terminaux au prochain prompt, vim tout de suite, broot et gitui au prochain lancement"
   [ -z "${DOTF_THEME_SSH-}" ] || log_warn "cette session ssh suit le thème du poste ($DOTF_THEME_SSH)"
 }

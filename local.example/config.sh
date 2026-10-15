@@ -5,6 +5,7 @@
 # « nom » ajoute un module, « -nom » en retire un du socle. Ex. : DOTF_MODULES="joplin -nerd-fonts"
 #   kitty     terminal kitty (24 bits, ligatures), config dans $DOTF/config/kitty
 #   joplin    application de notes Joplin (bureau, AppImage x86_64)
+#   catppuccin-xfce  thèmes Catppuccin pour XFCE (GTK, fenêtres, curseurs), appliqués par « dotf theme »
 #   lapce     éditeur graphique Lapce, avec les thèmes Catppuccin
 #   lowfi     compilé avec cargo (rustup installé avant) ; demande pkg-config et les en-têtes ALSA/OpenSSL
 #   rustup    Rust (rustup, cargo) ; inutile de l'ajouter pour lowfi
