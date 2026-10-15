@@ -156,7 +156,7 @@ else
   [ "$(printf '%s\n' "$r" | sed -n 1p)" = "$HOME/.cache/dotf/starship-$c.toml" ] &&
     [ "$(printf '%s\n' "$r" | sed -n 2p)" = "style = \"bold $c\"" ] && ok "zsh : config starship avec la couleur de l'hôte" || ko "zsh : STARSHIP_CONFIG" "$r"
   r=$(run_shell bash -ic 'starship prompt' | sed -e 's/\x1b\[[0-9;]*m//g' -e 's/\\[][]//g')
-  case $r in *"$(id -un)@$(uname -n) "*) stderr_clean && ok "bash : prompt starship avec user@hôte" || ko "bash : erreurs starship" "$(cat "$T/stderr.f")" ;; *) ko "bash : prompt starship" "$r" ;; esac
+  case $r in *"$(id -un) "*" $(uname -n) "*) stderr_clean && ok "bash : prompt starship avec utilisateur et hôte" || ko "bash : erreurs starship" "$(cat "$T/stderr.f")" ;; *) ko "bash : prompt starship" "$r" ;; esac
   r=$(RUN_TERM=dumb run_shell bash -ic 'echo "$PROMPT_COMMAND"')
   [ "$r" = "_dotf_prompt;_dotf_theme;_dotf_title_prompt;_dotf_history_sync" ] && stderr_clean && ok "TERM=dumb : prompt de repli malgré starship" || ko "TERM=dumb" "$r $(cat "$T/stderr.f")"
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="zsh-autosuggestions zsh-syntax-highlighting"/' "$LOCAL/config.sh"

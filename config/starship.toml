@@ -1,5 +1,5 @@
 # Config starship (https://starship.rs/config/).
-# Icônes : police Nerd Font (module nerd-fonts sur le poste, réglée dans le terminal).
+# Icônes : police Nerd Font (module nerd-fonts sur le poste, réglée dans le terminal), notées \uXXXX.
 # HOST_COLOR est remplacé par la couleur de la machine (shell/rc.d/85-host-color.sh).
 "$schema" = "https://starship.rs/config-schema.json"
 
@@ -20,17 +20,18 @@ $character"""
 
 [time]
 disabled = false
-format = "[$time]($style) "
+format = "[\ue383 $time]($style) " # horloge
 
 [username]
 show_always = true
-format = "[$user]($style)@"
+format = "[$user]($style) "
 
 [hostname]
 ssh_only = false
-ssh_symbol = " "
+ssh_symbol = "\U000f08c0 " # ssh
 style = "bold HOST_COLOR"
-format = "[$ssh_symbol$hostname]($style) "
+format = "[$ssh_symbol\U000f01c5 $hostname]($style) " # ordinateur
 
 [directory]
-read_only = " 󰌾"
+read_only = " \U000f033e" # cadenas
+format = "[\ue613 $path]($style)[$read_only]($read_only_style) " # dossier

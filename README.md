@@ -107,7 +107,7 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | Commande | Shells | Effet |
 |---|---|---|
 | `ls` | bash, zsh | en couleur (si le `ls` du système le permet) |
-| Prompt | bash, zsh | heure, user@hôte (une couleur propre à chaque machine, tirée de son nom), dossier, git ; `❯` rouge si la commande a échoué |
+| Prompt | bash, zsh | avec starship, icônes Nerd Font devant l'heure, utilisateur, puis le nom d'hôte (une couleur propre à chaque machine, tirée de son nom), le dossier, git ; `❯` rouge si la commande a échoué |
 | Titre du terminal | bash, zsh | hôte et dossier ; en zsh, la commande pendant qu'elle tourne |
 | `setTitle <texte>` | bash, zsh | fixe le titre ; sans argument, revient au titre automatique |
 | `kpsync` | bash, zsh | synchronise un fichier avec sa copie distante, la version la plus récente gagne (l'ancienne est gardée en `fichier~`). Réglages `KPSYNC_LOCAL` et `KPSYNC_REMOTE` dans la config locale. |
