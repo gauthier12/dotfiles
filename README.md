@@ -18,6 +18,15 @@ git clone https://github.com/gauthier12/dotfiles ~/.local/share/dotf
 
 Seul git est requis. curl ou wget servent aux modules optionnels.
 
+**Depuis l'ancien environnement** (`~/.local/dotfiles`) : `scripts/nettoyage-ancien-env.sh` remet d'abord le home à
+zéro. Il déplace les anciens fichiers rc et configs dans `~/ancien-env-<date>/` (chemins conservés, pour comparer
+avec `diff`), remet `.bashrc` et `.profile` de la distribution, et désinstalle les outils installés avec cargo.
+À lancer avant l'installation, sans clone :
+
+```sh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/gauthier12/dotfiles/main/scripts/nettoyage-ancien-env.sh)"
+```
+
 ## Commandes
 
 | Commande | Effet |

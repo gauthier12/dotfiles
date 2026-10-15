@@ -590,7 +590,7 @@ check "purge : .bashrc identique à l'original" cmp -s "$HOME/.bashrc" "$T/orig/
 
 section "10. shellcheck"
 if [ -n "$SHELLCHECK" ]; then
-  if out=$(cd "$SRC" && "$SHELLCHECK" -x install.sh bin/dotf lib/*.sh shell/env.sh shell/init.sh shell/rc.d/*.sh modules/*.sh tests/run.sh .githooks/* 2>&1); then ok "shellcheck"; else ko "shellcheck" "$out"; fi
+  if out=$(cd "$SRC" && "$SHELLCHECK" -x install.sh bin/dotf lib/*.sh shell/env.sh shell/init.sh shell/rc.d/*.sh modules/*.sh scripts/*.sh tests/run.sh .githooks/* 2>&1); then ok "shellcheck"; else ko "shellcheck" "$out"; fi
   if out=$(cd "$SRC" && "$SHELLCHECK" -s bash shell/rc.d/*.bash 2>&1); then ok "shellcheck (bash)"; else ko "shellcheck (bash)" "$out"; fi
 else
   printf '  - shellcheck absent, ignoré\n'
