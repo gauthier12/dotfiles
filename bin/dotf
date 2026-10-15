@@ -34,8 +34,9 @@ Usage : dotf <commande>
                      --purge supprime aussi le dépôt et l'état (jamais la config locale)
   status             état des branchements, liens, modules et du dépôt
   edit               ouvre la config locale de la machine
-  theme [dark|light|toggle]
-                     thème Catppuccin sombre (mocha) ou clair (latte) ; sans argument : bascule
+  theme [mocha|macchiato|frappe|latte|dark|light|toggle]
+                     variante Catppuccin ; dark : la sombre préférée (DOTF_THEME_DARK, mocha par défaut),
+                     light : latte ; sans argument : bascule entre les deux
   scan [--all]       garde-fou anti-fuite sur ce qui va être commité, ou sur tout le dépôt
 
 Dépôt         : $(tilde "$DOTF")
@@ -127,11 +128,14 @@ cmd_edit() {
 }
 
 cmd_theme() {
+  load_local_config
+  _dark=${DOTF_THEME_DARK:-mocha}
   case ${1-toggle} in
-    dark) _t=mocha ;;
+    mocha | macchiato | frappe | latte) _t=$1 ;;
+    dark) _t=$_dark ;;
     light) _t=latte ;;
-    toggle) if [ "$(cat "$DOTF_STATE/theme" 2>/dev/null)" = latte ]; then _t=mocha; else _t=latte; fi ;;
-    *) die "usage : dotf theme [dark|light|toggle]" ;;
+    toggle) if [ "$(cat "$DOTF_STATE/theme" 2>/dev/null)" = latte ]; then _t=$_dark; else _t=latte; fi ;;
+    *) die "usage : dotf theme [mocha|macchiato|frappe|latte|dark|light|toggle]" ;;
   esac
   mkdir -p "$DOTF_STATE" && echo "$_t" >"$DOTF_STATE/theme"
   # Les vim en cours rechargent leur thème (autocommande SigUSR1 du vimrc).

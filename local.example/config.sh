@@ -13,6 +13,9 @@ DOTF_MODULES=""
 # Polices du module nerd-fonts (noms des archives sur github.com/ryanoasis/nerd-fonts/releases).
 # DOTF_FONTS="Hasklig FiraCode"
 
+# Variante sombre de « dotf theme dark » et de la bascule : mocha, macchiato ou frappe.
+# DOTF_THEME_DARK=frappe
+
 # Profils (dossier $DOTF/profiles), ex. nfs-home : home sur le réseau, caches sur le disque local.
 # DOTF_PROFILES="nfs-home"
 

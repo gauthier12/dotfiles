@@ -35,7 +35,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/gauthier12/dotfiles/main/s
 | `dotf update` | `git pull --ff-only`, puis `install`, puis mise à jour des modules actifs |
 | `dotf status` | état des branchements, liens, modules, retard ou avance sur le dépôt distant |
 | `dotf edit` | ouvre la config locale de la machine |
-| `dotf theme [dark\|light]` | thème Catppuccin sombre ou clair ; sans argument, bascule |
+| `dotf theme [variante\|dark\|light]` | thème Catppuccin : mocha, macchiato, frappe ou latte ; sans argument, bascule sombre/clair |
 | `dotf uninstall` | débranche tout, retire liens et modules, restaure les fichiers sauvegardés |
 | `dotf uninstall --purge` | idem, puis supprime le dépôt et l'état (refusé s'il reste du travail non commité ou non poussé) |
 
@@ -145,8 +145,10 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 
 ### Thème Catppuccin, sombre ou clair
 
-`dotf theme` bascule entre **mocha** (sombre, par défaut) et **latte** (clair) ; `dotf theme dark|light` force l'un ou
-l'autre. Le choix est propre à la machine (`~/.local/state/dotf/theme`).
+Les quatre variantes Catppuccin sont disponibles : **mocha** (la plus sombre, par défaut), **macchiato**, **frappe**
+(sombres, de plus en plus douces) et **latte** (claire). `dotf theme <variante>` en choisit une. `dotf theme`
+bascule entre la variante sombre préférée et latte ; `dotf theme dark|light` force l'une ou l'autre. La variante
+sombre préférée est mocha, ou celle de `DOTF_THEME_DARK` dans la config locale. Le choix est propre à la machine (`~/.local/state/dotf/theme`).
 
 - Le shell envoie la palette au terminal, quel qu'il soit (urxvt, xterm, Windows Terminal, volet tmux, y compris en
   ssh), à chaque prompt : une bascule s'applique au prompt suivant, et le terminal retrouve ses couleurs en sortant
@@ -186,7 +188,7 @@ Les réglages par défaut sont dans le dépôt. Deux façons de les changer :
 | vérification des mises à jour | une fois par jour | `config.sh` : `DOTF_UPDATE_CHECK=0` |
 | URL pour pousser le dépôt | URL de clonage (HTTPS) | `config.sh` : `DOTF_PUSH_URL="git@github.com:…"`, puis `dotf install` |
 | profils | aucun | `config.sh` : `DOTF_PROFILES="nfs-home"` (voir [Profils](#profils)) |
-| thème sombre ou clair | sombre (mocha) | `dotf theme light` (retenu pour la machine) |
+| thème (variante Catppuccin) | mocha | `dotf theme latte`, `frappe`… (retenu pour la machine) ; sombre de la bascule : `config.sh` : `DOTF_THEME_DARK=frappe` |
 | variables d'environnement (`EDITOR`, proxy, `PATH`…) | `shell/env.sh` | `env.d/*.sh` |
 | alias, fonctions, options du shell | `shell/rc.d/` | `rc.d/*.sh`, `*.bash` ou `*.zsh` |
 | vim et nvim | `config/vim/vimrc` | `vimrc` ; `vim/` pour les syntaxes, dictionnaires… |

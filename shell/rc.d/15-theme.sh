@@ -1,5 +1,5 @@
 # shellcheck shell=sh
-# Thème Catppuccin : mocha (sombre, par défaut) ou latte (clair), choisi par « dotf theme ».
+# Thème Catppuccin (mocha par défaut, macchiato, frappe ou latte), choisi par « dotf theme ».
 
 # Session ssh : on garde le thème du poste, reçu dans LC_DOTF_THEME (SendEnv de config/ssh/config).
 if [ -n "${SSH_CONNECTION-}" ] && [ -n "${LC_DOTF_THEME-}" ] && [ -z "${DOTF_THEME_SSH-}" ]; then

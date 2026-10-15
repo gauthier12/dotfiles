@@ -399,6 +399,14 @@ sendenv LC_DOTF_THEME
 serveraliveinterval 5" ] && ok "ssh : réglages communs après ceux de ~/.ssh/config, thème envoyé" || ko "ssh -G" "$r"
 out=$(DOTF_THEME_SSH=latte "$DOTF_DIR/bin/dotf" theme 2>&1)
 case $out in *"suit le thème du poste"*) ok "dotf theme prévient quand la session suit le poste" ;; *) ko "dotf theme sous LC_DOTF_THEME" "$out" ;; esac
+"$DOTF_DIR/bin/dotf" theme frappe >/dev/null 2>&1
+r=$(run_shell zsh -ic 'echo $DOTF_THEME'; echo 'DOTF_THEME_DARK=macchiato' >>"$LOCAL/config.sh"
+  "$DOTF_DIR/bin/dotf" theme >/dev/null 2>&1; cat "$STATE/theme"; "$DOTF_DIR/bin/dotf" theme >/dev/null 2>&1; cat "$STATE/theme")
+[ "$r" = "frappe
+latte
+macchiato" ] && ok "dotf theme : variante choisie, bascule vers DOTF_THEME_DARK" || ko "dotf theme variantes" "$r"
+sed -i '/^DOTF_THEME_DARK=/d' "$LOCAL/config.sh"
+if "$DOTF_DIR/bin/dotf" theme mauve >/dev/null 2>&1; then ko "dotf theme : variante inconnue acceptée"; else ok "dotf theme : variante inconnue refusée"; fi
 "$DOTF_DIR/bin/dotf" theme dark >/dev/null 2>&1
 if command -v tmux >/dev/null 2>&1; then
   r=$(tmux -L "dotf$$" -f "$HOME/.tmux.conf" start-server \; show -s terminal-features \; show -g @orig \; kill-server 2>&1 | grep -c 'xterm-256color:RGB\|@orig 1')
