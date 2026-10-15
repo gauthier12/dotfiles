@@ -26,6 +26,7 @@ Seul git est requis. curl ou wget servent aux modules optionnels.
 | `dotf update` | `git pull --ff-only`, puis `install`, puis mise à jour des modules actifs |
 | `dotf status` | état des branchements, liens, modules, retard ou avance sur le dépôt distant |
 | `dotf edit` | ouvre la config locale de la machine |
+| `dotf theme [dark\|light]` | thème Catppuccin sombre ou clair ; sans argument, bascule |
 | `dotf uninstall` | débranche tout, retire liens et modules, restaure les fichiers sauvegardés |
 | `dotf uninstall --purge` | idem, puis supprime le dépôt et l'état (refusé s'il reste du travail non commité ou non poussé) |
 
@@ -116,7 +117,7 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 
 | Élément | Effet |
 |---|---|
-| Thème | onedark (module `vim-onedark`), sinon habamax ; barre d'état lightline (module `vim-lightline`) |
+| Thème | Catppuccin du mode choisi par `dotf theme` (module `vim-catppuccin`), sinon habamax ; barre d'état lightline (module `vim-lightline`) aux mêmes couleurs |
 | `:Spellfr`, `:Spellen`, `:Spellno` | orthographe française, anglaise, ou aucune. Fautes soulignées dans le terminal. Le dictionnaire français est dans le dépôt (marche hors ligne) ; les mots ajoutés (`zg`) vont dans `~/.config/dotf/vim/spell/`. |
 | F9, F10 | numéros de ligne, numéros relatifs |
 | Souris | active dans vim (clic, molette, sélection) ; **Maj** + sélection ou clic milieu : copier-coller du terminal, y compris en ssh |
@@ -125,6 +126,16 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | netrw (`:Explore`) | en arbre, sans bandeau |
 | Types de fichiers | Gibiane (`.dgibi`, `.gibi`, `.proc`, `.procedur` : coloration, indentation), Esope (`.eso`, `.INC` → Fortran), G-code (`.nc`, `.ngc`, `.gcode`, `.gco`) |
 | gvim | police Hasklug Nerd Font Mono, sans barre d'outils |
+
+### Thème Catppuccin, sombre ou clair
+
+`dotf theme` bascule entre **mocha** (sombre, par défaut) et **latte** (clair) ; `dotf theme dark|light` force l'un ou
+l'autre. Le choix est propre à la machine (`~/.local/state/dotf/theme`).
+
+- Le shell envoie la palette au terminal, quel qu'il soit (urxvt, xterm, Windows Terminal, y compris en ssh) : au
+  démarrage, et au prompt qui suit une bascule. ls, difft, dust, starship… suivent.
+- vim, zsh-syntax-highlighting, broot et gitui prennent le thème Catppuccin du mode à leur prochain lancement.
+- En ssh, la variable `LC_DOTF_THEME` (si le poste l'envoie : `SendEnv LC_DOTF_THEME`) impose le mode du poste.
 
 ### Terminal et polices
 
@@ -173,7 +184,8 @@ le prochain `dotf install` le désinstalle.
 | `dust` | `du` lisible (installé par son script officiel) |
 | `gitui` | interface git en terminal |
 | `lowfi` | musique lo-fi, compilé avec cargo (`rustup` installé avant). Demande `pkg-config` et les en-têtes ALSA et OpenSSL (Debian : `pkg-config libasound2-dev libssl-dev`). |
-| `vim-onedark`, `vim-lightline` | thème et barre d'état de vim |
+| `catppuccin` | thèmes Catppuccin : palette du terminal, zsh-syntax-highlighting, broot, gitui |
+| `vim-catppuccin`, `vim-lightline` | thème et barre d'état de vim |
 | `nerd-fonts` | polices Nerd Font, variante Mono, listées dans `DOTF_FONTS` (par défaut Hasklig et FiraCode), dans `~/.local/share/fonts/nerd-fonts`. Changer la liste : `dotf update`. |
 
 Chaque outil est installé par la méthode recommandée par son projet. Les complétions bash et zsh qu'un module

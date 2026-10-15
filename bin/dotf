@@ -34,6 +34,8 @@ Usage : dotf <commande>
                      --purge supprime aussi le dépôt et l'état (jamais la config locale)
   status             état des branchements, liens, modules et du dépôt
   edit               ouvre la config locale de la machine
+  theme [dark|light|toggle]
+                     thème Catppuccin sombre (mocha) ou clair (latte) ; sans argument : bascule
   scan [--all]       garde-fou anti-fuite sur ce qui va être commité, ou sur tout le dépôt
 
 Dépôt         : $(tilde "$DOTF")
@@ -123,6 +125,17 @@ cmd_edit() {
   exec "${VISUAL:-${EDITOR:-vi}}" "$DOTF_LOCAL/config.sh"
 }
 
+cmd_theme() {
+  case ${1-toggle} in
+    dark) _t=mocha ;;
+    light) _t=latte ;;
+    toggle) if [ "$(cat "$DOTF_STATE/theme" 2>/dev/null)" = latte ]; then _t=mocha; else _t=latte; fi ;;
+    *) die "usage : dotf theme [dark|light|toggle]" ;;
+  esac
+  mkdir -p "$DOTF_STATE" && echo "$_t" >"$DOTF_STATE/theme"
+  log_ok "thème $_t : au prochain prompt pour le terminal, au prochain lancement pour vim, broot, gitui, zsh"
+}
+
 cmd_scan() {
   case ${1---pre-commit} in
     --pre-commit) _mode=staged _what="modifications prêtes à commiter" ;;
@@ -151,6 +164,7 @@ case $_cmd in
   uninstall) cmd_uninstall "$@" ;;
   status) cmd_status ;;
   edit) cmd_edit ;;
+  theme) cmd_theme "$@" ;;
   scan) cmd_scan "$@" ;;
   help | -h | --help) usage ;;
   *) usage >&2; exit 2 ;;

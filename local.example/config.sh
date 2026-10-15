@@ -9,11 +9,12 @@
 #   broot     navigation dans l'arborescence (br : cd en quittant)
 #   difftastic diff qui comprend la syntaxe (difft ; git dlog -p, dshow, ddiff)
 #   dust, gitui
-#   vim-onedark, vim-lightline  thème et barre d'état de vim
+#   catppuccin  thèmes Catppuccin (terminal, zsh, broot, gitui) ; « dotf theme » bascule sombre/clair
+#   vim-catppuccin, vim-lightline  thème et barre d'état de vim
 #   nerd-fonts  polices Nerd Font Mono de DOTF_FONTS (postes avec session graphique)
 #   lowfi     compilé avec cargo (rustup installé avant) ; demande pkg-config et les en-têtes ALSA/OpenSSL
 # Après modification : « dotf install ». Un module retiré de la liste est désinstallé.
-DOTF_MODULES="starship zsh-autosuggestions zsh-syntax-highlighting broot difftastic dust gitui vim-onedark vim-lightline"
+DOTF_MODULES="starship zsh-autosuggestions zsh-syntax-highlighting broot difftastic dust gitui catppuccin vim-catppuccin vim-lightline"
 
 # Polices du module nerd-fonts (noms des archives sur github.com/ryanoasis/nerd-fonts/releases).
 # DOTF_FONTS="Hasklig FiraCode"

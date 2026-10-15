@@ -130,7 +130,7 @@ check "~/.bash_profile existant : branché lui aussi" grep -q '# dotf-hook' "$HO
 section "5. Prompt"
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
   r=$(run_shell bash -ic 'echo "$PROMPT_COMMAND"')
-  [ "$r" = "_dotf_prompt;_dotf_title_prompt;_dotf_history_sync" ] && ok "bash : prompt de repli sans starship" || ko "bash : prompt de repli" "$r"
+  [ "$r" = "_dotf_prompt;_dotf_theme;_dotf_title_prompt;_dotf_history_sync" ] && ok "bash : prompt de repli sans starship" || ko "bash : prompt de repli" "$r"
   r=$(run_shell zsh -ic 'echo "$PROMPT"')
   case $r in *'%n@%B%F{'*'}%m'*) ok "zsh : prompt de repli sans starship" ;; *) ko "zsh : prompt de repli" "$r" ;; esac
 else
@@ -140,7 +140,7 @@ else
   r=$(run_shell bash -ic 'echo "$PROMPT_COMMAND"')
   case $r in *starship*) ok "bash : prompt starship" ;; *) ko "bash : prompt starship" "$r" ;; esac
   r=$(run_shell bash -ic 'echo "$STARSHIP_PROMPT_COMMAND"')
-  [ "$r" = "_dotf_title_prompt;_dotf_history_sync" ] && ok "bash : starship conserve titre et synchro de l'historique" || ko "bash : STARSHIP_PROMPT_COMMAND" "$r"
+  [ "$r" = "_dotf_theme;_dotf_title_prompt;_dotf_history_sync" ] && ok "bash : starship conserve titre et synchro de l'historique" || ko "bash : STARSHIP_PROMPT_COMMAND" "$r"
   r=$(run_shell zsh -ic 'echo "$STARSHIP_CONFIG"; grep "^style" "$STARSHIP_CONFIG"; echo "$DOTF_HOST_COLOR"')
   c=$(printf '%s\n' "$r" | sed -n 3p)
   [ "$(printf '%s\n' "$r" | sed -n 1p)" = "$HOME/.cache/dotf/starship-$c.toml" ] &&
@@ -148,7 +148,7 @@ else
   r=$(run_shell bash -ic 'starship prompt' | sed -e 's/\x1b\[[0-9;]*m//g' -e 's/\\[][]//g')
   case $r in *"$(id -un)@$(uname -n) "*) stderr_clean && ok "bash : prompt starship avec user@hôte" || ko "bash : erreurs starship" "$(cat "$T/stderr.f")" ;; *) ko "bash : prompt starship" "$r" ;; esac
   r=$(RUN_TERM=dumb run_shell bash -ic 'echo "$PROMPT_COMMAND"')
-  [ "$r" = "_dotf_prompt;_dotf_title_prompt;_dotf_history_sync" ] && stderr_clean && ok "TERM=dumb : prompt de repli malgré starship" || ko "TERM=dumb" "$r $(cat "$T/stderr.f")"
+  [ "$r" = "_dotf_prompt;_dotf_theme;_dotf_title_prompt;_dotf_history_sync" ] && stderr_clean && ok "TERM=dumb : prompt de repli malgré starship" || ko "TERM=dumb" "$r $(cat "$T/stderr.f")"
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="zsh-autosuggestions zsh-syntax-highlighting"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
   r=$(run_shell zsh -ic 'print $+functions[_zsh_autosuggest_start] $+functions[_zsh_highlight]')
@@ -185,13 +185,24 @@ _broot _dust" ] && stderr_clean && ok "zsh : br et complétions broot, dust" || 
   [ "$r" = "f.py --- Python" ] && ok "git ddiff passe par difft" || ko "git ddiff" "$r"
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
-  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="vim-onedark vim-lightline"/' "$LOCAL/config.sh"
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="catppuccin vim-catppuccin vim-lightline"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
   r=$(env -i HOME="$HOME" PATH="$BASE_PATH" vim -n -i NONE -es -u "$HOME/.vimrc" -c 'call writefile([g:colors_name, exists("g:loaded_lightline"), g:lightline.colorscheme, &laststatus], "/dev/stdout")' -c 'qa!' </dev/null)
-  [ "$r" = "onedark
+  [ "$r" = "catppuccin_mocha
 1
-onedark
-2" ] && ok "vim : onedark et lightline à ses couleurs" || ko "vim : modules" "$r"
+catppuccin_mocha
+2" ] && ok "vim : catppuccin mocha, lightline aux mêmes couleurs" || ko "vim : modules" "$r"
+  "$DOTF_DIR/bin/dotf" theme >/dev/null 2>&1
+  r=$(env -i HOME="$HOME" PATH="$BASE_PATH" vim -n -i NONE -es -u "$HOME/.vimrc" -c 'call writefile([g:colors_name], "/dev/stdout")' -c 'qa!' </dev/null)
+  [ "$r" = catppuccin_latte ] && ok "vim : latte après « dotf theme »" || ko "vim : bascule" "$r"
+  r=$(run_shell zsh -ic 'print ${ZSH_HIGHLIGHT_STYLES[comment]}; type gitui broot | grep -c function')
+  [ "$r" = "fg=#acb0be
+2" ] && stderr_clean && ok "zsh : coloration latte, gitui et broot habillés" || ko "zsh : catppuccin" "$r $(cat "$T/stderr.f")"
+  if command -v script >/dev/null 2>&1; then
+    r=$(env -i HOME="$HOME" PATH="$BASE_PATH" TERM=xterm-256color script -qec "bash -ic 'echo; _dotf_theme'" /dev/null </dev/null | grep -ao $'\e]11;#[0-9a-f]*' | tr -d '\033' | sort | uniq -c | tr -s ' ')
+    [ "$r" = " 1 ]11;#eff1f5" ] && ok "terminal : fond latte envoyé une seule fois" || ko "terminal : palette" "$r"
+  fi
+  "$DOTF_DIR/bin/dotf" theme dark >/dev/null 2>&1
   sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="nerd-fonts"\nDOTF_FONTS="FiraCode"/' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
   r=$(fc-list : family 2>/dev/null | cut -d, -f1 | grep -i 'firacode' | sort -u)
@@ -345,6 +356,16 @@ URxvt*font: xft:Local:size=13" ] && ok "Xresources : d'origine, puis dépôt, pu
 else
   ok "Xresources : cpp absent, test sauté"
 fi
+
+section "5j. Thème"
+"$DOTF_DIR/bin/dotf" theme >/dev/null 2>&1
+r=$(cat "$STATE/theme"; run_shell bash -ic 'echo $DOTF_THEME'; "$DOTF_DIR/bin/dotf" theme >/dev/null 2>&1; run_shell zsh -ic 'echo $DOTF_THEME')
+[ "$r" = "latte
+latte
+mocha" ] && ok "dotf theme : bascule mocha → latte → mocha, lue par bash et zsh" || ko "dotf theme" "$r"
+r=$(LC_DOTF_THEME=latte env -i HOME="$HOME" PATH="$BASE_PATH" LC_DOTF_THEME=latte bash -ic 'echo $DOTF_THEME' 2>/dev/null)
+[ "$r" = latte ] && ok "LC_DOTF_THEME (ssh) l'emporte sur le choix de la machine" || ko "LC_DOTF_THEME" "$r"
+"$DOTF_DIR/bin/dotf" theme dark >/dev/null 2>&1
 
 section "5d. Moteur des modules (module factice, hors ligne)"
 cat >"$DOTF_DIR/modules/fake.sh" <<'MOD'

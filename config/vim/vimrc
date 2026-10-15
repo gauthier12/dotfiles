@@ -26,16 +26,21 @@ endif
 unlet! skip_defaults_vim
 source $VIMRUNTIME/defaults.vim
 
-" Thème : onedark (module vim-onedark), sinon un thème fourni avec vim.
+" Thème Catppuccin du mode choisi par « dotf theme » (module vim-catppuccin), sinon un thème fourni avec vim.
 " Fautes d'orthographe soulignées dans le terminal, quel que soit le thème.
 augroup dotf_colors
   autocmd!
   autocmd ColorScheme * hi SpellBad cterm=underline ctermfg=NONE ctermbg=NONE
 augroup END
-set background=dark
+if $COLORTERM =~# 'truecolor\|24bit'
+  set termguicolors
+endif
+let s:theme_file = expand('~/.local/state/dotf/theme')
+let s:theme = !empty($DOTF_THEME) ? $DOTF_THEME : filereadable(s:theme_file) ? get(readfile(s:theme_file), 0, 'mocha') : 'mocha'
 try
-  colorscheme onedark
+  execute 'colorscheme catppuccin_' . s:theme
 catch
+  set background=dark
   silent! colorscheme habamax
 endtry
 
@@ -48,8 +53,8 @@ if !empty(globpath(&runtimepath, 'plugin/lightline.vim'))
         \ 'separator': {'left': "\ue0b0", 'right': "\ue0b2"},
         \ 'subseparator': {'left': "\ue0b1", 'right': "\ue0b3"},
         \ }
-  if get(g:, 'colors_name', '') ==# 'onedark'
-    let g:lightline.colorscheme = 'onedark'
+  if get(g:, 'colors_name', '') =~# '^catppuccin_'
+    let g:lightline.colorscheme = g:colors_name
   endif
 endif
 
