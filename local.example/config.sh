@@ -11,6 +11,7 @@
 #   dust, gitui
 #   catppuccin  thèmes Catppuccin (terminal, zsh, broot, gitui) ; « dotf theme » bascule sombre/clair
 #   vim-catppuccin, vim-lightline  thème et barre d'état de vim
+#   nvim      Neovim récent (glibc 2.34 et plus), avec le vimrc commun ; remplace celui du système
 #   nerd-fonts  polices Nerd Font Mono de DOTF_FONTS (postes avec session graphique)
 #   lowfi     compilé avec cargo (rustup installé avant) ; demande pkg-config et les en-têtes ALSA/OpenSSL
 # Après modification : « dotf install ». Un module retiré de la liste est désinstallé.

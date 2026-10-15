@@ -224,6 +224,16 @@ fg=#585b70" ] && stderr_clean && ok "zsh : coloration latte puis mocha sans rela
   sed -i -e 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' -e '/^DOTF_FONTS=/d' "$LOCAL/config.sh"
   "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
   check "nerd-fonts : lien des polices retiré" test ! -e "$HOME/.local/share/fonts/nerd-fonts" -a ! -L "$HOME/.local/share/fonts/nerd-fonts"
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES="nvim catppuccin vim-catppuccin vim-lightline"/' "$LOCAL/config.sh"
+  "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+  check "nvim : branché dès la première installation du module" grep -q 'dotf-hook' "$HOME/.config/nvim/init.vim"
+  "$DOTF_DIR/bin/dotf" theme dark >/dev/null 2>&1
+  r=$(cd "$T" && env -i HOME="$HOME" PATH="$BASE_PATH" "$HOME/.local/bin/nvim" --headless -n -i NONE nv.dgibi +'call writefile([g:colors_name, &ft, v:errmsg], "/dev/stdout")' +'qa!' 2>&1)
+  [ "$r" = "catppuccin_mocha
+gibiane" ] && ok "nvim : vimrc commun (thème, types de fichiers), sans erreur" || ko "nvim" "$r"
+  sed -i 's/^DOTF_MODULES=.*/DOTF_MODULES=""/' "$LOCAL/config.sh"
+  "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+  check "nvim désinstallé" test ! -e "$HOME/.local/bin/nvim" -a ! -L "$HOME/.local/bin/nvim"
   check "broot : marqueur de br retiré" test ! -e "$HOME/.config/broot/launcher"
   check "broot, difft, dust, gitui désinstallés" test ! -e "$HOME/.local/bin/broot" -a ! -e "$HOME/.local/bin/difft" -a ! -e "$HOME/.local/bin/dust" -a ! -e "$HOME/.local/bin/gitui"
 fi

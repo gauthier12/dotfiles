@@ -17,7 +17,8 @@ hook_targets() {
   if command -v vim >/dev/null 2>&1 || command -v gvim >/dev/null 2>&1; then echo "$(hook_vimrc):vim"; fi
   if command -v xrdb >/dev/null 2>&1 || [ -e "$HOME/.Xresources" ]; then echo "$HOME/.Xresources:xres"; fi
   if command -v tmux >/dev/null 2>&1; then echo "$(hook_tmuxconf):tmux"; fi
-  if command -v nvim >/dev/null 2>&1; then hook_nvim; fi
+  # nvim : aussi s'il va être installé par son module (les modules passent après les branchements).
+  if command -v nvim >/dev/null 2>&1 || case " ${DOTF_MODULES-} " in *" nvim "*) true ;; *) false ;; esac; then hook_nvim; fi
   if command -v ssh >/dev/null 2>&1; then echo "$HOME/.ssh/config:ssh"; fi
   if [ -n "$(hook_line authkeys)" ]; then echo "$HOME/.ssh/authorized_keys:authkeys"; fi
 }
