@@ -13,6 +13,7 @@ $directory\
 $git_branch\
 $git_status\
 $cmd_duration\
+$status\
 $line_break\
 $character"""
 
@@ -35,3 +36,10 @@ format = "[$ssh_symbol\U000f01c5 $hostname]($style) " # ordinateur
 [directory]
 read_only = " \U000f033e" # cadenas
 format = "[\ue613 $path]($style)[$read_only]($read_only_style) " # dossier
+
+# Après chaque commande : coche verte si elle a réussi, croix rouge et code retour sinon.
+[status]
+disabled = false
+success_symbol = "[\uf00c](bold green)"
+symbol = "[\uf00d $status](bold red)"
+format = "$symbol "
