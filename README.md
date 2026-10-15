@@ -159,18 +159,35 @@ l'agent. Pour ne pas réutiliser une connexion : `ssh -o ControlMaster=no …`.
 - Le prompt starship et la barre lightline utilisent des icônes Nerd Font : le terminal doit afficher une police
   Nerd Font (module `nerd-fonts` sur un poste Linux ; pour Windows Terminal, l'installer côté Windows).
 
-## Personnaliser une machine
+## Changer les réglages par défaut
 
-`~/.config/dotf/` est créé depuis `local.example/` au premier `dotf install`, puis n'est plus jamais modifié
-ni supprimé par dotf.
+Les réglages par défaut sont dans le dépôt. Deux façons de les changer :
 
-- `config.sh` : `DOTF_MODULES` (modules ajoutés ou retirés du socle), `DOTF_PROFILES` et autres réglages ;
-- `gitconfig` : config git de la machine (adresse, identité par dossier, certificats, identifiants…) ;
-- `env.d/*.sh` : variables d'environnement (proxy, PATH supplémentaires…) ;
-- `rc.d/*.sh|bash|zsh` : alias, fonctions, réglages interactifs ;
-- `bin/` : scripts propres à la machine, ajoutés au PATH ;
-- `Xresources`, `tmux.conf` : ressources X et réglages tmux de la machine, prioritaires ;
-- `vimrc` : réglages vim, chargés en dernier ; `vim/` : runtime vim de la machine (syntaxes, dictionnaires…), prioritaire sur celui du dépôt.
+- **pour une seule machine** : dans `~/.config/dotf/` (`dotf edit` ouvre `config.sh`). Ce dossier est créé depuis
+  `local.example/` au premier `dotf install`, puis n'est plus jamais modifié ni supprimé par dotf. Chaque fichier
+  local est chargé après celui du dépôt (avant pour ssh, où la première valeur gagne) : **il a le dernier mot** ;
+- **pour toutes les machines** : modifier le fichier du dépôt, commiter et pousser, puis `dotf update` sur les autres
+  (voir [Modifier et propager](#modifier-et-propager-à-ses-autres-machines)).
+
+| Réglage | Défaut (dépôt) | Pour une machine (`~/.config/dotf/`) |
+|---|---|---|
+| modules installés | `modules/default` | `config.sh` : `DOTF_MODULES="joplin -nerd-fonts"` (`nom` ajoute, `-nom` retire), puis `dotf install` |
+| polices Nerd Font | Hasklig et FiraCode | `config.sh` : `DOTF_FONTS="FiraCode"`, puis `dotf update` |
+| couleur du nom d'hôte | calculée depuis le nom de la machine | `config.sh` : `DOTF_HOST_COLOR=5` (couleur 0 à 255) |
+| vérification des mises à jour | une fois par jour | `config.sh` : `DOTF_UPDATE_CHECK=0` |
+| URL pour pousser le dépôt | URL de clonage (HTTPS) | `config.sh` : `DOTF_PUSH_URL="git@github.com:…"`, puis `dotf install` |
+| profils | aucun | `config.sh` : `DOTF_PROFILES="nfs-home"` (voir [Profils](#profils)) |
+| thème sombre ou clair | sombre (mocha) | `dotf theme light` (retenu pour la machine) |
+| variables d'environnement (`EDITOR`, proxy, `PATH`…) | `shell/env.sh` | `env.d/*.sh` |
+| alias, fonctions, options du shell | `shell/rc.d/` | `rc.d/*.sh`, `*.bash` ou `*.zsh` |
+| vim et nvim | `config/vim/vimrc` | `vimrc` ; `vim/` pour les syntaxes, dictionnaires… |
+| tmux | `config/tmux/tmux.conf` | `tmux.conf` (ex. `set -g mouse off`) |
+| ssh | `config/ssh/config` | `ssh_config` ; les hôtes de `~/.ssh/config` passent avant les deux |
+| git | `config/git/config` | `gitconfig` (identité, adresse, identifiants…) |
+| urxvt, xterm (police, taille…) | `config/x/Xresources` | `Xresources`, puis `xrdb -merge ~/.Xresources` |
+| scripts | `bin/` | `bin/`, ajouté au PATH avant celui du dépôt |
+
+Un shell déjà ouvert ne relit pas ces fichiers : `exec $SHELL` pour en profiter tout de suite.
 
 ## Profils
 
