@@ -25,6 +25,8 @@ export HOME="$T/home"
 unset XDG_CONFIG_HOME XDG_STATE_HOME XDG_DATA_HOME ZDOTDIR DOTF DOTF_LOCAL DOTF_STATE STARSHIP_CONFIG
 mkdir -p "$HOME"
 BASE_PATH=/usr/local/bin:/usr/bin:/bin
+# bsdtar (modules livrés en zip) : gardé même hors des dossiers standard.
+if _b=$(command -v bsdtar); then BASE_PATH="${_b%/*}:$BASE_PATH"; fi
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
   # Pas de réseau : curl et wget factices.
   mkdir -p "$T/fakebin"

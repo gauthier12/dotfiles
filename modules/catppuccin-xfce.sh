@@ -16,9 +16,9 @@ pkg_install() {
   mkdir themes icons
   for _f in $_xfce_flavours; do
     gh_get catppuccin/gtk "v$_g" "catppuccin-$_f-mauve-standard+default.zip" &&
-      unzip -q -d themes "catppuccin-$_f-mauve-standard+default.zip" && rm "catppuccin-$_f-mauve-standard+default.zip" &&
+      bsdtar -C themes -xf "catppuccin-$_f-mauve-standard+default.zip" && rm "catppuccin-$_f-mauve-standard+default.zip" &&
       gh_get catppuccin/cursors "v$_c" "catppuccin-$_f-dark-cursors.zip" &&
-      unzip -q -d icons "catppuccin-$_f-dark-cursors.zip" && rm "catppuccin-$_f-dark-cursors.zip" || return 1
+      bsdtar -C icons -xf "catppuccin-$_f-dark-cursors.zip" && rm "catppuccin-$_f-dark-cursors.zip" || return 1
   done
   rm -rf themes/*/xfwm4 themes/*-hdpi themes/*-xhdpi
   git clone -q --depth 1 https://github.com/catppuccin/xfce4-terminal xfce4-terminal || return 1
