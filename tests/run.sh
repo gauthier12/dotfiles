@@ -72,6 +72,8 @@ printf 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOrigineOrigineOrigineOrigineOrigine
 mkdir -p "$T/orig"
 cp "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile" "$HOME/.gitconfig" "$HOME/.vimrc" "$HOME/.Xresources" "$HOME/.tmux.conf" "$T/orig/"
 cp "$HOME/.ssh/config" "$HOME/.ssh/authorized_keys" "$T/orig/.ssh/"
+# Clé posée par une ancienne version de dotf, retirée depuis du dépôt.
+printf 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAncienneAncienneAncienneAncienneAncienne ancienne dotf-allow dotf-hook\n' >>"$HOME/.ssh/authorized_keys" # dotf-allow
 
 # =============================================================================
 section "1. Bootstrap (équivalent de curl | sh)"
@@ -83,7 +85,12 @@ for f in .profile .bashrc .zshenv .zshrc; do
 done
 check ".vimrc branché" grep -q '" dotf-hook' "$HOME/.vimrc"
 check ".ssh/config branché (Match all + 2 Include)" test "$(grep -c "dotf-hook" "$HOME/.ssh/config")" = 3
-check ".ssh/authorized_keys : passe-partout ajouté, clé d'origine gardée" test "$(grep -c 'passe-partout dotf-allow dotf-hook$' "$HOME/.ssh/authorized_keys")-$(grep -c ' origine$' "$HOME/.ssh/authorized_keys")" = 1-1
+check ".ssh/authorized_keys : ancienne clé de dotf retirée, clé d'origine gardée" test "$(grep -c 'dotf-hook' "$HOME/.ssh/authorized_keys")-$(grep -c ' origine$' "$HOME/.ssh/authorized_keys")" = 0-1
+echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICommuneCommuneCommuneCommuneCommuneCommune commune dotf-allow' >>"$DOTF_DIR/config/ssh/authorized_keys" # dotf-allow
+"$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
+check ".ssh/authorized_keys : clé commune du dépôt ajoutée" test "$(grep -c ' commune dotf-allow dotf-hook$' "$HOME/.ssh/authorized_keys")" = 1
+git -C "$DOTF_DIR" checkout -q config/ssh/authorized_keys
+"$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
 check ".tmux.conf branché" test "$(grep -c "^source-file -q .*dotf-hook" "$HOME/.tmux.conf")" = 2
 check ".Xresources branché (2 inclusions protégées)" test "$(grep -c '^#include .*dotf-hook' "$HOME/.Xresources")" = 2
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then

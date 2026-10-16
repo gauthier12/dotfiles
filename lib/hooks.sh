@@ -22,7 +22,8 @@ hook_targets() {
   if command -v nvim >/dev/null 2>&1 || module_list | grep -qx nvim; then hook_nvim; fi
   if command -v kitty >/dev/null 2>&1 || module_list | grep -qx kitty; then echo "$(hook_kittyconf):kitty"; fi
   if command -v ssh >/dev/null 2>&1; then echo "$HOME/.ssh/config:ssh"; fi
-  if [ -n "$(hook_line authkeys)" ]; then echo "$HOME/.ssh/authorized_keys:authkeys"; fi
+  # Aussi sans clé, s'il reste des lignes marquées : elles sont alors retirées.
+  if [ -n "$(hook_line authkeys)" ] || hook_present "$HOME/.ssh/authorized_keys"; then echo "$HOME/.ssh/authorized_keys:authkeys"; fi
 }
 
 # nvim lit init.lua ou init.vim (pas les deux) : on branche celui qui existe, sinon init.vim.

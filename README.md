@@ -77,8 +77,8 @@ dotf update                      # sur chacune des autres
 - `~/.config/nvim/init.vim` (ou `init.lua` s'il existe), si nvim est présent : charge le même `config/vim/vimrc` ;
 - `~/.ssh/config`, à la fin : `Match all`, puis `Include` de `~/.config/dotf/ssh_config` et de `config/ssh/config`.
   ssh garde la première valeur trouvée : tes hôtes passent avant la config locale, qui passe avant la commune ;
-- `~/.ssh/authorized_keys` : les clés de `config/ssh/authorized_keys` (la clé passe-partout), une ligne marquée par
-  clé, retirées à la désinstallation ; les autres clés ne sont jamais touchées ;
+- `~/.ssh/authorized_keys` : les clés de `config/ssh/authorized_keys` (vide par défaut), une ligne marquée par
+  clé, retirées à la désinstallation ou quand elles quittent le dépôt ; les autres clés ne sont jamais touchées ;
 - `~/.tmux.conf` (ou `~/.config/tmux/tmux.conf` si c'est lui qui sert), si tmux est présent : `source-file -q` de
   `config/tmux/tmux.conf` puis de `~/.config/dotf/tmux.conf` ;
 - `~/.config/kitty/kitty.conf`, si kitty est présent ou choisi : `include` de `config/kitty/dotf-hook.conf`, qui

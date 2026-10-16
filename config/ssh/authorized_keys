@@ -1,3 +1,2 @@
 # Clés autorisées sur toutes les machines, ajoutées à ~/.ssh/authorized_keys par dotf (lignes marquées, retirées à la désinstallation).
-# Clé passe-partout, protégée par phrase de passe : pour ne jamais rester dehors.
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINYoueYpfH9Jr9GZS1Rf5Mxl0xhbbcswqXRMo0k0IUaB passe-partout dotf-allow
+# Une clé publique par ligne, suivie de « dotf-allow » (sinon dotf scan la signale).
