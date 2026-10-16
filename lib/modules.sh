@@ -66,6 +66,17 @@ check_sum() { # check_sum <fichier> <sommes> : « somme  nom » par ligne, ou un
   [ "$($_cmd "$1" | cut -d ' ' -f 1)" = "$_sum" ]
 }
 
+zip_extract() { # zip_extract <archive> [<fichier>] : tout dans le dossier courant, ou ce fichier sur la sortie standard
+  if command -v unzip >/dev/null 2>&1; then
+    if [ $# = 2 ]; then unzip -p "$1" "$2"; else unzip -q "$1"; fi
+  elif command -v bsdtar >/dev/null 2>&1; then
+    if [ $# = 2 ]; then bsdtar -xOf "$1" "$2"; else bsdtar -xf "$1"; fi
+  else
+    log_warn "ni unzip ni bsdtar"
+    return 1
+  fi
+}
+
 add_completion() { # add_completion <bash|zsh> <commande> : l'entrée standard devient sa complétion
   case $1 in
     bash) _d=completions/bash _n=$2 ;;

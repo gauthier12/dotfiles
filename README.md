@@ -16,7 +16,7 @@ git clone https://github.com/gauthier12/dotfiles ~/.local/share/dotf
 ~/.local/share/dotf/install.sh
 ```
 
-Seul git est requis. curl ou wget servent aux modules, bsdtar à ceux livrés en zip (broot, catppuccin-xfce).
+Seul git est requis. curl ou wget servent aux modules, unzip ou bsdtar à ceux livrés en zip (broot, catppuccin-xfce).
 
 **Depuis l'ancien environnement** (`~/.local/dotfiles`) : `scripts/nettoyage-ancien-env.sh` remet d'abord le home à
 zéro. Il déplace les anciens fichiers rc et configs dans `~/ancien-env-<date>/` (chemins conservés, pour comparer
