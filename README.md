@@ -171,8 +171,9 @@ l'actuelle d'une `*`. Le choix est propre à la machine (`~/.local/state/dotf/th
 - Le shell envoie la palette au terminal, quel qu'il soit (urxvt, xterm, Windows Terminal, volet tmux, y compris en
   ssh), à chaque prompt : une bascule s'applique au prompt suivant, et le terminal retrouve ses couleurs en sortant
   d'une session ssh. ls, difft, dust, starship… suivent.
-- Tout de suite : les vim ouverts (signal USR1), la coloration de la ligne zsh, et XFCE (thème GTK et curseur,
-  avec le module `catppuccin-xfce`). broot et gitui : au prochain lancement.
+- Tout de suite : les vim ouverts (signal USR1), la coloration de la ligne zsh, kitty (onglets, bordures,
+  sélection : il relit sa config sur USR1), et XFCE (thème GTK et curseur, avec le module `catppuccin-xfce`).
+  broot et gitui : au prochain lancement.
 - ssh transmet le mode du poste (`LC_DOTF_THEME`, par `SendEnv` dans `config/ssh/config`) : la session distante le
   suit, et `dotf theme` y prévient qu'il n'a pas d'effet. Le serveur doit accepter `LC_*` (`AcceptEnv`, le défaut
   sous Debian).
@@ -254,7 +255,7 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 | `starship` | prompt commun à bash et zsh (`config/starship.toml`). Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. |
 | `gitleaks` | détection de secrets pour le garde-fou |
 | `catppuccin-xfce` | Catppuccin pour XFCE, accent mauve, les quatre variantes : GTK (catppuccin/gtk, archivé par Catppuccin), curseurs, thèmes de xfce4-terminal. Pas les fenêtres : le thème xfwm4 de la dernière version est livré sans ses images. Dans `~/.local/share/{themes,icons}` ; `dotf theme` les applique. |
-| `kitty` | terminal kitty, par son installeur officiel, dans `~/.local/kitty.app` (son emplacement par défaut), avec lanceurs et icône. Config : `config/kitty/kitty.conf`. |
+| `kitty` | terminal kitty, par son installeur officiel, dans `~/.local/kitty.app` (son emplacement par défaut), avec lanceurs et icône. Config : `config/kitty/kitty.conf` ; thème Catppuccin (module `catppuccin`, ajouté avec lui). |
 | `joplin` | Joplin, version bureau (AppImage), avec lanceur et icône dans le menu des applications. Les notes ne sont jamais touchées. |
 | `lapce` | éditeur graphique Lapce, version stable (binaire officiel), avec lanceur et icône. Thèmes Catppuccin installés (module `catppuccin`, ajouté avec lui) ; Catppuccin Mocha par défaut au premier lancement, puis réglages de Lapce, jamais touchés. Ne suit pas `dotf theme`. |
 | `zsh-autosuggestions` | suggestion grisée tirée de l'historique pendant la frappe ; → ou Fin l'accepte |
@@ -265,7 +266,7 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 | `dust` | `du` lisible (installé par son script officiel) |
 | `gitui` | interface git en terminal |
 | `lowfi` | musique lo-fi, compilé avec cargo (`rustup` installé avant). Demande `pkg-config` et les en-têtes ALSA et OpenSSL (Debian : `pkg-config libasound2-dev libssl-dev`). |
-| `catppuccin` | thèmes Catppuccin : palette du terminal, zsh-syntax-highlighting, broot, gitui, lapce |
+| `catppuccin` | thèmes Catppuccin : palette du terminal, zsh-syntax-highlighting, broot, gitui, lapce, kitty |
 | `vim-catppuccin`, `vim-lightline` | thème et barre d'état de vim |
 | `nvim` | Neovim, archive officielle (x86_64, arm64 ; glibc 2.34 et plus). Passe avant celui du système, et utilise le vimrc commun. |
 | `ruff` | linter et formateur Python ; serveur de langage pour nvim (`ruff server`) |

@@ -3,6 +3,7 @@
 # Liens, lanceurs et icône comme le décrit sa documentation ; config : config/kitty/kitty.conf.
 
 pkg_bins="kitty kitten"
+pkg_needs=catppuccin
 
 _kitty_app="$HOME/.local/kitty.app"
 _kitty_apps="${XDG_DATA_HOME:-$HOME/.local/share}/applications"

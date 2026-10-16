@@ -442,6 +442,14 @@ PATH="$T/kittybin:$PATH" "$DOTF_DIR/bin/dotf" install >/dev/null 2>&1
 r=$(cat "$HOME/.config/kitty/kitty.conf" 2>&1)
 [ "$r" = "include $DOTF_DIR/config/kitty/dotf-hook.conf" ] && [ -f "$DOTF_DIR/config/kitty/dotf-hook.conf" ] &&
   ok "kitty présent : kitty.conf branché" || ko "kitty.conf" "$r"
+mkdir -p "$T/kh/.local/opt/catppuccin/kitty/themes" "$T/kh/.local/state/dotf"
+echo 'background #eff1f5' >"$T/kh/.local/opt/catppuccin/kitty/themes/latte.conf"
+echo latte >"$T/kh/.local/state/dotf/theme"
+r=$(env -i HOME="$T/kh" PATH="$BASE_PATH" "$DOTF_DIR/config/kitty/theme.sh"; rm "$T/kh/.local/state/dotf/theme"
+  env -i HOME="$T/kh" PATH="$BASE_PATH" "$DOTF_DIR/config/kitty/theme.sh"; echo "rc=$?")
+[ "$r" = "background #eff1f5
+rc=0" ] && grep -q '^geninclude theme.sh$' "$DOTF_DIR/config/kitty/kitty.conf" &&
+  ok "kitty : couleurs de la variante choisie, rien sans module catppuccin" || ko "kitty theme.sh" "$r"
 if command -v infocmp >/dev/null 2>&1; then
   check "terminfo xterm-kitty connu (~/.terminfo)" env HOME="$HOME" infocmp xterm-kitty
 fi
