@@ -460,6 +460,12 @@ r=$(env -i HOME="$HOME" PATH="$BASE_PATH" COLORTERM=rxvt-xpm zsh -lc 'echo $COLO
 sed -i '/^DOTF_TRUECOLOR=/d' "$LOCAL/config.sh"
 [ "$r" = "truecolor truecolor" ] && ok "DOTF_TRUECOLOR=1 : 24 bits forcé, transmis en ssh" || ko "DOTF_TRUECOLOR" "$r"
 
+r=$("$DOTF_DIR/bin/dotf" help 2>&1 | tail -n 1)
+case $r in *" kitty "*" nvim "*" tmux "*) ok "dotf help : liste des aide-mémoire" ;; *) ko "dotf help" "$r" ;; esac
+r=$("$DOTF_DIR/bin/dotf" help tmux 2>&1 | head -n 1)
+[ "$r" = "# tmux : sessions qui survivent à la déconnexion, fenêtres et volets" ] && ok "dotf help tmux affiche la feuille" || ko "dotf help tmux" "$r"
+"$DOTF_DIR/bin/dotf" help ../README >/dev/null 2>&1 && ko "dotf help ../README accepté" || ok "dotf help : nom inconnu ou chemin refusé"
+
 section "5d. Moteur des modules (module factice, hors ligne)"
 cat >"$DOTF_DIR/modules/fake.sh" <<'MOD'
 # shellcheck shell=sh disable=SC2034

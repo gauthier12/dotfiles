@@ -38,6 +38,7 @@ Usage : dotf <commande>
                      variante Catppuccin ; dark : la sombre préférée (DOTF_THEME_DARK, mocha par défaut),
                      light : latte ; sans argument : bascule entre les deux ; list : les variantes
   scan [--all]       garde-fou anti-fuite sur ce qui va être commité, ou sur tout le dépôt
+  help [nom]         aide-mémoire d'un outil (tmux, kitty, nvim…) ; sans nom : cette aide et la liste
 
 Dépôt         : $(tilde "$DOTF")
 Config locale : $(tilde "$DOTF_LOCAL")
@@ -180,6 +181,23 @@ EOF
   exit 1
 }
 
+# Aide-mémoire : aide/<nom>.md, dans less s'il s'affiche dans un terminal.
+cmd_help() {
+  if [ $# -eq 0 ]; then
+    usage
+    echo
+    echo "Aide-mémoire (dotf help <nom>) :"
+    _l=
+    for _f in "$DOTF"/aide/*.md; do _f=${_f##*/} _l="$_l ${_f%.md}"; done
+    echo " $_l"
+    return 0
+  fi
+  _f=$DOTF/aide/$1.md
+  case $1 in */* | .*) _f=/ ;; esac
+  [ -f "$_f" ] || die "pas d'aide-mémoire « $1 » (liste : dotf help)"
+  if [ -t 1 ] && command -v less >/dev/null 2>&1; then less -FRX "$_f"; else cat "$_f"; fi
+}
+
 _cmd=${1-help}
 [ $# -gt 0 ] && shift
 case $_cmd in
@@ -190,6 +208,7 @@ case $_cmd in
   edit) cmd_edit ;;
   theme) cmd_theme "$@" ;;
   scan) cmd_scan "$@" ;;
-  help | -h | --help) usage ;;
+  help) cmd_help "$@" ;;
+  -h | --help) usage ;;
   *) usage >&2; exit 2 ;;
 esac

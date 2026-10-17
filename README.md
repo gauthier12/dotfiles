@@ -36,6 +36,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/gauthier12/dotfiles/main/s
 | `dotf status` | état des branchements, liens, modules, retard ou avance sur le dépôt distant |
 | `dotf edit` | ouvre la config locale de la machine |
 | `dotf theme [variante\|dark\|light\|list]` | thème Catppuccin : mocha, macchiato, frappe ou latte ; sans argument, bascule sombre/clair ; `list` : les variantes |
+| `dotf help [nom]` | aide-mémoire d'un outil, avec des exemples (`aide/<nom>.md`) : tmux, kitty, vim, nvim, shell, broot, gitui… ; sans nom : la liste |
 | `dotf uninstall` | débranche tout, retire liens et modules, restaure les fichiers sauvegardés |
 | `dotf uninstall --purge` | idem, puis supprime le dépôt et l'état (refusé s'il reste du travail non commité ou non poussé) |
 
@@ -62,6 +63,7 @@ dotf update                      # sur chacune des autres
 | Chemin | Contenu | Dans git |
 |---|---|---|
 | `~/.local/share/dotf` | ce dépôt | oui |
+| `~/.local/share/dotf/aide` | aide-mémoire des outils (`dotf help <nom>`) | oui |
 | `~/.config/dotf` | config propre à la machine | **non** |
 | `~/.local/state/dotf` | sauvegardes, liste des liens et modules posés | non |
 | `~/.local/opt` | logiciels installés par les modules | non |
