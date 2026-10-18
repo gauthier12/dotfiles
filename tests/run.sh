@@ -160,10 +160,15 @@ else
   case $r in *starship*) ok "bash : prompt starship" ;; *) ko "bash : prompt starship" "$r" ;; esac
   r=$(run_shell bash -ic 'echo "$STARSHIP_PROMPT_COMMAND"')
   [ "$r" = "_dotf_theme;_dotf_title_prompt;_dotf_history_sync;_dotf_starship_line" ] && ok "bash : starship conserve titre et synchro de l'historique" || ko "bash : STARSHIP_PROMPT_COMMAND" "$r"
-  r=$(run_shell zsh -ic 'echo "$STARSHIP_CONFIG"; grep "^style = \"bold" "$STARSHIP_CONFIG"; echo "$DOTF_HOST_COLOR"')
+  r=$(run_shell zsh -ic 'echo "$STARSHIP_CONFIG"; grep -m 1 "^style = \"bold" "$STARSHIP_CONFIG"; echo "$DOTF_HOST_COLOR"')
   c=$(printf '%s\n' "$r" | sed -n 3p)
-  [ "$(printf '%s\n' "$r" | sed -n 1p)" = "$HOME/.cache/dotf/starship-$c-local-green.toml" ] &&
-    [ "$(printf '%s\n' "$r" | sed -n 2p)" = "style = \"bold $c\"" ] && ok "zsh : config starship avec la couleur de l'hôte" || ko "zsh : STARSHIP_CONFIG" "$r"
+  [ "$(printf '%s\n' "$r" | sed -n 1p)" = "$HOME/.cache/dotf/starship-$c-local-mocha-green.toml" ] &&
+    [ "$(printf '%s\n' "$r" | sed -n 2p)" = "style = \"bold fg:crust bg:$c\"" ] && ok "zsh : config starship avec la couleur de l'hôte" || ko "zsh : STARSHIP_CONFIG" "$r"
+  r=$(run_shell zsh -ic 'grep "^palette" "$STARSHIP_CONFIG"; DOTF_THEME=latte; _dotf_starship_line; echo "${STARSHIP_CONFIG##*/}"; grep "^palette" "$STARSHIP_CONFIG"; DOTF_THEME=frappe HOME=/nulle-part; _dotf_starship_line; grep "^palette" "$STARSHIP_CONFIG"')
+  [ "$r" = "palette = \"catppuccin_mocha\"
+starship-$c-local-latte-green.toml
+palette = \"catppuccin_latte\"
+palette = \"ansi\"" ] && ok "starship : variante par thème (palette catppuccin), couleurs du terminal sans elle" || ko "starship : thème" "$r"
   for sh in bash zsh; do
     r=$(run_shell $sh -ic 'STARSHIP_CMD_STATUS=1; _dotf_starship_line; grep -c "(red)" "$STARSHIP_CONFIG"; STARSHIP_CMD_STATUS=0; _dotf_starship_line; grep -c "(green)" "$STARSHIP_CONFIG"')
     [ "$r" = "$(printf '2\n2')" ] && ok "$sh : trait du prompt rouge après une erreur, vert sinon" || ko "$sh : trait du prompt" "$r"
@@ -308,7 +313,7 @@ rm -f "$HOME/.local/bin/joplin"
 section "5e. Couleur d'hôte, titre, environnement, profils, kpsync"
 r=$(run_shell bash -ic 'echo $DOTF_HOST_COLOR'; run_shell zsh -ic 'echo $DOTF_HOST_COLOR')
 c=$(printf '%s\n' "$r" | head -n 1)
-case $c in [1-6] | 9 | 1[0-4]) [ "$(printf '%s\n' "$r" | sort -u | wc -l)" = 1 ] && ok "couleur d'hôte $c, la même en bash et zsh" || ko "couleur d'hôte différente" "$r" ;; *) ko "couleur d'hôte" "$r" ;; esac
+case $c in rosewater | flamingo | pink | maroon | peach | yellow | green | teal | sky) [ "$(printf '%s\n' "$r" | sort -u | wc -l)" = 1 ] && ok "couleur d'hôte $c, la même en bash et zsh" || ko "couleur d'hôte différente" "$r" ;; *) ko "couleur d'hôte" "$r" ;; esac
 r=$(run_shell zsh -ic 'cd; _dotf_title_precmd; setTitle fixe; _dotf_title_precmd; setTitle; _dotf_title_precmd' | od -An -c | tr -d ' \n')
 h=$(uname -n | cut -d. -f1)
 case $r in *"033]0;$h:~\\a033]0;fixe\\a033]0;\\a033]0;$h:~\\a"*) ok "titre automatique, setTitle le fixe puis le libère" ;; *) ko "titre" "$r" ;; esac

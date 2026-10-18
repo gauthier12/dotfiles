@@ -2,6 +2,7 @@
 # Prompt commun à bash et zsh. Config : $DOTF/config/starship.toml.
 
 pkg_bins=starship
+pkg_needs=catppuccin # palettes des couleurs du prompt
 
 pkg_latest() { gh_latest starship/starship; }
 

@@ -109,7 +109,7 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | Commande | Shells | Effet |
 |---|---|---|
 | `ls` | bash, zsh | en couleur (si le `ls` du système le permet) |
-| Prompt | bash, zsh | avec starship, sur trois lignes. 1) Un trait sur toute la largeur sépare les commandes : vert si la précédente a réussi, rouge sinon ; dessus, l'heure (de la couleur du trait), la durée des commandes longues, une coche verte ou une croix rouge avec le code retour. 2) Icônes Nerd Font devant l'utilisateur et le nom d'hôte (une couleur propre à chaque machine, tirée de son nom ; en ssh, une icône de serveur remplace celle de l'ordinateur), le dossier, git, le venv Python actif. 3) `❯`, rouge si la commande a échoué. |
+| Prompt | bash, zsh | avec starship, sur trois lignes. 1) Un trait sur toute la largeur sépare les commandes : vert si la précédente a réussi, rouge sinon ; dessus, l'heure (de la couleur du trait), la durée des commandes longues, une coche verte ou une croix rouge avec le code retour. 2) Des blocs colorés reliés par des flèches (style powerline) : login et machine (une couleur propre à chaque machine, tirée de son nom ; en ssh, une icône de serveur remplace celle de l'ordinateur), dossier et venv Python actif en bleu, git en mauve. Couleurs Catppuccin du thème choisi (module `catppuccin`), en 24 bits. 3) `❯`, rouge si la commande a échoué. |
 | Titre du terminal | bash, zsh | hôte et dossier ; en zsh, la commande pendant qu'elle tourne |
 | `setTitle <texte>` | bash, zsh | fixe le titre ; sans argument, revient au titre automatique |
 | `kpsync` | bash, zsh | synchronise un fichier avec sa copie distante, la version la plus récente gagne (l'ancienne est gardée en `fichier~`). Réglages `KPSYNC_LOCAL` et `KPSYNC_REMOTE` dans la config locale. |
@@ -217,7 +217,7 @@ Les réglages par défaut sont dans le dépôt. Deux façons de les changer :
 |---|---|---|
 | modules installés | `modules/default` | `config.sh` : `DOTF_MODULES="joplin -nerd-fonts"` (`nom` ajoute, `-nom` retire), puis `dotf install` |
 | polices Nerd Font | Hasklig et FiraCode | `config.sh` : `DOTF_FONTS="FiraCode"`, puis `dotf update` |
-| couleur du nom d'hôte | calculée depuis le nom de la machine | `config.sh` : `DOTF_HOST_COLOR=5` (couleur 0 à 255) |
+| couleur du nom d'hôte | calculée depuis le nom de la machine, parmi 9 couleurs Catppuccin | `config.sh` : `DOTF_HOST_COLOR=teal` (rosewater, flamingo, pink, maroon, peach, yellow, green, teal, sky), ou un numéro de couleur de 0 à 255 |
 | vérification des mises à jour | une fois par jour | `config.sh` : `DOTF_UPDATE_CHECK=0` |
 | URL pour pousser le dépôt | URL de clonage (HTTPS) | `config.sh` : `DOTF_PUSH_URL="git@github.com:…"`, puis `dotf install` |
 | profils | aucun | `config.sh` : `DOTF_PROFILES="nfs-home"` (voir [Profils](#profils)) |
@@ -255,7 +255,7 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 
 | Module | Rôle |
 |---|---|
-| `starship` | prompt commun à bash et zsh (`config/starship.toml`). Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. |
+| `starship` | prompt commun à bash et zsh (`config/starship.toml`). Sans lui, ou avec `TERM=dumb`, un prompt simple prend le relais. Demande le module `catppuccin` (couleurs). |
 | `gitleaks` | détection de secrets pour le garde-fou |
 | `catppuccin-xfce` | Catppuccin pour XFCE, accent mauve, les quatre variantes : GTK (catppuccin/gtk, archivé par Catppuccin), curseurs, thèmes de xfce4-terminal. Pas les fenêtres : le thème xfwm4 de la dernière version est livré sans ses images. Dans `~/.local/share/{themes,icons}` ; `dotf theme` les applique. |
 | `kitty` | terminal kitty, par son installeur officiel, dans `~/.local/kitty.app` (son emplacement par défaut), avec lanceurs et icône. Config : `config/kitty/kitty.conf` ; thème Catppuccin (module `catppuccin`, ajouté avec lui). |
@@ -269,7 +269,7 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 | `dust` | `du` lisible (installé par son script officiel) |
 | `gitui` | interface git en terminal |
 | `lowfi` | musique lo-fi, compilé avec cargo (`rustup` installé avant). Demande `pkg-config` et les en-têtes ALSA et OpenSSL (Debian : `pkg-config libasound2-dev libssl-dev`). |
-| `catppuccin` | thèmes Catppuccin : palette du terminal, zsh-syntax-highlighting, broot, gitui, lapce, kitty |
+| `catppuccin` | thèmes Catppuccin : palette du terminal, couleurs du prompt starship, zsh-syntax-highlighting, broot, gitui, lapce, kitty |
 | `vim-catppuccin`, `vim-lightline` | thème et barre d'état de vim |
 | `nvim` | Neovim, archive officielle (x86_64, arm64 ; glibc 2.34 et plus). Passe avant celui du système, et utilise le vimrc commun. |
 | `ruff` | linter et formateur Python ; serveur de langage pour nvim (`ruff server`) |

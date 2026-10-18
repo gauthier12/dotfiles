@@ -1,10 +1,10 @@
 # starship, sinon un prompt simple.
 
 if [ "${TERM-}" != dumb ] && command -v starship >/dev/null 2>&1; then
-  # Trait vert ou rouge : _dotf_starship_line, après le precmd de starship qui lit le code retour.
+  # Variante de la config (thème, trait vert ou rouge) : _dotf_starship_line, après le precmd de starship qui lit le code retour.
   if [ -z "${STARSHIP_CONFIG-}" ]; then
-    _dotf_starship_ok=$(_dotf_starship_config green) _dotf_starship_err=$(_dotf_starship_config red)
-    export STARSHIP_CONFIG=$_dotf_starship_ok
+    _dotf_starship_config green
+    export STARSHIP_CONFIG
     eval "$(starship init zsh)"
     precmd_functions+=(_dotf_starship_line)
   else
@@ -12,5 +12,5 @@ if [ "${TERM-}" != dumb ] && command -v starship >/dev/null 2>&1; then
   fi
 else
   # user@hôte dossier % (% rouge si erreur)
-  PROMPT="%n@%B%F{$DOTF_HOST_COLOR}%m%f%b %F{blue}%~%f %(?..%F{red})%#%f "
+  PROMPT="%n@%B%F{$DOTF_HOST_ANSI}%m%f%b %F{blue}%~%f %(?..%F{red})%#%f "
 fi

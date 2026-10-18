@@ -1,70 +1,107 @@
 # Config starship (https://starship.rs/config/).
 # Icônes : police Nerd Font (module nerd-fonts sur le poste, réglée dans le terminal), notées \uXXXX.
-# HOST_COLOR et HOST_ICON sont remplacés par la couleur de la machine et son icône, ordinateur ou serveur en ssh,
-# LINE_COLOR par green ou red (shell/rc.d/85-host-color.sh).
+# Remplacés par shell/rc.d/85-host-color.sh : HOST_COLOR (couleur de la machine) et HOST_ICON (ordinateur, ou serveur
+# en ssh), LINE_COLOR (green ou red), PALETTE (catppuccin_<thème de « dotf theme »>, ou ansi sans le module catppuccin).
 "$schema" = "https://starship.rs/config-schema.json"
 
+palette = "PALETTE"
 add_newline = false
 
 format = """
-[\u2500\u2500](LINE_COLOR)\
+[──](LINE_COLOR)\
 $time\
 $fill\
 $cmd_duration\
 $status\
-[\u2500\u2500](LINE_COLOR)\
+[──](LINE_COLOR)\
 $line_break\
 $username\
 $hostname\
-$directory\
-$git_branch\
-$git_status\
+[](fg:HOST_COLOR bg:blue)\
 $python\
+$directory\
+($git_branch$git_commit$git_state$git_status[](fg:mauve))\
 $line_break\
 $character"""
 
-# Première ligne : trait sur toute la largeur, vert si la dernière commande a réussi, rouge sinon
-# (LINE_COLOR, shell/rc.d/85-host-color.sh). Dessus : heure, durée (commandes longues), coche ou croix et code retour.
+# Première ligne : trait sur toute la largeur, vert si la dernière commande a réussi, rouge sinon.
+# Dessus : heure, durée (commandes longues), coche ou croix et code retour.
 [fill]
-symbol = "\u2500"
+symbol = "─"
 style = "LINE_COLOR"
-
-[cmd_duration]
-format = "[ $duration]($style)"
-
-# ❯ vert si la dernière commande a réussi, rouge sinon.
 
 [time]
 disabled = false
 style = "LINE_COLOR"
-format = "[ \ue383 $time ]($style)" # horloge
+format = "[  $time ]($style)" # horloge
 
-# Login de la couleur de la machine (root reste en rouge).
+[cmd_duration]
+format = "[ $duration]($style)"
+
+[status]
+disabled = false
+success_symbol = "[](bold green)"
+symbol = "[ $status](bold red)"
+format = " $symbol "
+
+# Deuxième ligne, en blocs (style powerline) : login et machine, dossier (et venv Python actif), git.
+# Le dossier ferme la chaîne hors d'un dépôt git (format), ou la passe au bloc git (repo_root_format).
 [username]
 show_always = true
-style_user = "bold HOST_COLOR"
-format = "[$user]($style) "
+style_user = "bold fg:crust bg:HOST_COLOR"
+style_root = "bold fg:crust bg:red"
+format = "[ $user ]($style)"
 
 [hostname]
 ssh_only = false
-style = "bold HOST_COLOR"
-format = "[HOST_ICON $hostname]($style) "
+style = "bold fg:crust bg:HOST_COLOR"
+format = "[HOST_ICON $hostname ]($style)"
 
-[directory]
-read_only = " \U000f033e" # cadenas
-format = "[\ue613 $path]($style)[$read_only]($read_only_style) " # dossier
-
-# Après chaque commande : coche verte si elle a réussi, croix rouge et code retour sinon.
-[status]
-disabled = false
-success_symbol = "[\uf00c](bold green)"
-symbol = "[\uf00d $status](bold red)"
-format = " $symbol "
-
-# Environnement virtuel Python, seulement quand il est actif.
 [python]
 detect_extensions = []
 detect_files = []
 detect_folders = []
-symbol = "\ue73c "
-format = "[$symbol$virtualenv( $version)]($style) "
+symbol = " "
+style = "fg:crust bg:blue"
+format = "[ $symbol$virtualenv( $version)]($style)"
+
+[directory]
+style = "fg:crust bg:blue"
+before_repo_root_style = "fg:crust bg:blue"
+repo_root_style = "bold fg:crust bg:blue"
+read_only = "\U000f033e" # cadenas
+read_only_style = "fg:red bg:blue"
+format = "[  $path ]($style)([$read_only ]($read_only_style))[](fg:blue)" # dossier
+repo_root_format = "[  $before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path ]($style)([$read_only ]($read_only_style))[](fg:blue bg:mauve)"
+
+[git_branch]
+style = "fg:crust bg:mauve"
+format = "[ $symbol$branch ]($style)"
+
+[git_commit]
+style = "fg:crust bg:mauve"
+format = "[ \\($hash$tag\\) ]($style)"
+
+[git_state]
+style = "bold fg:crust bg:mauve"
+format = "[\\($state( $progress_current/$progress_total)\\) ]($style)"
+
+[git_status]
+style = "bold fg:crust bg:mauve"
+format = "([$all_status$ahead_behind ]($style))"
+
+# Sans le module catppuccin : couleurs du terminal.
+[palettes.ansi]
+crust = "black"
+blue = "blue"
+mauve = "purple"
+red = "red"
+green = "green"
+rosewater = "red"
+flamingo = "red"
+pink = "purple"
+maroon = "red"
+peach = "yellow"
+yellow = "yellow"
+teal = "cyan"
+sky = "cyan"
