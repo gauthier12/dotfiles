@@ -36,10 +36,13 @@ format = "[ $duration]($style)"
 
 [time]
 disabled = false
+style = "LINE_COLOR"
 format = "[ \ue383 $time ]($style)" # horloge
 
+# Login de la couleur de la machine (root reste en rouge).
 [username]
 show_always = true
+style_user = "bold HOST_COLOR"
 format = "[$user]($style) "
 
 [hostname]
