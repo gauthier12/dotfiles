@@ -109,7 +109,7 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | Commande | Shells | Effet |
 |---|---|---|
 | `ls` | bash, zsh | en couleur (si le `ls` du système le permet) |
-| Prompt | bash, zsh | avec starship, icônes Nerd Font devant l'heure, utilisateur, puis le nom d'hôte (une couleur propre à chaque machine, tirée de son nom), le dossier, git, le venv Python actif ; en ssh, une icône de serveur remplace celle de l'ordinateur ; à droite, la durée des commandes longues, puis une coche verte ou une croix rouge avec le code retour ; `❯` rouge si la commande a échoué |
+| Prompt | bash, zsh | avec starship, sur trois lignes. 1) Un trait sur toute la largeur sépare les commandes : vert si la précédente a réussi, rouge sinon ; dessus, l'heure, la durée des commandes longues, une coche verte ou une croix rouge avec le code retour. 2) Icônes Nerd Font devant l'utilisateur, le nom d'hôte (une couleur propre à chaque machine, tirée de son nom ; en ssh, une icône de serveur remplace celle de l'ordinateur), le dossier, git, le venv Python actif. 3) `❯`, rouge si la commande a échoué. |
 | Titre du terminal | bash, zsh | hôte et dossier ; en zsh, la commande pendant qu'elle tourne |
 | `setTitle <texte>` | bash, zsh | fixe le titre ; sans argument, revient au titre automatique |
 | `kpsync` | bash, zsh | synchronise un fichier avec sa copie distante, la version la plus récente gagne (l'ancienne est gardée en `fichier~`). Réglages `KPSYNC_LOCAL` et `KPSYNC_REMOTE` dans la config locale. |

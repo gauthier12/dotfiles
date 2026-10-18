@@ -1,7 +1,12 @@
 # starship, sinon un prompt simple.
 
 if [ "${TERM-}" != dumb ] && command -v starship >/dev/null 2>&1; then
-  STARSHIP_CONFIG=${STARSHIP_CONFIG:-$(_dotf_starship_config)}
+  # Trait vert ou rouge : _dotf_starship_line, lancé par starship après lecture du code retour (STARSHIP_PROMPT_COMMAND).
+  if [ -z "${STARSHIP_CONFIG-}" ]; then
+    _dotf_starship_ok=$(_dotf_starship_config green) _dotf_starship_err=$(_dotf_starship_config red)
+    STARSHIP_CONFIG=$_dotf_starship_ok
+    PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND;}_dotf_starship_line"
+  fi
   export STARSHIP_CONFIG
   eval "$(starship init bash)"
 else

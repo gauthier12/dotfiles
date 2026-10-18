@@ -1,36 +1,42 @@
 # Config starship (https://starship.rs/config/).
 # Icônes : police Nerd Font (module nerd-fonts sur le poste, réglée dans le terminal), notées \uXXXX.
-# HOST_COLOR et HOST_ICON sont remplacés par la couleur de la machine et son icône, ordinateur ou serveur en ssh
-# (shell/rc.d/85-host-color.sh).
+# HOST_COLOR et HOST_ICON sont remplacés par la couleur de la machine et son icône, ordinateur ou serveur en ssh,
+# LINE_COLOR par green ou red (shell/rc.d/85-host-color.sh).
 "$schema" = "https://starship.rs/config-schema.json"
 
 add_newline = false
 
 format = """
+[\u2500\u2500](LINE_COLOR)\
 $time\
+$fill\
+$cmd_duration\
+$status\
+[\u2500\u2500](LINE_COLOR)\
+$line_break\
 $username\
 $hostname\
 $directory\
 $git_branch\
 $git_status\
 $python\
-$fill \
-$cmd_duration\
-$status\
 $line_break\
 $character"""
 
-# Trait fin entre les deux bouts de la première ligne : sépare les commandes sans prendre de hauteur.
-# À droite : durée (commandes longues), puis coche ou croix et code retour.
+# Première ligne : trait sur toute la largeur, vert si la dernière commande a réussi, rouge sinon
+# (LINE_COLOR, shell/rc.d/85-host-color.sh). Dessus : heure, durée (commandes longues), coche ou croix et code retour.
 [fill]
 symbol = "\u2500"
-style = "bright-black"
+style = "LINE_COLOR"
+
+[cmd_duration]
+format = "[ $duration]($style)"
 
 # ❯ vert si la dernière commande a réussi, rouge sinon.
 
 [time]
 disabled = false
-format = "[\ue383 $time]($style) " # horloge
+format = "[ \ue383 $time ]($style)" # horloge
 
 [username]
 show_always = true
@@ -50,7 +56,7 @@ format = "[\ue613 $path]($style)[$read_only]($read_only_style) " # dossier
 disabled = false
 success_symbol = "[\uf00c](bold green)"
 symbol = "[\uf00d $status](bold red)"
-format = "$symbol "
+format = " $symbol "
 
 # Environnement virtuel Python, seulement quand il est actif.
 [python]

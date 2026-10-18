@@ -159,11 +159,15 @@ else
   r=$(run_shell bash -ic 'echo "$PROMPT_COMMAND"')
   case $r in *starship*) ok "bash : prompt starship" ;; *) ko "bash : prompt starship" "$r" ;; esac
   r=$(run_shell bash -ic 'echo "$STARSHIP_PROMPT_COMMAND"')
-  [ "$r" = "_dotf_theme;_dotf_title_prompt;_dotf_history_sync" ] && ok "bash : starship conserve titre et synchro de l'historique" || ko "bash : STARSHIP_PROMPT_COMMAND" "$r"
-  r=$(run_shell zsh -ic 'echo "$STARSHIP_CONFIG"; grep "^style" "$STARSHIP_CONFIG"; echo "$DOTF_HOST_COLOR"')
+  [ "$r" = "_dotf_theme;_dotf_title_prompt;_dotf_history_sync;_dotf_starship_line" ] && ok "bash : starship conserve titre et synchro de l'historique" || ko "bash : STARSHIP_PROMPT_COMMAND" "$r"
+  r=$(run_shell zsh -ic 'echo "$STARSHIP_CONFIG"; grep "^style = \"bold" "$STARSHIP_CONFIG"; echo "$DOTF_HOST_COLOR"')
   c=$(printf '%s\n' "$r" | sed -n 3p)
-  [ "$(printf '%s\n' "$r" | sed -n 1p)" = "$HOME/.cache/dotf/starship-$c-local.toml" ] &&
+  [ "$(printf '%s\n' "$r" | sed -n 1p)" = "$HOME/.cache/dotf/starship-$c-local-green.toml" ] &&
     [ "$(printf '%s\n' "$r" | sed -n 2p)" = "style = \"bold $c\"" ] && ok "zsh : config starship avec la couleur de l'hôte" || ko "zsh : STARSHIP_CONFIG" "$r"
+  for sh in bash zsh; do
+    r=$(run_shell $sh -ic 'STARSHIP_CMD_STATUS=1; _dotf_starship_line; grep -c "(red)" "$STARSHIP_CONFIG"; STARSHIP_CMD_STATUS=0; _dotf_starship_line; grep -c "(green)" "$STARSHIP_CONFIG"')
+    [ "$r" = "$(printf '2\n2')" ] && ok "$sh : trait du prompt rouge après une erreur, vert sinon" || ko "$sh : trait du prompt" "$r"
+  done
   r=$(run_shell bash -ic 'starship prompt' | sed -e 's/\x1b\[[0-9;]*m//g' -e 's/\\[][]//g')
   case $r in *"$(id -un) "*" $(uname -n) "*) stderr_clean && ok "bash : prompt starship avec utilisateur et hôte" || ko "bash : erreurs starship" "$(cat "$T/stderr.f")" ;; *) ko "bash : prompt starship" "$r" ;; esac
   r=$(RUN_TERM=dumb run_shell bash -ic 'echo "$PROMPT_COMMAND"')
