@@ -1,5 +1,5 @@
 -- Serveurs de langage de nvim (0.11 et plus), chargé par le vimrc commun. Chaque serveur n'est activé que s'il est
--- installé (modules rustup, ruff, tinymist). Raccourcis d'origine de nvim : K, grn, gra, grr, gri, [d, ]d, gO.
+-- installé (modules rustup, ruff, ty, tinymist). Raccourcis d'origine de nvim : K, grn, gra, grr, gri, [d, ]d, gO.
 if vim.fn.has('nvim-0.11') == 0 then return end
 
 vim.lsp.config('rust_analyzer', {
@@ -13,6 +13,12 @@ vim.lsp.config('ruff', {
   filetypes = { 'python' },
   root_markers = { 'pyproject.toml', 'ruff.toml', '.ruff.toml', '.git' },
 })
+-- Python : ruff pour les erreurs et le formatage, ty pour la complétion, la doc et les types.
+vim.lsp.config('ty', {
+  cmd = { 'ty', 'server' },
+  filetypes = { 'python' },
+  root_markers = { 'pyproject.toml', 'ty.toml', '.git' },
+})
 vim.lsp.config('tinymist', {
   cmd = { 'tinymist' },
   filetypes = { 'typst' },
@@ -24,6 +30,7 @@ vim.lsp.config('tinymist', {
 local installed = {
   rust_analyzer = vim.fn.glob('~/.rustup/toolchains/*/bin/rust-analyzer') ~= '',
   ruff = vim.fn.executable('ruff') == 1,
+  ty = vim.fn.executable('ty') == 1,
   tinymist = vim.fn.executable('tinymist') == 1,
 }
 for name, ok in pairs(installed) do

@@ -109,7 +109,7 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 | Commande | Shells | Effet |
 |---|---|---|
 | `ls` | bash, zsh | en couleur (si le `ls` du système le permet) |
-| Prompt | bash, zsh | avec starship, sur trois lignes. 1) Un trait sur toute la largeur sépare les commandes : vert si la précédente a réussi, rouge sinon ; dessus, l’heure (de la couleur du trait), la durée des commandes longues, une coche verte ou une croix rouge avec le code retour. 2) Icônes Nerd Font devant l’utilisateur et le nom d’hôte (une couleur propre à chaque machine, tirée de son nom ; en ssh, une icône de serveur remplace celle de l'ordinateur), le dossier, git, le venv Python actif. 3) `❯`, rouge si la commande a échoué. |
+| Prompt | bash, zsh | avec starship, sur trois lignes. 1) Un trait sur toute la largeur sépare les commandes : vert si la précédente a réussi, rouge sinon ; dessus, l'heure (de la couleur du trait), la durée des commandes longues, une coche verte ou une croix rouge avec le code retour. 2) Icônes Nerd Font devant l'utilisateur et le nom d'hôte (une couleur propre à chaque machine, tirée de son nom ; en ssh, une icône de serveur remplace celle de l'ordinateur), le dossier, git, le venv Python actif. 3) `❯`, rouge si la commande a échoué. |
 | Titre du terminal | bash, zsh | hôte et dossier ; en zsh, la commande pendant qu'elle tourne |
 | `setTitle <texte>` | bash, zsh | fixe le titre ; sans argument, revient au titre automatique |
 | `kpsync` | bash, zsh | synchronise un fichier avec sa copie distante, la version la plus récente gagne (l'ancienne est gardée en `fichier~`). Réglages `KPSYNC_LOCAL` et `KPSYNC_REMOTE` dans la config locale. |
@@ -151,7 +151,7 @@ zsh ; les `*.bash` et `*.zsh` seulement par le shell concerné.
 ### nvim : serveurs de langage
 
 nvim (0.11 et plus, module `nvim`) se sert des serveurs de langage installés, configurés dans `config/nvim/lsp.lua` :
-Rust (module `rustup`), Python (`ruff`) et Typst (`tinymist`). Un serveur absent est simplement ignoré.
+Rust (module `rustup`), Python (`ruff` et `ty`) et Typst (`tinymist`). Un serveur absent est simplement ignoré.
 vim n'est pas concerné.
 
 - complétion pendant la frappe, erreurs dans la marge et en fin de ligne ;
@@ -159,8 +159,9 @@ vim n'est pas concerné.
 - raccourcis d'origine de nvim : `K` documentation, `grn` renommer, `gra` actions, `grr` références,
   `gri` implémentations, `gO` symboles du fichier, `[d` / `]d` erreur précédente / suivante, Ctrl-S signature.
 
-Pour Rust, les vérifications sont celles de clippy. Pour Python, les règles de ruff se règlent par projet
-(`[tool.ruff]` dans `pyproject.toml`).
+Pour Rust, les vérifications sont celles de clippy. Pour Python, ruff signale le style et les imports, ty les
+erreurs de type, et fournit complétion et documentation ; leurs règles se règlent par projet (`[tool.ruff]`,
+`[tool.ty.rules]` dans `pyproject.toml`).
 
 ### Thème Catppuccin, sombre ou clair
 
@@ -272,6 +273,7 @@ module du socle (ex. `DOTF_MODULES="joplin -nerd-fonts"`). `dotf install` instal
 | `vim-catppuccin`, `vim-lightline` | thème et barre d'état de vim |
 | `nvim` | Neovim, archive officielle (x86_64, arm64 ; glibc 2.34 et plus). Passe avant celui du système, et utilise le vimrc commun. |
 | `ruff` | linter et formateur Python ; serveur de langage pour nvim (`ruff server`) |
+| `ty` | vérificateur de types Python ; serveur de langage pour nvim (`ty server`) : complétion, documentation, définitions |
 | `tinymist` | serveur de langage Typst pour nvim : complétion, erreurs, formatage (typstyle), aperçu |
 | `typst` | composition de documents (binaire officiel, statique). Pas de sommes publiées : archive non vérifiée. |
 | `nerd-fonts` | polices Nerd Font, variante Mono, listées dans `DOTF_FONTS` (par défaut Hasklig et FiraCode), dans `~/.local/share/fonts/NerdFonts`. Changer la liste : `dotf update`. |

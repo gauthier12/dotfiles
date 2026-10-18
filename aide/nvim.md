@@ -2,13 +2,13 @@
 
 nvim lit le même vimrc que vim (voir « dotf help vim ») ; en plus, il utilise des serveurs de langage :
     Rust     rust-analyzer (module rustup), vérifié par clippy
-    Python   ruff (module ruff) : erreurs, imports, formatage
+    Python   ty (module ty) : complétion, doc, définitions, types ; ruff (module ruff) : erreurs, imports, formatage
     Typst    tinymist (module tinymist), formatage par typstyle
 Un serveur démarre seul à l'ouverture d'un fichier du langage, dans le projet (Cargo.toml, pyproject.toml, .git…).
 
 ## Complétion
-En Rust et en Typst, le menu s'ouvre pendant la frappe. ruff ne complète pas : en Python, Ctrl-n complète
-avec les mots déjà présents dans les fichiers ouverts (comme dans vim).
+Le menu s'ouvre pendant la frappe (Rust, Python, Typst). En Python, les bibliothèques sont celles du venv
+actif ou du .venv du projet (« dotf help ty »).
     Ctrl-n / Ctrl-p              élément suivant / précédent (les flèches aussi)
     Ctrl-y                       accepter
     Ctrl-e                       fermer le menu
@@ -45,6 +45,7 @@ Affichées en fin de ligne, avec une icône dans la marge.
 
 ## Exemples
     Python : un  import os  inutilisé est signalé en fin de ligne ; dessus, gra → « Remove unused import ».
+             x: int = "a" est signalé par ty ; K sur une fonction → sa signature et sa docstring.
              gra → « Organize imports » trie les imports ; :w met le fichier en forme.
     Rust :   cargo new essai && cd essai && nvim src/main.rs
              sur une fonction : grn nouveau_nom Entrée → renommée dans tout le projet ; K sur println! → sa doc.
