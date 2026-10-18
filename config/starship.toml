@@ -14,15 +14,17 @@ $directory\
 $git_branch\
 $git_status\
 $python\
-$fill\
+$fill \
 $cmd_duration\
 $status\
 $line_break\
 $character"""
 
-# À droite de la première ligne : durée (commandes longues), puis coche ou croix et code retour.
+# Trait fin entre les deux bouts de la première ligne : sépare les commandes sans prendre de hauteur.
+# À droite : durée (commandes longues), puis coche ou croix et code retour.
 [fill]
-symbol = " "
+symbol = "\u2500"
+style = "bright-black"
 
 # ❯ vert si la dernière commande a réussi, rouge sinon.
 
