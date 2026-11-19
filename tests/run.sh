@@ -26,7 +26,9 @@ unset XDG_CONFIG_HOME XDG_STATE_HOME XDG_DATA_HOME ZDOTDIR DOTF DOTF_LOCAL DOTF_
 mkdir -p "$HOME"
 BASE_PATH=/usr/local/bin:/usr/bin:/bin
 # bsdtar (modules livrés en zip, sans unzip) : gardé même hors des dossiers standard.
-if _b=$(command -v bsdtar); then BASE_PATH="${_b%/*}:$BASE_PATH"; fi
+if _b=$(command -v bsdtar); then
+  case ":$BASE_PATH:" in *":${_b%/*}:"*) ;; *) BASE_PATH="${_b%/*}:$BASE_PATH" ;; esac
+fi
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
   # Pas de réseau : curl et wget factices.
   mkdir -p "$T/fakebin"
@@ -148,7 +150,7 @@ check "~/.bash_profile existant : branché lui aussi" grep -q '# dotf-hook' "$HO
 
 section "5. Prompt"
 if [ -z "${DOTF_TEST_NETWORK-}" ]; then
-  r=$(run_shell bash -ic 'echo "$PROMPT_COMMAND"')
+  r=$(run_shell bash -ic 'echo "$PROMPT_COMMAND"' | sed 's/printf "[^"]*"[^;]*;//') # /etc/bash.bashrc (Arch) ajoute un titre
   [ "$r" = "_dotf_prompt;_dotf_theme;_dotf_title_prompt;_dotf_history_sync" ] && ok "bash : prompt de repli sans starship" || ko "bash : prompt de repli" "$r"
   r=$(run_shell zsh -ic 'echo "$PROMPT"')
   case $r in *'%n@%B%F{'*'}%m'*) ok "zsh : prompt de repli sans starship" ;; *) ko "zsh : prompt de repli" "$r" ;; esac
@@ -293,9 +295,9 @@ r=$(run_shell zsh -ic 'bindkey -lL main; print $KEYTIMEOUT; bindkey -M viins "^[
 "v" edit-command-line
 "k" up-line-or-beginning-search
 zstyle '"':completion:*:*:kill:*'"' menu yes select' ] && stderr_clean && ok "zsh : mode vi, ↑ par préfixe, v → éditeur, menu de kill" || ko "zsh : clavier" "$r $(cat "$T/stderr.f")"
-r=$(run_shell bash -ic 'shopt -oq vi && echo vi; bind -m vi-insert -p | grep -F "\\M-[A\""; bind -m vi-command -p | grep -F "\"k\""')
+r=$(run_shell bash -ic 'shopt -oq vi && echo vi; bind -m vi-insert -p | grep -F -e "\\M-[A\"" -e "\\e[A\"" | sed "s/^\"\\\\M-/\"\\\\e/"; bind -m vi-command -p | grep -F "\"k\""')
 [ "$r" = 'vi
-"\M-[A": history-search-backward
+"\e[A": history-search-backward
 "k": history-search-backward' ] && stderr_clean && ok "bash : mode vi, ↑ et k par préfixe" || ko "bash : clavier" "$r $(cat "$T/stderr.f")"
 
 # Module joplin : ne remplace jamais un ~/.local/bin/joplin qui n'est pas le sien.
