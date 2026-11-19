@@ -17,7 +17,7 @@ dotf_path_prepend() {
 # zsh : un motif sans correspondance est une erreur ; on l'autorise le temps d'une boucle.
 _dotf_glob_begin() {
   [ -n "${ZSH_VERSION-}" ] || return 0
-  # shellcheck disable=SC3010
+  # shellcheck disable=SC3010,SC3062
   if [[ -o null_glob ]]; then _dotf_ng_was_set=1; else _dotf_ng_was_set=; setopt null_glob; fi
 }
 _dotf_glob_end() {

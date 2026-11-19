@@ -6,6 +6,7 @@ _dotf_n=$(($(uname -n | cksum | cut -d ' ' -f 1) % 9 + 1))
 : "${DOTF_HOST_COLOR:=$(echo rosewater flamingo pink maroon peach yellow green teal sky | cut -d ' ' -f "$_dotf_n")}"
 unset _dotf_n
 # Pour le prompt de repli : la couleur du terminal la plus proche (ou le numéro donné dans DOTF_HOST_COLOR).
+# shellcheck disable=SC2034 # lue par 90-prompt.bash et 90-prompt.zsh
 case $DOTF_HOST_COLOR in
   green) DOTF_HOST_ANSI=2 ;; peach | yellow) DOTF_HOST_ANSI=3 ;; teal | sky) DOTF_HOST_ANSI=6 ;;
   pink) DOTF_HOST_ANSI=5 ;; *[!0-9]*) DOTF_HOST_ANSI=1 ;; *) DOTF_HOST_ANSI=$DOTF_HOST_COLOR ;;
