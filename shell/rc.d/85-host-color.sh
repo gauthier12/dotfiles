@@ -25,6 +25,7 @@ fi
 _dotf_starship_config() { # _dotf_starship_config <green|red> : met STARSHIP_CONFIG sur la variante voulue
   STARSHIP_CONFIG=$_dotf_starship_dir/starship-$DOTF_HOST_COLOR-$_dotf_icon-${DOTF_THEME:-mocha}-$1.toml
   [ -f "$STARSHIP_CONFIG" ] && return 0
+  mkdir -p "$_dotf_starship_dir" || return 1 # le dossier peut avoir disparu depuis le chargement
   # Icônes Nerd Font : md-lan_connect en ssh, md-desktop_tower sinon.
   if [ "$_dotf_icon" = ssh ]; then _dotf_code='\\U000f0318'; else _dotf_code='\\U000f01c5'; fi
   _dotf_pal=$HOME/.local/opt/catppuccin/starship/themes/${DOTF_THEME:-mocha}.toml
